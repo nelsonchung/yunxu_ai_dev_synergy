@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --font-sans: "IBM Plex Sans TC", "Noto Sans TC", sans-serif;
+  --font-serif: "Sora", "IBM Plex Sans TC", sans-serif;
+}
+
+:root {
+  --radius: 0.85rem;
+  --background: oklch(0.98 0.01 250);
+  --foreground: oklch(0.2 0.04 250);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.04 250);
+  --primary: oklch(0.75 0.12 175);
+  --primary-foreground: oklch(0.15 0.03 240);
+  --secondary: oklch(0.95 0.02 230);
+  --secondary-foreground: oklch(0.28 0.04 240);
+  --muted: oklch(0.94 0.02 230);
+  --muted-foreground: oklch(0.55 0.03 240);
+  --border: oklch(0.88 0.02 230);
+  --ring: oklch(0.75 0.12 175);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans);
+    background:
+      radial-gradient(900px 500px at 15% -10%, rgba(56, 189, 248, 0.18), transparent 60%),
+      radial-gradient(900px 420px at 90% -20%, rgba(45, 212, 191, 0.2), transparent 55%),
+      var(--background);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-serif);
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer components {
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 2rem;
+      padding-right: 2rem;
+      max-width: 1200px;
+    }
+  }
+
+  .glass-panel {
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(248, 250, 252, 0.18);
+    backdrop-filter: blur(10px);
+  }
+}
+
+@keyframes rise {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  animation: rise 0.9s ease forwards;
+}
+
+.reveal-delay-1 {
+  animation-delay: 0.15s;
+}
+
+.reveal-delay-2 {
+  animation-delay: 0.3s;
+}
+
+.reveal-delay-3 {
+  animation-delay: 0.45s;
+}
+
+.reveal-delay-4 {
+  animation-delay: 0.6s;
+}
