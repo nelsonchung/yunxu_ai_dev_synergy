@@ -1,6 +1,7 @@
 import type { FastifyPluginAsync } from "fastify";
 import {
   approveRequirement,
+  commentRequirementDocument,
   createRequirement,
   createRequirementDocument,
   deleteRequirement,
@@ -11,6 +12,7 @@ import {
   listRequirements,
 } from "../platformData.js";
 import { addAuditLog } from "../store.js";
+import { listProjects } from "../platformData.js";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -32,6 +34,24 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
     const requirements = await listRequirements();
     return {
       requirements: requirements.map((item) => ({
+        id: item.id,
+        title: item.title,
+        status: item.status,
+        companyName: item.companyName,
+        projectType: item.projectType,
+        budgetRange: item.budgetRange,
+        timeline: item.timeline,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+      })),
+    };
+  });
+
+  app.get("/requirements/me", { preHandler: app.authenticate }, async (request) => {
+    const requirements = await listRequirements();
+    const owned = requirements.filter((item) => item.ownerId === request.user.sub);
+    return {
+      requirements: owned.map((item) => ({
         id: item.id,
         title: item.title,
         status: item.status,
@@ -102,6 +122,24 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
     return { requirement };
   });
 
+  app.get(
+    "/requirements/:id/projects",
+    { preHandler: app.authenticate },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const requirement = await getRequirementById(id);
+      if (!requirement) {
+        return reply.code(404).send({ message: "找不到需求。" });
+      }
+      if (requirement.ownerId && request.user.role !== "admin" && requirement.ownerId !== request.user.sub) {
+        return reply.code(403).send({ message: "權限不足。" });
+      }
+      const projects = await listProjects();
+      const items = projects.filter((project) => project.requirementId === id);
+      return { projects: items };
+    }
+  );
+
   app.get("/requirements/:id/documents", async (request, reply) => {
     const { id } = request.params as { id: string };
     const requirement = await getRequirementById(id);
@@ -170,7 +208,7 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
 
   app.post(
     "/requirements/:id/approve",
-    { preHandler: app.requireAdmin },
+    { preHandler: app.requirePermission("requirements.documents.review") },
     async (request, reply) => {
       const { id } = request.params as { id: string };
       const body = (request.body as { approved?: boolean; comment?: string }) ?? {};
@@ -192,6 +230,38 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
       });
 
       return { status: updated.status, approved_at: updated.updatedAt };
+    }
+  );
+
+  app.post(
+    "/requirements/:id/documents/:docId/comment",
+    { preHandler: app.requirePermission("requirements.documents.review") },
+    async (request, reply) => {
+      const { id, docId } = request.params as { id: string; docId: string };
+      const body = (request.body as { comment?: string }) ?? {};
+      const comment = String(body.comment ?? "").trim();
+      if (!comment) {
+        return reply.code(400).send({ message: "請提供留言內容。" });
+      }
+
+      const updated = await commentRequirementDocument({
+        requirementId: id,
+        docId,
+        comment,
+      });
+      if (!updated) {
+        return reply.code(404).send({ message: "找不到文件。" });
+      }
+
+      await addAuditLog({
+        actorId: request.user.sub,
+        targetUserId: null,
+        action: "REQUIREMENT_DOCUMENT_COMMENTED",
+        before: null,
+        after: { requirementId: id, documentId: docId },
+      });
+
+      return { ok: true };
     }
   );
 

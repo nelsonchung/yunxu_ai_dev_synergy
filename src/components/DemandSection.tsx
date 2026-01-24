@@ -473,10 +473,10 @@ export default function DemandSection() {
                   <p>需求編號：{submitResult.id}</p>
                   <p>文件編號：{submitResult.documentId}</p>
                   <Link
-                    href={`/documents?requirement=${submitResult.id}`}
+                    href={`/my/requirements/${submitResult.id}`}
                     className="inline-flex items-center justify-center rounded-full border border-emerald-300 px-4 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition"
                   >
-                    前往文件中心查看
+                    前往需求詳情查看
                   </Link>
                 </div>
               ) : (

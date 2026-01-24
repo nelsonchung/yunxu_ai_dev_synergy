@@ -45,20 +45,28 @@ const qualityRoutes: FastifyPluginAsync = async (app) => {
     return reply.send({ job_id: job.id });
   });
 
-  app.get("/quality/reports", { preHandler: app.requireAdmin }, async (request) => {
+  app.get(
+    "/quality/reports",
+    { preHandler: app.requirePermission("quality.reports.view") },
+    async (request) => {
     const { project_id } = request.query as { project_id?: string };
     const reports = await listQualityReports(project_id);
     return { reports };
-  });
+    }
+  );
 
-  app.get("/quality/reports/:id", { preHandler: app.requireAdmin }, async (request, reply) => {
+  app.get(
+    "/quality/reports/:id",
+    { preHandler: app.requirePermission("quality.reports.view") },
+    async (request, reply) => {
     const { id } = request.params as { id: string };
     const report = await getQualityReport(id);
     if (!report) {
       return reply.code(404).send({ message: "找不到品質報告。" });
     }
     return { report_url: report.reportUrl, summary: report.summary, status: report.status };
-  });
+    }
+  );
 };
 
 export default qualityRoutes;

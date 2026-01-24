@@ -5,6 +5,10 @@ import AdminUsers from "@/pages/AdminUsers";
 import AdminAudit from "@/pages/AdminAudit";
 import AdminPermissions from "@/pages/AdminPermissions";
 import DocumentEditor from "@/pages/DocumentEditor";
+import CustomerOverviewSingle from "@/pages/CustomerOverviewSingle";
+import CustomerOverviewTabs from "@/pages/CustomerOverviewTabs";
+import MyRequirements from "@/pages/MyRequirements";
+import RequirementDetailTabs from "@/pages/RequirementDetailTabs";
 import Documents from "@/pages/Documents";
 import Matching from "@/pages/Matching";
 import Requirements from "@/pages/Requirements";
@@ -32,6 +36,10 @@ export default function App() {
           <Route path="/admin/audit" component={AdminAudit} />
           <Route path="/admin/permissions" component={AdminPermissions} />
           <Route path="/editor" component={DocumentEditor} />
+          <Route path="/preview/customer-single" component={CustomerOverviewSingle} />
+          <Route path="/preview/customer-tabs" component={CustomerOverviewTabs} />
+          <Route path="/my/requirements" component={MyRequirements} />
+          <Route path="/my/requirements/:id" component={RequirementDetailTabs} />
           <Route path="/requirements" component={Requirements} />
           <Route path="/admin/users" component={AdminUsers} />
           <Route path="/projects/new" component={ProjectNew} />

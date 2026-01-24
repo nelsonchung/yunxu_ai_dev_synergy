@@ -21,6 +21,12 @@ export const permissionDefinitions = [
     category: "需求",
   },
   {
+    id: "requirements.documents.review",
+    label: "簽核需求文件",
+    description: "簽核或留言需求文件版本",
+    category: "需求",
+  },
+  {
     id: "projects.create",
     label: "建立專案",
     description: "依需求建立專案並啟動流程",
@@ -57,6 +63,12 @@ export const permissionDefinitions = [
     category: "文件中心",
   },
   {
+    id: "projects.documents.review",
+    label: "簽核專案文件",
+    description: "簽核或留言專案文件版本",
+    category: "文件中心",
+  },
+  {
     id: "projects.tasks.manage",
     label: "管理任務",
     description: "建立與更新任務狀態",
@@ -68,6 +80,12 @@ export const permissionDefinitions = [
     description: "建立與更新里程碑",
     category: "協作開發",
   },
+  {
+    id: "quality.reports.view",
+    label: "查看品質報告",
+    description: "查看測試與 code review 報告",
+    category: "品質交付",
+  },
 ] as const satisfies PermissionDefinition[];
 
 export type PermissionId = (typeof permissionDefinitions)[number]["id"];
@@ -78,15 +96,23 @@ export type RolePermissions = {
 };
 
 export const defaultRolePermissions: RolePermissions = {
-  customer: ["requirements.create", "requirements.documents.manage"],
+  customer: [
+    "requirements.create",
+    "requirements.documents.manage",
+    "requirements.documents.review",
+    "projects.documents.review",
+    "quality.reports.view",
+  ],
   developer: [
     "projects.create",
     "projects.documents.system",
     "projects.documents.software",
     "projects.documents.test",
     "projects.documents.delivery",
+    "projects.documents.review",
     "projects.tasks.manage",
     "projects.milestones.manage",
+    "quality.reports.view",
   ],
 };
 

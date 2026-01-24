@@ -124,6 +124,8 @@ export type ProjectDocument = {
   contentUrl: string;
   status: DocumentStatus;
   versionNote: string | null;
+  reviewComment: string | null;
+  approvedBy: string | null;
   createdAt: string;
   updatedAt: string;
 };

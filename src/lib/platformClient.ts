@@ -60,6 +60,7 @@ export type ProjectDocumentSummary = {
   version: number;
   status: string;
   versionNote: string | null;
+  reviewComment: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -140,6 +141,21 @@ export const listRequirements = async () => {
   return data.requirements;
 };
 
+export const listMyRequirements = async () => {
+  const data = await apiRequest<{ requirements: RequirementSummary[] }>("/api/requirements/me", {
+    method: "GET",
+  });
+  return data.requirements;
+};
+
+export const getRequirement = async (requirementId: string) => {
+  const data = await apiRequest<{ requirement: RequirementSummary & { contact?: unknown } }>(
+    `/api/requirements/${requirementId}`,
+    { method: "GET" }
+  );
+  return data.requirement;
+};
+
 export const deleteRequirement = async (requirementId: string) => {
   await apiRequest(`/api/requirements/${requirementId}`, { method: "DELETE" });
 };
@@ -171,6 +187,17 @@ export const createRequirementDocument = async (requirementId: string, content: 
   return data;
 };
 
+export const commentRequirementDocument = async (
+  requirementId: string,
+  docId: string,
+  comment: string
+) => {
+  await apiRequest(`/api/requirements/${requirementId}/documents/${docId}/comment`, {
+    method: "POST",
+    body: JSON.stringify({ comment }),
+  });
+};
+
 export const deleteRequirementDocument = async (requirementId: string, docId: string) => {
   await apiRequest(`/api/requirements/${requirementId}/documents/${docId}`, { method: "DELETE" });
 };
@@ -188,6 +215,14 @@ export const approveRequirement = async (requirementId: string, approved: boolea
 
 export const listProjects = async () => {
   const data = await apiRequest<{ projects: ProjectSummary[] }>("/api/projects", { method: "GET" });
+  return data.projects;
+};
+
+export const listProjectsByRequirement = async (requirementId: string) => {
+  const data = await apiRequest<{ projects: ProjectSummary[] }>(
+    `/api/requirements/${requirementId}/projects`,
+    { method: "GET" }
+  );
   return data.projects;
 };
 
@@ -244,6 +279,21 @@ export const createProjectDocument = async (projectId: string, payload: {
     }
   );
   return data;
+};
+
+export const reviewProjectDocument = async (
+  projectId: string,
+  docId: string,
+  payload: { approved?: boolean; comment?: string }
+) => {
+  const data = await apiRequest<{ status: string }>(
+    `/api/projects/${projectId}/documents/${docId}/review`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }
+  );
+  return data.status;
 };
 
 export const listMatchingResults = async (requirementId?: string) => {

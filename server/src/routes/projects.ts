@@ -7,6 +7,7 @@ import {
   getProjectDocument,
   listProjectDocuments,
   listProjects,
+  reviewProjectDocument,
 } from "../platformData.js";
 import { addAuditLog } from "../store.js";
 import { hasPermission } from "../permissionsStore.js";
@@ -68,6 +69,7 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         version: doc.version,
         status: doc.status,
         versionNote: doc.versionNote,
+        reviewComment: doc.reviewComment ?? null,
         createdAt: doc.createdAt,
         updatedAt: doc.updatedAt,
       })),
@@ -88,6 +90,7 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         version: result.document.version,
         status: result.document.status,
         versionNote: result.document.versionNote,
+        reviewComment: result.document.reviewComment ?? null,
         createdAt: result.document.createdAt,
         updatedAt: result.document.updatedAt,
       },
@@ -148,6 +151,37 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
     }
     return reply.code(201).send({ document_id: document.id, version: document.version });
   });
+
+  app.post(
+    "/projects/:id/documents/:docId/review",
+    { preHandler: app.requirePermission("projects.documents.review") },
+    async (request, reply) => {
+      const { id, docId } = request.params as { id: string; docId: string };
+      const body = (request.body as { approved?: boolean; comment?: string }) ?? {};
+      const comment = body.comment ? String(body.comment).trim() : null;
+
+      const updated = await reviewProjectDocument({
+        projectId: id,
+        docId,
+        approved: typeof body.approved === "boolean" ? body.approved : undefined,
+        reviewerId: request.user.sub,
+        comment,
+      });
+      if (!updated) {
+        return reply.code(404).send({ message: "找不到文件。" });
+      }
+
+      await addAuditLog({
+        actorId: request.user.sub,
+        targetUserId: null,
+        action: "PROJECT_DOCUMENT_REVIEWED",
+        before: null,
+        after: { projectId: id, documentId: docId, status: updated.status },
+      });
+
+      return { status: updated.status };
+    }
+  );
 
   app.delete(
     "/projects/:id/documents/:docId",

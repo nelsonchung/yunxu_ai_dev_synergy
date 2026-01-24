@@ -1,7 +1,10 @@
 {
   "customer": [
     "requirements.create",
-    "requirements.documents.manage"
+    "requirements.documents.manage",
+    "requirements.documents.review",
+    "projects.documents.review",
+    "quality.reports.view"
   ],
   "developer": [
     "projects.create",
@@ -9,7 +12,9 @@
     "projects.documents.software",
     "projects.documents.test",
     "projects.documents.delivery",
+    "projects.documents.review",
     "projects.tasks.manage",
-    "projects.milestones.manage"
+    "projects.milestones.manage",
+    "quality.reports.view"
   ]
 }

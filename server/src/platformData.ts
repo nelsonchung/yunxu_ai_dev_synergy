@@ -221,6 +221,27 @@ export const getRequirementDocument = async (requirementId: string, docId: strin
   return { document, content };
 };
 
+export const commentRequirementDocument = async (payload: {
+  requirementId: string;
+  docId: string;
+  comment: string;
+}) => {
+  const documents = await platformStores.requirementDocuments.read();
+  const index = documents.findIndex(
+    (doc) => doc.requirementId === payload.requirementId && doc.id === payload.docId
+  );
+  if (index === -1) return null;
+  const now = new Date().toISOString();
+  const updated = {
+    ...documents[index],
+    reviewComment: payload.comment,
+    updatedAt: now,
+  };
+  documents[index] = updated;
+  await platformStores.requirementDocuments.write(documents);
+  return updated;
+};
+
 export const deleteRequirementDocument = async (requirementId: string, docId: string) => {
   const documents = await platformStores.requirementDocuments.read();
   const index = documents.findIndex(
@@ -453,6 +474,8 @@ export const createProjectDocument = async (payload: {
     contentUrl,
     status: payload.status ?? "draft",
     versionNote: payload.versionNote ?? null,
+    reviewComment: null,
+    approvedBy: null,
     createdAt: now,
     updatedAt: now,
   };
@@ -468,6 +491,38 @@ export const createProjectDocument = async (payload: {
   await platformStores.projectDocuments.write(updatedDocuments);
 
   return document;
+};
+
+export const reviewProjectDocument = async (payload: {
+  projectId: string;
+  docId: string;
+  approved?: boolean;
+  reviewerId: string | null;
+  comment?: string | null;
+}) => {
+  const documents = await platformStores.projectDocuments.read();
+  const index = documents.findIndex(
+    (doc) => doc.projectId === payload.projectId && doc.id === payload.docId
+  );
+  if (index === -1) return null;
+  const now = new Date().toISOString();
+  const current = documents[index];
+  const nextStatus =
+    typeof payload.approved === "boolean"
+      ? payload.approved
+        ? "approved"
+        : "pending_approval"
+      : current.status;
+  const updated: ProjectDocument = {
+    ...current,
+    status: nextStatus,
+    reviewComment: payload.comment ?? current.reviewComment ?? null,
+    approvedBy: payload.approved ? payload.reviewerId : current.approvedBy ?? null,
+    updatedAt: now,
+  };
+  documents[index] = updated;
+  await platformStores.projectDocuments.write(documents);
+  return updated;
 };
 
 export const listMatchingResults = async (requirementId?: string) => {

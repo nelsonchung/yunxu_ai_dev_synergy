@@ -38,5 +38,15 @@
     "status": "active",
     "createdAt": "2026-01-24T02:05:56.216Z",
     "updatedAt": "2026-01-24T05:14:17.933Z"
+  },
+  {
+    "id": "4b477f5c-b468-4ee8-a6ed-a5e2085a04d1",
+    "username": "idocake",
+    "email": "idocake@outlook.com",
+    "passwordHash": "$2a$12$Z1mzIk4.GR/sERje5BBZYOeEy5rRyoucHwN.qXDg.rHtjJYNnbBvO",
+    "role": "customer",
+    "status": "active",
+    "createdAt": "2026-01-24T12:30:25.952Z",
+    "updatedAt": "2026-01-24T12:30:25.952Z"
   }
 ]

@@ -1,21 +1,30 @@
 import { Menu, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { getSession, logoutAccount, onSessionChange, type AuthUser } from "@/lib/authClient";
 import { getMyPermissions } from "@/lib/permissionsClient";
 
-const navItems = [
+const anchorItems = [
   { label: "核心理念", href: "/#core", type: "anchor" },
   { label: "流程設計", href: "/#process", type: "anchor" },
   { label: "AI 角色", href: "/#ai", type: "anchor" },
   { label: "合作模式", href: "/#collaboration", type: "anchor" },
   { label: "品牌介紹", href: "/#brand", type: "anchor" },
-  { label: "需求中心", href: "/requirements", type: "route" },
-  { label: "媒合估工", href: "/matching", type: "route" },
+];
+
+const customerRoutes = [{ label: "我的需求", href: "/my/requirements", type: "route" }];
+
+const developerRoutes = [
   { label: "專案管理", href: "/projects", type: "route" },
   { label: "協作開發", href: "/collaboration", type: "route" },
   { label: "文件中心", href: "/documents", type: "route" },
   { label: "品質交付", href: "/quality", type: "route" },
+];
+
+const adminRoutes = [
+  { label: "需求中心", href: "/requirements", type: "route" },
+  { label: "媒合估工", href: "/matching", type: "route" },
+  ...developerRoutes,
 ];
 
 export default function Navbar() {
@@ -67,6 +76,12 @@ export default function Navbar() {
   const showRequestCta = !accountUser || canSubmitRequirement;
   const requestHref = accountUser ? "/request" : "/auth";
   const requestLabel = accountUser ? "提交需求" : "登入後提交需求";
+  const navItems = useMemo(() => {
+    if (!accountUser) return anchorItems;
+    if (accountUser.role === "customer") return [...anchorItems, ...customerRoutes];
+    if (accountUser.role === "developer") return [...anchorItems, ...developerRoutes];
+    return [...anchorItems, ...adminRoutes];
+  }, [accountUser]);
 
   return (
     <nav className="sticky top-0 z-50 border-b bg-white/70 backdrop-blur">
