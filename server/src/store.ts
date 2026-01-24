@@ -219,6 +219,10 @@ export const addAuditLog = async (payload: Omit<AuditLog, "id" | "createdAt">) =
   });
 };
 
+export const listAuditLogs = async () => {
+  return readAuditLogs();
+};
+
 export const toPublicUser = (user: StoredUser) => ({
   id: user.id,
   username: user.username,

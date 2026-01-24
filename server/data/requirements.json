@@ -1,28 +1,5 @@
 [
   {
-    "title": "M2需求1769240586",
-    "companyName": "測試公司",
-    "projectType": "系統擴充",
-    "background": "需求背景",
-    "goals": "專案目標",
-    "scope": "功能範圍",
-    "constraints": "",
-    "budgetRange": "150 - 300 萬",
-    "timeline": "3-6 個月",
-    "specDoc": "尚未準備",
-    "attachments": [],
-    "contact": {
-      "name": "測試者",
-      "email": "tester1769240586@example.com",
-      "phone": ""
-    },
-    "ownerId": null,
-    "id": "6ef49121-a640-43df-a00f-cd72197b7f5b",
-    "status": "submitted",
-    "createdAt": "2026-01-24T07:43:06.538Z",
-    "updatedAt": "2026-01-24T07:43:06.538Z"
-  },
-  {
     "title": "M1需求功能驗證",
     "companyName": "customer",
     "projectType": "新系統建置",

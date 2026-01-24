@@ -7,6 +7,11 @@ import authRoutes from "./routes/auth.js";
 import adminRoutes from "./routes/admin.js";
 import requirementsRoutes from "./routes/requirements.js";
 import projectsRoutes from "./routes/projects.js";
+import matchingRoutes from "./routes/matching.js";
+import tasksRoutes from "./routes/tasks.js";
+import milestonesRoutes from "./routes/milestones.js";
+import qualityRoutes from "./routes/quality.js";
+import auditRoutes from "./routes/audit.js";
 import { initStore } from "./store.js";
 import { initPlatformStore } from "./platformStore.js";
 
@@ -63,6 +68,11 @@ app.register(authRoutes, { prefix: "/auth" });
 app.register(adminRoutes, { prefix: "/admin" });
 app.register(requirementsRoutes, { prefix: "/api" });
 app.register(projectsRoutes, { prefix: "/api" });
+app.register(matchingRoutes, { prefix: "/api" });
+app.register(tasksRoutes, { prefix: "/api" });
+app.register(milestonesRoutes, { prefix: "/api" });
+app.register(qualityRoutes, { prefix: "/api" });
+app.register(auditRoutes, { prefix: "/api" });
 
 const start = async () => {
   try {

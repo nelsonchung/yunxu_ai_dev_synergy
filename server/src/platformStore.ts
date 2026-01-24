@@ -12,6 +12,8 @@ export type RequirementStatus =
 export type DocumentStatus = "draft" | "pending_approval" | "approved" | "archived";
 export type ProjectStatus = "planned" | "active" | "on_hold" | "closed";
 export type AIJobStatus = "queued" | "running" | "succeeded" | "failed" | "canceled";
+export type TaskStatus = "todo" | "in_progress" | "review" | "done";
+export type MilestoneStatus = "planned" | "active" | "done";
 
 export type Requirement = {
   id: string;
@@ -64,17 +66,21 @@ export type Task = {
   id: string;
   projectId: string;
   title: string;
-  status: string;
+  status: TaskStatus;
   assigneeId: string | null;
   dueDate: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type Milestone = {
   id: string;
   projectId: string;
   title: string;
-  status: string;
+  status: MilestoneStatus;
   dueDate: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type MatchingResult = {
@@ -85,6 +91,8 @@ export type MatchingResult = {
   budget: string;
   timeline: string;
   status: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type QualityReport = {
@@ -94,6 +102,8 @@ export type QualityReport = {
   status: string;
   summary: string;
   reportUrl: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type TestDocument = {
@@ -101,6 +111,8 @@ export type TestDocument = {
   projectId: string;
   version: number;
   contentUrl: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type ProjectDocument = {

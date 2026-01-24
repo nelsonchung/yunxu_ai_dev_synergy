@@ -150,6 +150,61 @@
 - `ADMIN_IDENTIFIER`（選填）：admin 帳號或 Email（未提供時使用腳本內 `DEFAULT_ADMIN_IDENTIFIER`）。
 - `ADMIN_PASSWORD`（選填）：admin 密碼（未提供時使用腳本內 `DEFAULT_ADMIN_PASSWORD`）。
 
+### `09_matching_flow.sh`
+用途：
+- 建立需求並產生媒合評估。
+- 指派團隊並驗證媒合狀態。
+- 清理建立的需求。
+
+設計重點：
+- 以管理者身份操作媒合流程。
+- `GET /api/matching` 應回傳 `assigned` 狀態。
+
+環境變數：
+- `ADMIN_IDENTIFIER`（選填）：admin 帳號或 Email（未提供時使用腳本內 `DEFAULT_ADMIN_IDENTIFIER`）。
+- `ADMIN_PASSWORD`（選填）：admin 密碼（未提供時使用腳本內 `DEFAULT_ADMIN_PASSWORD`）。
+
+### `10_collaboration_flow.sh`
+用途：
+- 建立需求與專案。
+- 建立任務、更新任務狀態。
+- 建立里程碑、更新里程碑狀態。
+- 清理建立的專案與需求。
+
+設計重點：
+- 以管理者身份呼叫任務/里程碑 API。
+
+環境變數：
+- `ADMIN_IDENTIFIER`（選填）：admin 帳號或 Email（未提供時使用腳本內 `DEFAULT_ADMIN_IDENTIFIER`）。
+- `ADMIN_PASSWORD`（選填）：admin 密碼（未提供時使用腳本內 `DEFAULT_ADMIN_PASSWORD`）。
+
+### `11_quality_flow.sh`
+用途：
+- 建立需求與專案。
+- 觸發測試文件與 code review。
+- 驗證品質報告清單回傳。
+- 清理建立的專案與需求。
+
+設計重點：
+- 以管理者身份操作品質交付 API。
+
+環境變數：
+- `ADMIN_IDENTIFIER`（選填）：admin 帳號或 Email（未提供時使用腳本內 `DEFAULT_ADMIN_IDENTIFIER`）。
+- `ADMIN_PASSWORD`（選填）：admin 密碼（未提供時使用腳本內 `DEFAULT_ADMIN_PASSWORD`）。
+
+### `12_audit_logs.sh`
+用途：
+- 建立任務以產生稽核紀錄。
+- 驗證稽核清單包含 `TASK_CREATED`。
+- 清理建立的專案與需求。
+
+設計重點：
+- 以管理者身份查詢稽核紀錄。
+
+環境變數：
+- `ADMIN_IDENTIFIER`（選填）：admin 帳號或 Email（未提供時使用腳本內 `DEFAULT_ADMIN_IDENTIFIER`）。
+- `ADMIN_PASSWORD`（選填）：admin 密碼（未提供時使用腳本內 `DEFAULT_ADMIN_PASSWORD`）。
+
 ## 執行範例
 ```bash
 ./docs/autotest/01_health_check.sh
@@ -176,6 +231,22 @@ ADMIN_PASSWORD=your_password \
 ADMIN_IDENTIFIER=admin@example.com \
 ADMIN_PASSWORD=your_password \
 ./docs/autotest/08_project_create_and_cleanup.sh
+
+ADMIN_IDENTIFIER=admin@example.com \
+ADMIN_PASSWORD=your_password \
+./docs/autotest/09_matching_flow.sh
+
+ADMIN_IDENTIFIER=admin@example.com \
+ADMIN_PASSWORD=your_password \
+./docs/autotest/10_collaboration_flow.sh
+
+ADMIN_IDENTIFIER=admin@example.com \
+ADMIN_PASSWORD=your_password \
+./docs/autotest/11_quality_flow.sh
+
+ADMIN_IDENTIFIER=admin@example.com \
+ADMIN_PASSWORD=your_password \
+./docs/autotest/12_audit_logs.sh
 ```
 
 ## 常見失敗與除錯建議

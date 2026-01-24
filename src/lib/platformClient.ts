@@ -68,6 +68,60 @@ export type ProjectDocumentDetail = ProjectDocumentSummary & {
   content: string;
 };
 
+export type MatchingResult = {
+  id: string;
+  requirementId: string;
+  teamId: string;
+  score: number;
+  budget: string;
+  timeline: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Task = {
+  id: string;
+  projectId: string;
+  title: string;
+  status: string;
+  assigneeId: string | null;
+  dueDate: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Milestone = {
+  id: string;
+  projectId: string;
+  title: string;
+  status: string;
+  dueDate: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type QualityReport = {
+  id: string;
+  projectId: string;
+  type: string;
+  status: string;
+  summary: string;
+  reportUrl: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AuditLog = {
+  id: string;
+  actorId: string | null;
+  targetUserId: string | null;
+  action: string;
+  before: Record<string, unknown> | null;
+  after: Record<string, unknown> | null;
+  createdAt: string;
+};
+
 export const createRequirement = async (payload: RequirementPayload) => {
   const data = await apiRequest<{ id: string; status: string; document_id: string }>(
     "/api/requirements",
@@ -179,4 +233,183 @@ export const createProjectDocument = async (projectId: string, payload: {
     }
   );
   return data;
+};
+
+export const listMatchingResults = async (requirementId?: string) => {
+  const query = requirementId ? `?requirement_id=${encodeURIComponent(requirementId)}` : "";
+  const data = await apiRequest<{ results: MatchingResult[] }>(`/api/matching${query}`, {
+    method: "GET",
+  });
+  return data.results;
+};
+
+export const evaluateMatching = async (payload: {
+  requirementId: string;
+  teamId?: string;
+  budgetEstimate?: string;
+  timelineEstimate?: string;
+  score?: number;
+}) => {
+  const data = await apiRequest<{
+    matching_id: string;
+    score: number;
+    budget_estimate: string;
+    timeline_estimate: string;
+    status: string;
+  }>("/api/matching/evaluate", {
+    method: "POST",
+    body: JSON.stringify({
+      requirement_id: payload.requirementId,
+      team_id: payload.teamId,
+      budget_estimate: payload.budgetEstimate,
+      timeline_estimate: payload.timelineEstimate,
+      score: payload.score,
+    }),
+  });
+  return data;
+};
+
+export const assignMatching = async (matchingId: string, teamId: string) => {
+  const data = await apiRequest<{ status: string }>(`/api/matching/${matchingId}/assign`, {
+    method: "POST",
+    body: JSON.stringify({ team_id: teamId }),
+  });
+  return data;
+};
+
+export const listTasks = async (projectId: string) => {
+  const data = await apiRequest<{ tasks: Task[] }>(`/api/projects/${projectId}/tasks`, {
+    method: "GET",
+  });
+  return data.tasks;
+};
+
+export const createTask = async (projectId: string, payload: {
+  title: string;
+  status?: string;
+  assigneeId?: string | null;
+  dueDate?: string | null;
+}) => {
+  const data = await apiRequest<{ task: Task }>(`/api/projects/${projectId}/tasks`, {
+    method: "POST",
+    body: JSON.stringify({
+      title: payload.title,
+      status: payload.status,
+      assignee_id: payload.assigneeId,
+      due_date: payload.dueDate,
+    }),
+  });
+  return data.task;
+};
+
+export const updateTask = async (projectId: string, taskId: string, payload: {
+  title?: string;
+  status?: string;
+  assigneeId?: string | null;
+  dueDate?: string | null;
+}) => {
+  const data = await apiRequest<{ task: Task }>(`/api/projects/${projectId}/tasks/${taskId}`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      title: payload.title,
+      status: payload.status,
+      assignee_id: payload.assigneeId,
+      due_date: payload.dueDate,
+    }),
+  });
+  return data.task;
+};
+
+export const listMilestones = async (projectId: string) => {
+  const data = await apiRequest<{ milestones: Milestone[] }>(`/api/projects/${projectId}/milestones`, {
+    method: "GET",
+  });
+  return data.milestones;
+};
+
+export const createMilestone = async (projectId: string, payload: {
+  title: string;
+  status?: string;
+  dueDate?: string | null;
+}) => {
+  const data = await apiRequest<{ milestone: Milestone }>(`/api/projects/${projectId}/milestones`, {
+    method: "POST",
+    body: JSON.stringify({
+      title: payload.title,
+      status: payload.status,
+      due_date: payload.dueDate,
+    }),
+  });
+  return data.milestone;
+};
+
+export const updateMilestone = async (projectId: string, milestoneId: string, payload: {
+  title?: string;
+  status?: string;
+  dueDate?: string | null;
+}) => {
+  const data = await apiRequest<{ milestone: Milestone }>(
+    `/api/projects/${projectId}/milestones/${milestoneId}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({
+        title: payload.title,
+        status: payload.status,
+        due_date: payload.dueDate,
+      }),
+    }
+  );
+  return data.milestone;
+};
+
+export const generateTesting = async (payload: { projectId: string; scope: string }) => {
+  const data = await apiRequest<{ job_id: string }>("/api/testing/generate", {
+    method: "POST",
+    body: JSON.stringify({ project_id: payload.projectId, scope: payload.scope }),
+  });
+  return data;
+};
+
+export const requestCodeReview = async (payload: {
+  projectId: string;
+  repositoryUrl: string;
+  commitSha: string;
+}) => {
+  const data = await apiRequest<{ job_id: string }>("/api/review/code", {
+    method: "POST",
+    body: JSON.stringify({
+      project_id: payload.projectId,
+      repository_url: payload.repositoryUrl,
+      commit_sha: payload.commitSha,
+    }),
+  });
+  return data;
+};
+
+export const listQualityReports = async (projectId?: string) => {
+  const query = projectId ? `?project_id=${encodeURIComponent(projectId)}` : "";
+  const data = await apiRequest<{ reports: QualityReport[] }>(`/api/quality/reports${query}`, {
+    method: "GET",
+  });
+  return data.reports;
+};
+
+export const getQualityReport = async (reportId: string) => {
+  const data = await apiRequest<{ report_url: string; summary: string; status: string }>(
+    `/api/quality/reports/${reportId}`,
+    { method: "GET" }
+  );
+  return data;
+};
+
+export const listAuditLogs = async (payload?: { actorId?: string; dateFrom?: string; dateTo?: string }) => {
+  const params = new URLSearchParams();
+  if (payload?.actorId) params.set("actor_id", payload.actorId);
+  if (payload?.dateFrom) params.set("date_from", payload.dateFrom);
+  if (payload?.dateTo) params.set("date_to", payload.dateTo);
+  const query = params.toString();
+  const data = await apiRequest<{ logs: AuditLog[] }>(`/api/audit/logs${query ? `?${query}` : ""}`, {
+    method: "GET",
+  });
+  return data.logs;
 };

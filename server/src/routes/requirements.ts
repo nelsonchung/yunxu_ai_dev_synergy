@@ -9,6 +9,7 @@ import {
   listRequirementDocuments,
   listRequirements,
 } from "../platformData.js";
+import { addAuditLog } from "../store.js";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -159,6 +160,14 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
         return reply.code(404).send({ message: "找不到需求。" });
       }
 
+      await addAuditLog({
+        actorId: request.user.sub,
+        targetUserId: null,
+        action: body.approved ? "REQUIREMENT_APPROVED" : "REQUIREMENT_REJECTED",
+        before: null,
+        after: { requirementId: id, comment: body.comment ?? "" },
+      });
+
       return { status: updated.status, approved_at: updated.updatedAt };
     }
   );
@@ -172,6 +181,13 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
       if (!deleted) {
         return reply.code(404).send({ message: "找不到文件。" });
       }
+      await addAuditLog({
+        actorId: request.user.sub,
+        targetUserId: null,
+        action: "REQUIREMENT_DOCUMENT_DELETED",
+        before: null,
+        after: { requirementId: id, documentId: docId },
+      });
       return { ok: true };
     }
   );
@@ -188,6 +204,13 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
         }
         return reply.code(404).send({ message: "找不到需求。" });
       }
+      await addAuditLog({
+        actorId: request.user.sub,
+        targetUserId: null,
+        action: "REQUIREMENT_DELETED",
+        before: null,
+        after: { requirementId: id },
+      });
       return { ok: true };
     }
   );

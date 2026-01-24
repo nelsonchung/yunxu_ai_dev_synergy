@@ -4,10 +4,18 @@ import { randomUUID } from "node:crypto";
 import {
   platformStores,
   type DocumentStatus,
+  type MatchingResult,
+  type Milestone,
+  type MilestoneStatus,
   type Project,
   type ProjectDocument,
+  type QualityReport,
   type Requirement,
   type RequirementDocument,
+  type Task,
+  type TaskStatus,
+  type TestDocument,
+  type AIJob,
 } from "./platformStore.js";
 import { resolveDataPath } from "./jsonStore.js";
 
@@ -55,6 +63,12 @@ const requirementDocPath = (requirementId: string, version: number) =>
 
 const projectDocPath = (projectId: string, docType: string, version: number) =>
   path.posix.join("projects", projectId, docType, `v${version}.md`);
+
+const testDocPath = (projectId: string, version: number) =>
+  path.posix.join("projects", projectId, "test", `v${version}.md`);
+
+const reportDocPath = (projectId: string, reportId: string) =>
+  path.posix.join("projects", projectId, "reports", `${reportId}.md`);
 
 const buildRequirementMarkdown = (requirement: Requirement) => {
   const lines = [
@@ -249,6 +263,7 @@ export const listProjects = async () => {
 
 export const createProject = async (payload: { requirementId: string; name: string }) => {
   const projects = await platformStores.projects.read();
+  const requirements = await platformStores.requirements.read();
   const now = new Date().toISOString();
   const project: Project = {
     id: randomUUID(),
@@ -262,6 +277,15 @@ export const createProject = async (payload: { requirementId: string; name: stri
   };
   projects.push(project);
   await platformStores.projects.write(projects);
+  const requirementIndex = requirements.findIndex((item) => item.id === payload.requirementId);
+  if (requirementIndex !== -1) {
+    requirements[requirementIndex] = {
+      ...requirements[requirementIndex],
+      status: "converted",
+      updatedAt: now,
+    };
+    await platformStores.requirements.write(requirements);
+  }
   return project;
 };
 
@@ -312,6 +336,39 @@ export const deleteProject = async (projectId: string) => {
   );
   await platformStores.projectDocuments.write(remaining);
   await Promise.all(removed.map((doc) => deleteDocumentFile(doc.contentUrl)));
+
+  const testDocuments = await platformStores.testDocuments.read();
+  const [testRemaining, testRemoved] = testDocuments.reduce<[TestDocument[], TestDocument[]]>(
+    (acc, doc) => {
+      if (doc.projectId === projectId) {
+        acc[1].push(doc);
+      } else {
+        acc[0].push(doc);
+      }
+      return acc;
+    },
+    [[], []]
+  );
+  await platformStores.testDocuments.write(testRemaining);
+  await Promise.all(testRemoved.map((doc) => deleteDocumentFile(doc.contentUrl)));
+
+  const reports = await platformStores.qualityReports.read();
+  const [reportRemaining, reportRemoved] = reports.reduce<[QualityReport[], QualityReport[]]>(
+    (acc, report) => {
+      if (report.projectId === projectId) {
+        acc[1].push(report);
+      } else {
+        acc[0].push(report);
+      }
+      return acc;
+    },
+    [[], []]
+  );
+  await platformStores.qualityReports.write(reportRemaining);
+  await Promise.all(reportRemoved.map((report) => deleteDocumentFile(report.reportUrl)));
+
+  const aiJobs = await platformStores.aiJobs.read();
+  await platformStores.aiJobs.write(aiJobs.filter((job) => job.targetId !== projectId));
 
   const tasks = await platformStores.tasks.read();
   const milestones = await platformStores.milestones.read();
@@ -365,4 +422,299 @@ export const createProjectDocument = async (payload: {
   await platformStores.projectDocuments.write(updatedDocuments);
 
   return document;
+};
+
+export const listMatchingResults = async (requirementId?: string) => {
+  const results = await platformStores.matchingResults.read();
+  const filtered = requirementId
+    ? results.filter((item) => item.requirementId === requirementId)
+    : results;
+  return [...filtered].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+};
+
+export const createMatchingResult = async (payload: {
+  requirementId: string;
+  teamId?: string;
+  budget?: string;
+  timeline?: string;
+  score?: number;
+}) => {
+  const results = await platformStores.matchingResults.read();
+  const now = new Date().toISOString();
+  const result: MatchingResult = {
+    id: randomUUID(),
+    requirementId: payload.requirementId,
+    teamId: payload.teamId ?? "team-default",
+    score: payload.score ?? 80,
+    budget: payload.budget ?? "待估",
+    timeline: payload.timeline ?? "待估",
+    status: "evaluated",
+    createdAt: now,
+    updatedAt: now,
+  };
+  results.push(result);
+  await platformStores.matchingResults.write(results);
+  return result;
+};
+
+export const assignMatchingResult = async (matchingId: string, teamId: string) => {
+  const results = await platformStores.matchingResults.read();
+  const index = results.findIndex((item) => item.id === matchingId);
+  if (index === -1) return null;
+  const now = new Date().toISOString();
+  const updated = {
+    ...results[index],
+    teamId,
+    status: "assigned",
+    updatedAt: now,
+  };
+  results[index] = updated;
+  await platformStores.matchingResults.write(results);
+
+  const requirements = await platformStores.requirements.read();
+  const requirementIndex = requirements.findIndex((item) => item.id === updated.requirementId);
+  if (requirementIndex !== -1) {
+    requirements[requirementIndex] = {
+      ...requirements[requirementIndex],
+      status: "matched",
+      updatedAt: now,
+    };
+    await platformStores.requirements.write(requirements);
+  }
+
+  return updated;
+};
+
+export const listTasks = async (projectId: string) => {
+  const tasks = await platformStores.tasks.read();
+  return tasks.filter((task) => task.projectId === projectId);
+};
+
+export const createTask = async (payload: {
+  projectId: string;
+  title: string;
+  status?: TaskStatus;
+  assigneeId?: string | null;
+  dueDate?: string | null;
+}) => {
+  const tasks = await platformStores.tasks.read();
+  const now = new Date().toISOString();
+  const task: Task = {
+    id: randomUUID(),
+    projectId: payload.projectId,
+    title: payload.title,
+    status: payload.status ?? "todo",
+    assigneeId: payload.assigneeId ?? null,
+    dueDate: payload.dueDate ?? null,
+    createdAt: now,
+    updatedAt: now,
+  };
+  tasks.push(task);
+  await platformStores.tasks.write(tasks);
+  return task;
+};
+
+export const updateTask = async (
+  projectId: string,
+  taskId: string,
+  updates: Partial<Pick<Task, "title" | "status" | "assigneeId" | "dueDate">>
+) => {
+  const tasks = await platformStores.tasks.read();
+  const index = tasks.findIndex((task) => task.id === taskId && task.projectId === projectId);
+  if (index === -1) return null;
+  const updated = {
+    ...tasks[index],
+    ...updates,
+    updatedAt: new Date().toISOString(),
+  };
+  tasks[index] = updated;
+  await platformStores.tasks.write(tasks);
+  return updated;
+};
+
+export const listMilestones = async (projectId: string) => {
+  const milestones = await platformStores.milestones.read();
+  return milestones.filter((milestone) => milestone.projectId === projectId);
+};
+
+export const createMilestone = async (payload: {
+  projectId: string;
+  title: string;
+  status?: MilestoneStatus;
+  dueDate?: string | null;
+}) => {
+  const milestones = await platformStores.milestones.read();
+  const now = new Date().toISOString();
+  const milestone: Milestone = {
+    id: randomUUID(),
+    projectId: payload.projectId,
+    title: payload.title,
+    status: payload.status ?? "planned",
+    dueDate: payload.dueDate ?? null,
+    createdAt: now,
+    updatedAt: now,
+  };
+  milestones.push(milestone);
+  await platformStores.milestones.write(milestones);
+  return milestone;
+};
+
+export const updateMilestone = async (
+  projectId: string,
+  milestoneId: string,
+  updates: Partial<Pick<Milestone, "title" | "status" | "dueDate">>
+) => {
+  const milestones = await platformStores.milestones.read();
+  const index = milestones.findIndex(
+    (milestone) => milestone.id === milestoneId && milestone.projectId === projectId
+  );
+  if (index === -1) return null;
+  const updated = {
+    ...milestones[index],
+    ...updates,
+    updatedAt: new Date().toISOString(),
+  };
+  milestones[index] = updated;
+  await platformStores.milestones.write(milestones);
+  return updated;
+};
+
+const createAIJob = async (payload: {
+  type: string;
+  targetId: string;
+  status?: AIJob["status"];
+  resultUrl?: string | null;
+}) => {
+  const aiJobs = await platformStores.aiJobs.read();
+  const now = new Date().toISOString();
+  const job: AIJob = {
+    id: randomUUID(),
+    type: payload.type,
+    targetId: payload.targetId,
+    status: payload.status ?? "queued",
+    resultUrl: payload.resultUrl ?? null,
+    createdAt: now,
+    completedAt: payload.status === "succeeded" ? now : null,
+  };
+  aiJobs.push(job);
+  await platformStores.aiJobs.write(aiJobs);
+  return job;
+};
+
+const createTestDocument = async (projectId: string, scope: string) => {
+  const documents = await platformStores.testDocuments.read();
+  const existing = documents.filter((doc) => doc.projectId === projectId);
+  const nextVersion = existing.length ? Math.max(...existing.map((doc) => doc.version)) + 1 : 1;
+  const now = new Date().toISOString();
+  const contentUrl = testDocPath(projectId, nextVersion);
+  const content = [
+    "# 測試文件",
+    "",
+    `版本：v${nextVersion}`,
+    "",
+    "## 範圍",
+    scope || "未指定",
+    "",
+    "## 測試項目",
+    "- 功能驗證",
+    "- 邊界條件",
+    "- 例外流程",
+  ].join("\n");
+
+  const document: TestDocument = {
+    id: randomUUID(),
+    projectId,
+    version: nextVersion,
+    contentUrl,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  await writeDocumentFile(contentUrl, content);
+  documents.push(document);
+  await platformStores.testDocuments.write(documents);
+  return document;
+};
+
+const createQualityReport = async (payload: {
+  projectId: string;
+  type: string;
+  summary: string;
+}) => {
+  const reports = await platformStores.qualityReports.read();
+  const now = new Date().toISOString();
+  const reportId = randomUUID();
+  const reportUrl = reportDocPath(payload.projectId, reportId);
+  const content = [
+    "# 品質報告",
+    "",
+    `類型：${payload.type}`,
+    "",
+    "## 摘要",
+    payload.summary,
+  ].join("\n");
+
+  const report: QualityReport = {
+    id: reportId,
+    projectId: payload.projectId,
+    type: payload.type,
+    status: "ready",
+    summary: payload.summary,
+    reportUrl,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  await writeDocumentFile(reportUrl, content);
+  reports.push(report);
+  await platformStores.qualityReports.write(reports);
+  return report;
+};
+
+export const listQualityReports = async (projectId?: string) => {
+  const reports = await platformStores.qualityReports.read();
+  const filtered = projectId
+    ? reports.filter((report) => report.projectId === projectId)
+    : reports;
+  return [...filtered].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+};
+
+export const getQualityReport = async (reportId: string) => {
+  const reports = await platformStores.qualityReports.read();
+  return reports.find((report) => report.id === reportId) ?? null;
+};
+
+export const createTestingJob = async (payload: { projectId: string; scope: string }) => {
+  const testDoc = await createTestDocument(payload.projectId, payload.scope);
+  const report = await createQualityReport({
+    projectId: payload.projectId,
+    type: "testing",
+    summary: `測試文件 v${testDoc.version} 已建立，待人工覆核。`,
+  });
+  const job = await createAIJob({
+    type: "testing_generate",
+    targetId: payload.projectId,
+    status: "succeeded",
+    resultUrl: report.reportUrl,
+  });
+  return { job, report };
+};
+
+export const createCodeReviewJob = async (payload: {
+  projectId: string;
+  repositoryUrl: string;
+  commitSha: string;
+}) => {
+  const report = await createQualityReport({
+    projectId: payload.projectId,
+    type: "code_review",
+    summary: `已完成 ${payload.repositoryUrl} @ ${payload.commitSha} 的初步審查。`,
+  });
+  const job = await createAIJob({
+    type: "code_review",
+    targetId: payload.projectId,
+    status: "succeeded",
+    resultUrl: report.reportUrl,
+  });
+  return { job, report };
 };

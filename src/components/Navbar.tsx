@@ -10,8 +10,11 @@ const navItems = [
   { label: "合作模式", href: "/#collaboration", type: "anchor" },
   { label: "品牌介紹", href: "/#brand", type: "anchor" },
   { label: "需求中心", href: "/requirements", type: "route" },
+  { label: "媒合估工", href: "/matching", type: "route" },
   { label: "專案管理", href: "/projects", type: "route" },
+  { label: "協作開發", href: "/collaboration", type: "route" },
   { label: "文件中心", href: "/documents", type: "route" },
+  { label: "品質交付", href: "/quality", type: "route" },
 ];
 
 export default function Navbar() {
@@ -71,9 +74,14 @@ export default function Navbar() {
             )
           )}
           {isAdmin ? (
-            <Link href="/admin/users" className="text-muted-foreground hover:text-primary transition-colors">
-              使用者管理
-            </Link>
+            <>
+              <Link href="/admin/users" className="text-muted-foreground hover:text-primary transition-colors">
+                使用者管理
+              </Link>
+              <Link href="/admin/audit" className="text-muted-foreground hover:text-primary transition-colors">
+                稽核紀錄
+              </Link>
+            </>
           ) : null}
           {isLoggedIn ? (
             <button
@@ -131,13 +139,22 @@ export default function Navbar() {
               )
             )}
             {isAdmin ? (
-              <Link
-                href="/admin/users"
-                className="text-base font-medium text-muted-foreground hover:text-primary"
-                onClick={() => setOpen(false)}
-              >
-                使用者管理
-              </Link>
+              <>
+                <Link
+                  href="/admin/users"
+                  className="text-base font-medium text-muted-foreground hover:text-primary"
+                  onClick={() => setOpen(false)}
+                >
+                  使用者管理
+                </Link>
+                <Link
+                  href="/admin/audit"
+                  className="text-base font-medium text-muted-foreground hover:text-primary"
+                  onClick={() => setOpen(false)}
+                >
+                  稽核紀錄
+                </Link>
+              </>
             ) : null}
             {isLoggedIn ? (
               <button

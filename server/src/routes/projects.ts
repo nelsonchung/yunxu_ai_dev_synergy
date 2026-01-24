@@ -8,6 +8,7 @@ import {
   listProjectDocuments,
   listProjects,
 } from "../platformData.js";
+import { addAuditLog } from "../store.js";
 
 const projectsRoutes: FastifyPluginAsync = async (app) => {
   app.get("/projects", async () => {
@@ -34,6 +35,15 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
     }
 
     const project = await createProject({ requirementId, name });
+    if (request.user?.sub) {
+      await addAuditLog({
+        actorId: request.user.sub,
+        targetUserId: null,
+        action: "PROJECT_CREATED",
+        before: null,
+        after: { projectId: project.id, requirementId },
+      });
+    }
     return reply.code(201).send({ project_id: project.id, status: project.status });
   });
 
@@ -108,6 +118,15 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         .send({ message: error instanceof Error ? error.message : "文件建立失敗。" });
     }
 
+    if (request.user?.sub) {
+      await addAuditLog({
+        actorId: request.user.sub,
+        targetUserId: null,
+        action: "PROJECT_DOCUMENT_CREATED",
+        before: null,
+        after: { projectId: id, documentId: document.id, version: document.version },
+      });
+    }
     return reply.code(201).send({ document_id: document.id, version: document.version });
   });
 
@@ -120,6 +139,13 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
       if (!deleted) {
         return reply.code(404).send({ message: "找不到文件。" });
       }
+      await addAuditLog({
+        actorId: request.user.sub,
+        targetUserId: null,
+        action: "PROJECT_DOCUMENT_DELETED",
+        before: null,
+        after: { projectId: id, documentId: docId },
+      });
       return { ok: true };
     }
   );
@@ -130,6 +156,13 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
     if ("error" in result) {
       return reply.code(404).send({ message: "找不到專案。" });
     }
+    await addAuditLog({
+      actorId: request.user.sub,
+      targetUserId: null,
+      action: "PROJECT_DELETED",
+      before: null,
+      after: { projectId: id },
+    });
     return { ok: true };
   });
 };
