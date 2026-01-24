@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { FileStack, FolderOpen, PencilLine, RefreshCcw, ScrollText, ShieldCheck } from "lucide-react";
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 import { getSession } from "@/lib/authClient";
 import { getMyPermissions } from "@/lib/permissionsClient";
 import {
   approveRequirement,
   createProject,
-  createProjectDocument,
-  createRequirementDocument,
   deleteRequirement,
   deleteProject,
   deleteProjectDocument,
@@ -23,14 +21,6 @@ import {
   type RequirementDocumentSummary,
   type RequirementSummary,
 } from "@/lib/platformClient";
-
-const projectDocTypes = [
-  { value: "requirement", label: "需求文件" },
-  { value: "system", label: "系統開發文件" },
-  { value: "software", label: "軟體設計文件" },
-  { value: "test", label: "測試文件" },
-  { value: "delivery", label: "交付文件" },
-];
 
 const documentStatusTone: Record<string, string> = {
   draft: "border-slate-200 bg-slate-50 text-slate-700",
@@ -52,8 +42,6 @@ export default function Documents() {
   const [selectedRequirementId, setSelectedRequirementId] = useState<string | null>(null);
   const [selectedRequirementDocId, setSelectedRequirementDocId] = useState<string | null>(null);
   const [requirementContent, setRequirementContent] = useState("");
-  const [newRequirementContent, setNewRequirementContent] = useState("");
-  const [newRequirementFeedback, setNewRequirementFeedback] = useState("");
 
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [selectedProjectDocId, setSelectedProjectDocId] = useState<string | null>(null);
@@ -80,22 +68,13 @@ export default function Documents() {
   const [newProjectRequirementId, setNewProjectRequirementId] = useState("");
   const [newProjectStatus, setNewProjectStatus] = useState("");
 
-  const [newDocType, setNewDocType] = useState("");
-  const [newDocTitle, setNewDocTitle] = useState("");
-  const [newDocContent, setNewDocContent] = useState("");
-  const [newDocNote, setNewDocNote] = useState("");
-  const [newDocStatus, setNewDocStatus] = useState("draft");
-  const [newDocFeedback, setNewDocFeedback] = useState("");
-
   const isAdmin = accountRole === "admin";
   const canCreateProject = isAdmin || permissions.includes("projects.create");
   const canEditRequirementDoc = isAdmin || permissions.includes("requirements.documents.manage");
   const canCreateDocType = (type: string) =>
     isAdmin || permissions.includes(`projects.documents.${type}`);
-  const availableDocTypes = useMemo(
-    () => projectDocTypes.filter((item) => canCreateDocType(item.value)),
-    [permissions, accountRole]
-  );
+  const canCreateAnyProjectDoc =
+    isAdmin || permissions.some((permission) => permission.startsWith("projects.documents."));
 
   useEffect(() => {
     const syncSession = async () => {
@@ -114,17 +93,6 @@ export default function Documents() {
     };
     syncSession();
   }, []);
-
-  useEffect(() => {
-    if (availableDocTypes.length === 0) {
-      setNewDocType("");
-      return;
-    }
-    const matches = availableDocTypes.some((item) => item.value === newDocType);
-    if (!matches) {
-      setNewDocType(availableDocTypes[0].value);
-    }
-  }, [availableDocTypes, newDocType]);
 
   const loadRequirements = async () => {
     try {
@@ -169,8 +137,6 @@ export default function Documents() {
       setRequirementDocs([]);
       setSelectedRequirementDocId(null);
       setRequirementContent("");
-      setNewRequirementContent("");
-      setNewRequirementFeedback("");
       return;
     }
     const loadDocs = async () => {
@@ -206,12 +172,6 @@ export default function Documents() {
     };
     loadContent();
   }, [selectedRequirementDocId, selectedRequirementId]);
-
-  useEffect(() => {
-    if (!requirementContent) return;
-    setNewRequirementFeedback("");
-    setNewRequirementContent((prev) => (prev ? prev : requirementContent));
-  }, [requirementContent]);
 
   useEffect(() => {
     if (!selectedProjectId) {
@@ -299,32 +259,6 @@ export default function Documents() {
       setRequirementError(error instanceof Error ? error.message : "簽核失敗。");
     } finally {
       setIsApproving(false);
-    }
-  };
-
-  const handleCreateRequirementDocument = async () => {
-    if (!selectedRequirementId) {
-      setNewRequirementFeedback("請先選擇需求。");
-      return;
-    }
-    if (!canEditRequirementDoc) {
-      setNewRequirementFeedback("目前角色無法編修需求文件。");
-      return;
-    }
-    if (!newRequirementContent.trim()) {
-      setNewRequirementFeedback("請輸入需求文件內容。");
-      return;
-    }
-    try {
-      await createRequirementDocument(selectedRequirementId, newRequirementContent.trim());
-      setNewRequirementFeedback("已新增需求文件版本。");
-      setNewRequirementContent("");
-      await loadRequirements();
-      const docs = await listRequirementDocuments(selectedRequirementId);
-      setRequirementDocs(docs);
-      setSelectedRequirementDocId(docs[0]?.id ?? null);
-    } catch (error) {
-      setNewRequirementFeedback(error instanceof Error ? error.message : "新增需求文件失敗。");
     }
   };
 
@@ -433,40 +367,6 @@ export default function Documents() {
       setProjectError(error instanceof Error ? error.message : "刪除文件失敗。");
     } finally {
       setDeletingProjectDocId(null);
-    }
-  };
-
-  const handleCreateDocument = async () => {
-    if (!selectedProjectId) {
-      setNewDocFeedback("請先選擇專案。");
-      return;
-    }
-    if (!newDocType || !newDocTitle.trim() || !newDocContent.trim()) {
-      setNewDocFeedback("請填寫文件類型、標題與內容。");
-      return;
-    }
-    if (!canCreateDocType(newDocType)) {
-      setNewDocFeedback("目前角色無法建立此類型文件。");
-      return;
-    }
-    try {
-      await createProjectDocument(selectedProjectId, {
-        type: newDocType,
-        title: newDocTitle.trim(),
-        content: newDocContent.trim(),
-        versionNote: newDocNote.trim(),
-        status: newDocStatus,
-      });
-      setNewDocFeedback("已新增文件版本。");
-      setNewDocTitle("");
-      setNewDocContent("");
-      setNewDocNote("");
-      await loadProjects();
-      const docs = await listProjectDocuments(selectedProjectId);
-      setProjectDocs(docs);
-      setSelectedProjectDocId(docs[0]?.id ?? null);
-    } catch (error) {
-      setNewDocFeedback(error instanceof Error ? error.message : "新增文件失敗。");
     }
   };
 
@@ -640,41 +540,27 @@ export default function Documents() {
                     <pre className="mt-2 whitespace-pre-wrap text-xs text-muted-foreground">{requirementContent || "尚未選擇版本。"}</pre>
                   </div>
                   <div className="rounded-2xl border bg-white/90 p-4 space-y-3">
-                    <p className="text-sm font-semibold">新增需求文件版本</p>
+                    <p className="text-sm font-semibold">需求文件編輯</p>
                     {!canEditRequirementDoc ? (
                       <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700">
                         {accountRole ? "目前角色無法編修需求文件，請洽管理者調整權限。" : "請先登入後編修需求文件。"}
                       </div>
                     ) : null}
-                    <textarea
-                      value={newRequirementContent}
-                      onChange={(event) => setNewRequirementContent(event.target.value)}
-                      rows={6}
-                      placeholder="輸入需求文件內容"
-                      disabled={!canEditRequirementDoc}
-                      className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-70"
-                    />
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setNewRequirementContent(requirementContent)}
-                        disabled={!canEditRequirementDoc || !requirementContent}
-                        className="inline-flex items-center justify-center rounded-full border border-primary/30 px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/10 transition disabled:cursor-not-allowed disabled:opacity-70"
-                      >
-                        使用目前版本內容
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleCreateRequirementDocument}
-                        disabled={!canEditRequirementDoc}
-                        className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition disabled:cursor-not-allowed disabled:opacity-70"
-                      >
-                        新增版本
-                      </button>
-                    </div>
-                    {newRequirementFeedback ? (
-                      <p className="text-xs text-muted-foreground">{newRequirementFeedback}</p>
-                    ) : null}
+                    <Link
+                      href={`/editor?kind=requirement&requirement=${selectedRequirementId}${
+                        selectedRequirementDocId ? `&doc=${selectedRequirementDocId}` : ""
+                      }`}
+                      className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-xs font-semibold transition ${
+                        canEditRequirementDoc
+                          ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                          : "border border-border text-muted-foreground cursor-not-allowed"
+                      }`}
+                      onClick={(event) => {
+                        if (!canEditRequirementDoc) event.preventDefault();
+                      }}
+                    >
+                      開啟 Markdown 編輯器
+                    </Link>
                   </div>
                   {isAdmin ? (
                     <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4 space-y-3">
@@ -890,74 +776,43 @@ export default function Documents() {
                 </div>
 
                 <div className="rounded-2xl border bg-white/90 p-4 space-y-3">
-                  <p className="text-sm font-semibold">新增文件版本</p>
-                  {availableDocTypes.length === 0 ? (
+                  <p className="text-sm font-semibold">專案文件編輯</p>
+                  {!canCreateAnyProjectDoc ? (
                     <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700">
                       {accountRole ? "目前角色無法新增專案文件，請洽管理者調整權限。" : "請先登入後新增文件。"}
                     </div>
                   ) : null}
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <select
-                      value={newDocType}
-                      onChange={(event) => setNewDocType(event.target.value)}
-                      disabled={availableDocTypes.length === 0}
-                      className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                  <div className="flex flex-wrap gap-2">
+                    <Link
+                      href={`/editor?kind=project&project=${selectedProjectId}${
+                        selectedProjectDocId ? `&doc=${selectedProjectDocId}` : ""
+                      }`}
+                      className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-xs font-semibold transition ${
+                        selectedProjectDocId && canCreateDocType(projectDocs.find((doc) => doc.id === selectedProjectDocId)?.type ?? "")
+                          ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                          : "border border-border text-muted-foreground cursor-not-allowed"
+                      }`}
+                      onClick={(event) => {
+                        const selectedType = projectDocs.find((doc) => doc.id === selectedProjectDocId)?.type ?? "";
+                        if (!selectedProjectDocId || !canCreateDocType(selectedType)) event.preventDefault();
+                      }}
                     >
-                      <option value="">選擇文件類型</option>
-                      {availableDocTypes.map((type) => (
-                        <option key={type.value} value={type.value}>
-                          {type.label}
-                        </option>
-                      ))}
-                    </select>
-                    <input
-                      type="text"
-                      value={newDocTitle}
-                      onChange={(event) => setNewDocTitle(event.target.value)}
-                      placeholder="文件標題"
-                      disabled={availableDocTypes.length === 0}
-                      className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-                    />
-                  </div>
-                  <textarea
-                    value={newDocContent}
-                    onChange={(event) => setNewDocContent(event.target.value)}
-                    rows={4}
-                    placeholder="輸入文件內容"
-                    disabled={availableDocTypes.length === 0}
-                    className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-                  />
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <input
-                      type="text"
-                      value={newDocNote}
-                      onChange={(event) => setNewDocNote(event.target.value)}
-                      placeholder="版本備註（可選填）"
-                      disabled={availableDocTypes.length === 0}
-                      className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-                    />
-                    <select
-                      value={newDocStatus}
-                      onChange={(event) => setNewDocStatus(event.target.value)}
-                      disabled={availableDocTypes.length === 0}
-                      className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                      編輯目前版本
+                    </Link>
+                    <Link
+                      href={`/editor?kind=project&project=${selectedProjectId}`}
+                      className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-xs font-semibold transition ${
+                        canCreateAnyProjectDoc
+                          ? "border border-primary/30 text-primary hover:bg-primary/10"
+                          : "border border-border text-muted-foreground cursor-not-allowed"
+                      }`}
+                      onClick={(event) => {
+                        if (!canCreateAnyProjectDoc) event.preventDefault();
+                      }}
                     >
-                      <option value="draft">草稿</option>
-                      <option value="pending_approval">待簽核</option>
-                      <option value="approved">已核准</option>
-                    </select>
+                      新增文件版本
+                    </Link>
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleCreateDocument}
-                    disabled={availableDocTypes.length === 0}
-                    className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition disabled:cursor-not-allowed disabled:opacity-70"
-                  >
-                    新增版本
-                  </button>
-                  {newDocFeedback ? (
-                    <p className="text-xs text-muted-foreground">{newDocFeedback}</p>
-                  ) : null}
                 </div>
 
                 <div className="rounded-2xl border bg-white/90 p-4 space-y-3">

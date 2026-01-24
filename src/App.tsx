@@ -4,6 +4,7 @@ import Auth from "@/pages/Auth";
 import AdminUsers from "@/pages/AdminUsers";
 import AdminAudit from "@/pages/AdminAudit";
 import AdminPermissions from "@/pages/AdminPermissions";
+import DocumentEditor from "@/pages/DocumentEditor";
 import Documents from "@/pages/Documents";
 import Matching from "@/pages/Matching";
 import Requirements from "@/pages/Requirements";
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="/quality" component={Quality} />
           <Route path="/admin/audit" component={AdminAudit} />
           <Route path="/admin/permissions" component={AdminPermissions} />
+          <Route path="/editor" component={DocumentEditor} />
           <Route path="/requirements" component={Requirements} />
           <Route path="/admin/users" component={AdminUsers} />
           <Route path="/projects/new" component={ProjectNew} />
