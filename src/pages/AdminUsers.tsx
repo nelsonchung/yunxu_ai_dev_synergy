@@ -126,9 +126,13 @@ export default function AdminUsers() {
               <Users className="h-4 w-4 text-muted-foreground" />
               <input
                 type="text"
+                name="user-search"
                 placeholder="搜尋帳號、Email、角色或狀態"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="none"
                 className="w-full bg-transparent focus:outline-none"
               />
             </div>
@@ -224,16 +228,20 @@ export default function AdminUsers() {
                       <div className="grid gap-3 md:grid-cols-2">
                         <input
                           type="password"
+                          name="reset-password"
                           placeholder="新密碼（至少 8 碼）"
                           value={resetPassword}
                           onChange={(event) => setResetPassword(event.target.value)}
+                          autoComplete="new-password"
                           className="w-full rounded-xl border border-amber-200 bg-white/90 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300"
                         />
                         <input
                           type="password"
+                          name="reset-password-confirm"
                           placeholder="確認新密碼"
                           value={resetConfirm}
                           onChange={(event) => setResetConfirm(event.target.value)}
+                          autoComplete="new-password"
                           className="w-full rounded-xl border border-amber-200 bg-white/90 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300"
                         />
                       </div>
