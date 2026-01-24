@@ -1,7 +1,7 @@
 # 註冊/登入設計說明（方案 B：JSON NoSQL + 角色管理）
 
 本文件定義跨瀏覽器/跨裝置可用的帳密註冊與登入機制，並支援管理者調整使用者角色（客戶 / 開發者 / 管理者）。  
-Firebase 手機登入後台可以保留，但此設計以「JSON NoSQL + 角色控管」為核心。
+此設計以「JSON NoSQL + 角色控管」為核心。
 
 ## 1. 設計目標
 
@@ -14,46 +14,54 @@ Firebase 手機登入後台可以保留，但此設計以「JSON NoSQL + 角色�
 
 - 前端：`/auth` 提供註冊/登入 UI
 - 後端：Fastify + TypeScript（Auth API、Admin API）
-- 儲存：JSON 檔案（例如 `server/data/auth.json`）
+- 儲存：JSON 檔案（例如 `server/data/users.json` + `server/data/audit_logs.json`）
 - Session：JWT 或 httpOnly cookie（建議 cookie）
 
 ## 3. JSON 儲存設計
 
 ### 3.1 檔案位置
 
-- 預設：`server/data/auth.json`
-- 可透過環境變數指定：`DATA_FILE`
+- 預設：
+  - `server/data/users.json`
+  - `server/data/audit_logs.json`
+- 可透過環境變數指定：
+  - `DATA_USERS_FILE`
+  - `DATA_AUDIT_FILE`
+- 若需要舊檔案自動遷移，可設定 `DATA_FILE`（legacy）
 
 > 後端啟動可用 `server/.env.nosqljson.example` 作為範本。
 
-### 3.2 資料格式（單一檔案）
+### 3.2 資料格式（分檔）
 
+`users.json`
 ```json
-{
-  "users": [
-    {
-      "id": "uuid",
-      "username": "demo_user",
-      "email": "demo@example.com",
-      "password_hash": "bcrypt_hash",
-      "role": "customer",
-      "status": "active",
-      "created_at": "2026-01-23T10:00:00Z",
-      "updated_at": "2026-01-23T10:00:00Z"
-    }
-  ],
-  "audit_logs": [
-    {
-      "id": "uuid",
-      "actor_id": "admin_id",
-      "target_user_id": "user_id",
-      "action": "ROLE_CHANGED",
-      "before": { "role": "customer" },
-      "after": { "role": "developer" },
-      "created_at": "2026-01-23T10:30:00Z"
-    }
-  ]
-}
+[
+  {
+    "id": "uuid",
+    "username": "demo_user",
+    "email": "demo@example.com",
+    "password_hash": "bcrypt_hash",
+    "role": "customer",
+    "status": "active",
+    "created_at": "2026-01-23T10:00:00Z",
+    "updated_at": "2026-01-23T10:00:00Z"
+  }
+]
+```
+
+`audit_logs.json`
+```json
+[
+  {
+    "id": "uuid",
+    "actor_id": "admin_id",
+    "target_user_id": "user_id",
+    "action": "ROLE_CHANGED",
+    "before": { "role": "customer" },
+    "after": { "role": "developer" },
+    "created_at": "2026-01-23T10:30:00Z"
+  }
+]
 ```
 
 > 密碼僅保存 `password_hash`，不可儲存明文。

@@ -1,6 +1,6 @@
 # Setup Environment (Ubuntu 24.04)
 
-此專案為 Vite + React + Tailwind + Firebase 的前端專案，主要需求為 Node.js 22 LTS 與 pnpm。
+此專案為 Vite + React + Tailwind + Fastify 的前後端專案，主要需求為 Node.js 22 LTS 與 pnpm。
 
 ## Base packages
 安裝 Node.js 原生模組與建置工具常用的基礎套件（建議先裝）。
@@ -29,23 +29,21 @@ corepack prepare pnpm@10.4.1 --activate
 pnpm install
 ```
 
-## Firebase 設定
-本專案的 Firebase 設定目前直接寫在 `src/lib/firebase.ts`。  
-若要調整 Firebase 專案或 API Key，請同時更新設定並參考：
-- `docs/cellphone_authentication_by_firebase.md`
-
 ## Backend（方案 B：JSON NoSQL）
 若要實作帳號/密碼登入（方案 B），需新增後端服務與 JSON 儲存檔案。
 
 ### 建議環境變數（後端）
 ```env
+DATA_USERS_FILE="./data/users.json"
+DATA_AUDIT_FILE="./data/audit_logs.json"
+# Optional legacy file (used for one-time migration)
 DATA_FILE="./data/auth.json"
 JWT_SECRET="change_me"
 JWT_EXPIRES_IN="7d"
 CORS_ORIGIN="http://localhost:5173"
 ```
 
-> `DATA_FILE` 為使用者與角色的 JSON 儲存位置。
+> `DATA_USERS_FILE` 與 `DATA_AUDIT_FILE` 分別保存使用者資料與操作紀錄。
 
 ### 後端安裝與啟動（Fastify）
 ```bash

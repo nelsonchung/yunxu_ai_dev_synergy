@@ -27,19 +27,19 @@ export type AuditLog = {
   createdAt: string;
 };
 
-type StoreData = {
+type LegacyStoreData = {
   users: StoredUser[];
   auditLogs: AuditLog[];
 };
 
 const moduleDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const rawPath = process.env.DATA_FILE ?? "./data/auth.json";
-const DATA_FILE = path.isAbsolute(rawPath) ? rawPath : path.resolve(moduleDir, rawPath);
 
-const defaultData: StoreData = {
-  users: [],
-  auditLogs: [],
-};
+const resolveDataPath = (rawPath: string) =>
+  path.isAbsolute(rawPath) ? rawPath : path.resolve(moduleDir, rawPath);
+
+const USERS_FILE = resolveDataPath(process.env.DATA_USERS_FILE ?? "./data/users.json");
+const AUDIT_FILE = resolveDataPath(process.env.DATA_AUDIT_FILE ?? "./data/audit_logs.json");
+const LEGACY_FILE = resolveDataPath(process.env.DATA_FILE ?? "./data/auth.json");
 
 let writeChain: Promise<void> = Promise.resolve();
 
@@ -52,56 +52,110 @@ const withWriteLock = async <T>(fn: () => Promise<T>) => {
   return next;
 };
 
-const ensureDataFile = async () => {
-  const dir = path.dirname(DATA_FILE);
-  await fs.mkdir(dir, { recursive: true });
+const fileExists = async (filePath: string) => {
   try {
-    await fs.access(DATA_FILE);
+    await fs.access(filePath);
+    return true;
   } catch {
-    await fs.writeFile(DATA_FILE, JSON.stringify(defaultData, null, 2));
+    return false;
   }
 };
 
-const readData = async (): Promise<StoreData> => {
-  await ensureDataFile();
-  const raw = await fs.readFile(DATA_FILE, "utf-8");
+const ensureFile = async <T>(filePath: string, defaultContent: T) => {
+  const dir = path.dirname(filePath);
+  await fs.mkdir(dir, { recursive: true });
+  if (!(await fileExists(filePath))) {
+    await fs.writeFile(filePath, JSON.stringify(defaultContent, null, 2));
+  }
+};
+
+const migrateLegacyIfNeeded = async () => {
+  const legacyExists = await fileExists(LEGACY_FILE);
+  const usersExists = await fileExists(USERS_FILE);
+  const auditExists = await fileExists(AUDIT_FILE);
+
+  if (!legacyExists) {
+    await ensureFile(USERS_FILE, []);
+    await ensureFile(AUDIT_FILE, []);
+    return;
+  }
+
+  if (usersExists && auditExists) return;
+
+  let legacyData: LegacyStoreData = { users: [], auditLogs: [] };
   try {
-    const data = JSON.parse(raw) as StoreData;
-    return {
-      users: Array.isArray(data.users) ? data.users : [],
-      auditLogs: Array.isArray(data.auditLogs) ? data.auditLogs : [],
+    const raw = await fs.readFile(LEGACY_FILE, "utf-8");
+    const parsed = JSON.parse(raw) as LegacyStoreData;
+    legacyData = {
+      users: Array.isArray(parsed.users) ? parsed.users : [],
+      auditLogs: Array.isArray(parsed.auditLogs) ? parsed.auditLogs : [],
     };
   } catch {
-    return { ...defaultData };
+    legacyData = { users: [], auditLogs: [] };
+  }
+
+  if (!usersExists) {
+    await ensureFile(USERS_FILE, legacyData.users);
+  }
+  if (!auditExists) {
+    await ensureFile(AUDIT_FILE, legacyData.auditLogs);
   }
 };
 
-const writeData = async (data: StoreData) => {
-  await ensureDataFile();
-  const tempFile = `${DATA_FILE}.tmp`;
-  await fs.writeFile(tempFile, JSON.stringify(data, null, 2));
-  await fs.rename(tempFile, DATA_FILE);
+const readUsers = async (): Promise<StoredUser[]> => {
+  await migrateLegacyIfNeeded();
+  const raw = await fs.readFile(USERS_FILE, "utf-8");
+  try {
+    const data = JSON.parse(raw) as StoredUser[];
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+};
+
+const readAuditLogs = async (): Promise<AuditLog[]> => {
+  await migrateLegacyIfNeeded();
+  const raw = await fs.readFile(AUDIT_FILE, "utf-8");
+  try {
+    const data = JSON.parse(raw) as AuditLog[];
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+};
+
+const writeUsers = async (users: StoredUser[]) => {
+  await ensureFile(USERS_FILE, []);
+  const tempFile = `${USERS_FILE}.tmp`;
+  await fs.writeFile(tempFile, JSON.stringify(users, null, 2));
+  await fs.rename(tempFile, USERS_FILE);
+};
+
+const writeAuditLogs = async (logs: AuditLog[]) => {
+  await ensureFile(AUDIT_FILE, []);
+  const tempFile = `${AUDIT_FILE}.tmp`;
+  await fs.writeFile(tempFile, JSON.stringify(logs, null, 2));
+  await fs.rename(tempFile, AUDIT_FILE);
 };
 
 export const initStore = async () => {
-  await ensureDataFile();
+  await migrateLegacyIfNeeded();
 };
 
 export const listUsers = async () => {
-  const data = await readData();
-  return data.users;
+  return readUsers();
 };
 
 export const findUserById = async (id: string) => {
-  const data = await readData();
-  return data.users.find((user) => user.id === id) ?? null;
+  const users = await readUsers();
+  return users.find((user) => user.id === id) ?? null;
 };
 
 export const findUserByIdentifier = async (identifier: string) => {
   const normalized = identifier.toLowerCase();
-  const data = await readData();
+  const users = await readUsers();
   return (
-    data.users.find(
+    users.find(
       (user) =>
         user.username.toLowerCase() === normalized || user.email.toLowerCase() === normalized
     ) ?? null
@@ -116,14 +170,14 @@ export const createUser = async (payload: {
   status?: UserStatus;
 }) => {
   return withWriteLock(async () => {
-    const data = await readData();
+    const users = await readUsers();
     const usernameLower = payload.username.toLowerCase();
     const emailLower = payload.email.toLowerCase();
 
-    if (data.users.some((user) => user.username.toLowerCase() === usernameLower)) {
+    if (users.some((user) => user.username.toLowerCase() === usernameLower)) {
       return { error: "USERNAME_EXISTS" as const };
     }
-    if (data.users.some((user) => user.email.toLowerCase() === emailLower)) {
+    if (users.some((user) => user.email.toLowerCase() === emailLower)) {
       return { error: "EMAIL_EXISTS" as const };
     }
 
@@ -139,8 +193,8 @@ export const createUser = async (payload: {
       updatedAt: now,
     };
 
-    data.users.push(user);
-    await writeData(data);
+    users.push(user);
+    await writeUsers(users);
 
     return { user };
   });
@@ -151,48 +205,48 @@ export const updateUser = async (
   updates: Partial<Pick<StoredUser, "role" | "status">>
 ) => {
   return withWriteLock(async () => {
-    const data = await readData();
-    const index = data.users.findIndex((user) => user.id === id);
+    const users = await readUsers();
+    const index = users.findIndex((user) => user.id === id);
     if (index === -1) return null;
-    const before = data.users[index];
+    const before = users[index];
     const updated = {
       ...before,
       ...updates,
       updatedAt: new Date().toISOString(),
     };
-    data.users[index] = updated;
-    await writeData(data);
+    users[index] = updated;
+    await writeUsers(users);
     return { before, after: updated };
   });
 };
 
 export const updateUserPassword = async (id: string, passwordHash: string) => {
   return withWriteLock(async () => {
-    const data = await readData();
-    const index = data.users.findIndex((user) => user.id === id);
+    const users = await readUsers();
+    const index = users.findIndex((user) => user.id === id);
     if (index === -1) return null;
-    const before = data.users[index];
+    const before = users[index];
     const updated = {
       ...before,
       passwordHash,
       updatedAt: new Date().toISOString(),
     };
-    data.users[index] = updated;
-    await writeData(data);
+    users[index] = updated;
+    await writeUsers(users);
     return { before, after: updated };
   });
 };
 
 export const addAuditLog = async (payload: Omit<AuditLog, "id" | "createdAt">) => {
   return withWriteLock(async () => {
-    const data = await readData();
+    const logs = await readAuditLogs();
     const log: AuditLog = {
       id: randomUUID(),
       createdAt: new Date().toISOString(),
       ...payload,
     };
-    data.auditLogs.push(log);
-    await writeData(data);
+    logs.push(log);
+    await writeAuditLogs(logs);
     return log;
   });
 };
