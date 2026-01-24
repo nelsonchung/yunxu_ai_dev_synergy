@@ -4,3 +4,5 @@ server/dist/
 server/node_modules/
 docs/requirement/html/
 docs/requirement/pdf/
+
+run_codex.sh
