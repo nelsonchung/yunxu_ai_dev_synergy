@@ -9,6 +9,16 @@ import {
   listProjects,
 } from "../platformData.js";
 import { addAuditLog } from "../store.js";
+import { hasPermission } from "../permissionsStore.js";
+
+const projectDocumentPermissionMap: Record<string, string> = {
+  requirement: "projects.documents.requirement",
+  system: "projects.documents.system",
+  software: "projects.documents.software",
+  test: "projects.documents.test",
+  delivery: "projects.documents.delivery",
+};
+const allowedProjectDocumentTypes = new Set(Object.keys(projectDocumentPermissionMap));
 
 const projectsRoutes: FastifyPluginAsync = async (app) => {
   app.get("/projects", async () => {
@@ -25,7 +35,7 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
     };
   });
 
-  app.post("/projects", async (request, reply) => {
+  app.post("/projects", { preHandler: app.requirePermission("projects.create") }, async (request, reply) => {
     const body = (request.body as { requirementId?: string; name?: string }) ?? {};
     const requirementId = String(body.requirementId ?? "").trim();
     const name = String(body.name ?? "").trim();
@@ -85,7 +95,7 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
     };
   });
 
-  app.post("/projects/:id/documents", async (request, reply) => {
+  app.post("/projects/:id/documents", { preHandler: app.authenticate }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const body = (request.body as {
       type?: string;
@@ -100,6 +110,15 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
 
     if (!type || !title || !content) {
       return reply.code(400).send({ message: "請提供 type、title 與 content。" });
+    }
+    if (!allowedProjectDocumentTypes.has(type)) {
+      return reply.code(400).send({ message: "不支援的文件類型。" });
+    }
+
+    const permissionId = projectDocumentPermissionMap[type];
+    const allowed = await hasPermission(request.user.role, permissionId);
+    if (!allowed) {
+      return reply.code(403).send({ message: "權限不足，無法建立此類型文件。" });
     }
 
     let document;

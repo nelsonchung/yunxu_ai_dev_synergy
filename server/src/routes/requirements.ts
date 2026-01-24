@@ -44,7 +44,7 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
     };
   });
 
-  app.post("/requirements", async (request, reply) => {
+  app.post("/requirements", { preHandler: app.requirePermission("requirements.create") }, async (request, reply) => {
     const body = (request.body as Record<string, unknown>) ?? {};
     const contact = (body.contact as Record<string, unknown>) ?? {};
     const contactName = String(contact.name ?? body.contactName ?? "").trim();
@@ -63,13 +63,7 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
       return reply.code(400).send({ message: "聯絡 Email 格式不正確。" });
     }
 
-    let ownerId: string | null = null;
-    try {
-      await request.jwtVerify();
-      ownerId = request.user.sub;
-    } catch {
-      ownerId = null;
-    }
+    const ownerId = request.user.sub;
 
     const result = await createRequirement({
       title,

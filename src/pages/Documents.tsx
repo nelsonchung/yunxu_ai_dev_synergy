@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { FileStack, FolderOpen, PencilLine, RefreshCcw, ScrollText, ShieldCheck } from "lucide-react";
 import { useLocation } from "wouter";
 import { getSession } from "@/lib/authClient";
+import { getMyPermissions } from "@/lib/permissionsClient";
 import {
   approveRequirement,
   createProject,
@@ -40,6 +41,7 @@ const documentStatusTone: Record<string, string> = {
 export default function Documents() {
   const [location] = useLocation();
   const [accountRole, setAccountRole] = useState<string | null>(null);
+  const [permissions, setPermissions] = useState<string[]>([]);
 
   const [requirements, setRequirements] = useState<RequirementSummary[]>([]);
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
@@ -83,14 +85,42 @@ export default function Documents() {
   const [newDocFeedback, setNewDocFeedback] = useState("");
 
   const isAdmin = accountRole === "admin";
+  const canCreateProject = isAdmin || permissions.includes("projects.create");
+  const canCreateDocType = (type: string) =>
+    isAdmin || permissions.includes(`projects.documents.${type}`);
+  const availableDocTypes = useMemo(
+    () => projectDocTypes.filter((item) => canCreateDocType(item.value)),
+    [permissions, accountRole]
+  );
 
   useEffect(() => {
     const syncSession = async () => {
       const session = await getSession();
       setAccountRole(session?.role ?? null);
+      if (!session) {
+        setPermissions([]);
+        return;
+      }
+      try {
+        const permissionData = await getMyPermissions();
+        setPermissions(permissionData.permissions);
+      } catch {
+        setPermissions([]);
+      }
     };
     syncSession();
   }, []);
+
+  useEffect(() => {
+    if (availableDocTypes.length === 0) {
+      setNewDocType("");
+      return;
+    }
+    const matches = availableDocTypes.some((item) => item.value === newDocType);
+    if (!matches) {
+      setNewDocType(availableDocTypes[0].value);
+    }
+  }, [availableDocTypes, newDocType]);
 
   const loadRequirements = async () => {
     try {
@@ -302,6 +332,10 @@ export default function Documents() {
   };
 
   const handleCreateProject = async () => {
+    if (!canCreateProject) {
+      setNewProjectStatus("目前角色無法建立專案。");
+      return;
+    }
     if (!newProjectRequirementId || !newProjectName.trim()) {
       setNewProjectStatus("請選擇需求並輸入專案名稱。");
       return;
@@ -371,6 +405,10 @@ export default function Documents() {
     }
     if (!newDocType || !newDocTitle.trim() || !newDocContent.trim()) {
       setNewDocFeedback("請填寫文件類型、標題與內容。");
+      return;
+    }
+    if (!canCreateDocType(newDocType)) {
+      setNewDocFeedback("目前角色無法建立此類型文件。");
       return;
     }
     try {
@@ -672,9 +710,15 @@ export default function Documents() {
                 <PencilLine className="h-4 w-4 text-primary" />
                 建立專案
               </div>
+              {!canCreateProject ? (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700">
+                  {accountRole ? "目前角色無法建立專案，請洽管理者調整權限。" : "請先登入後建立專案。"}
+                </div>
+              ) : null}
               <select
                 value={newProjectRequirementId}
                 onChange={(event) => setNewProjectRequirementId(event.target.value)}
+                disabled={!canCreateProject}
                 className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
               >
                 <option value="">選擇需求</option>
@@ -689,12 +733,14 @@ export default function Documents() {
                 value={newProjectName}
                 onChange={(event) => setNewProjectName(event.target.value)}
                 placeholder="輸入專案名稱"
+                disabled={!canCreateProject}
                 className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
               />
               <button
                 type="button"
                 onClick={handleCreateProject}
-                className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition"
+                disabled={!canCreateProject}
+                className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition disabled:cursor-not-allowed disabled:opacity-70"
               >
                 建立專案
               </button>
@@ -770,14 +816,20 @@ export default function Documents() {
 
                 <div className="rounded-2xl border bg-white/90 p-4 space-y-3">
                   <p className="text-sm font-semibold">新增文件版本</p>
+                  {availableDocTypes.length === 0 ? (
+                    <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700">
+                      {accountRole ? "目前角色無法新增專案文件，請洽管理者調整權限。" : "請先登入後新增文件。"}
+                    </div>
+                  ) : null}
                   <div className="grid gap-3 md:grid-cols-2">
                     <select
                       value={newDocType}
                       onChange={(event) => setNewDocType(event.target.value)}
+                      disabled={availableDocTypes.length === 0}
                       className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                     >
                       <option value="">選擇文件類型</option>
-                      {projectDocTypes.map((type) => (
+                      {availableDocTypes.map((type) => (
                         <option key={type.value} value={type.value}>
                           {type.label}
                         </option>
@@ -788,6 +840,7 @@ export default function Documents() {
                       value={newDocTitle}
                       onChange={(event) => setNewDocTitle(event.target.value)}
                       placeholder="文件標題"
+                      disabled={availableDocTypes.length === 0}
                       className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                     />
                   </div>
@@ -796,6 +849,7 @@ export default function Documents() {
                     onChange={(event) => setNewDocContent(event.target.value)}
                     rows={4}
                     placeholder="輸入文件內容"
+                    disabled={availableDocTypes.length === 0}
                     className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                   />
                   <div className="grid gap-3 md:grid-cols-2">
@@ -804,11 +858,13 @@ export default function Documents() {
                       value={newDocNote}
                       onChange={(event) => setNewDocNote(event.target.value)}
                       placeholder="版本備註（可選填）"
+                      disabled={availableDocTypes.length === 0}
                       className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                     />
                     <select
                       value={newDocStatus}
                       onChange={(event) => setNewDocStatus(event.target.value)}
+                      disabled={availableDocTypes.length === 0}
                       className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                     >
                       <option value="draft">草稿</option>
@@ -819,7 +875,8 @@ export default function Documents() {
                   <button
                     type="button"
                     onClick={handleCreateDocument}
-                    className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition"
+                    disabled={availableDocTypes.length === 0}
+                    className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     新增版本
                   </button>

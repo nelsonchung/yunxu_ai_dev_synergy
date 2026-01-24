@@ -1,8 +1,10 @@
 import type { ChangeEvent, FormEvent } from "react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { FileText, ShieldCheck, Users, Workflow } from "lucide-react";
 import { createRequirement } from "@/lib/platformClient";
+import { getSession } from "@/lib/authClient";
+import { getMyPermissions } from "@/lib/permissionsClient";
 
 const inquiryFlow = [
   {
@@ -60,6 +62,8 @@ export default function DemandSection() {
     documentId: string;
   } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [accountRole, setAccountRole] = useState<string | null>(null);
+  const [canSubmitRequirement, setCanSubmitRequirement] = useState(false);
   const [formState, setFormState] = useState({
     title: "",
     companyName: "",
@@ -78,6 +82,27 @@ export default function DemandSection() {
   });
   const activeFlow = useMemo(() => inquiryFlow[activeFlowIndex], [activeFlowIndex]);
 
+  const loadPermissions = async () => {
+    const session = await getSession();
+    setAccountRole(session?.role ?? null);
+    if (!session) {
+      setCanSubmitRequirement(false);
+      return;
+    }
+    try {
+      const permissionData = await getMyPermissions();
+      setCanSubmitRequirement(
+        session.role === "admin" || permissionData.permissions.includes("requirements.create")
+      );
+    } catch {
+      setCanSubmitRequirement(session.role === "admin");
+    }
+  };
+
+  useEffect(() => {
+    loadPermissions();
+  }, []);
+
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
     setFormState((prev) => ({ ...prev, [name]: value }));
@@ -92,6 +117,11 @@ export default function DemandSection() {
   const handleSubmitInquiry = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     resetFeedback();
+
+    if (!canSubmitRequirement) {
+      setInquiryError(accountRole ? "目前角色無法提交需求，請洽管理者調整權限。" : "請先登入客戶帳號後提交需求。");
+      return;
+    }
 
     if (
       !formState.title.trim() ||
@@ -210,6 +240,13 @@ export default function DemandSection() {
                   請盡量填寫完整資訊，方便我們快速媒合合適的團隊。
                 </p>
               </div>
+              {!canSubmitRequirement ? (
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+                  {accountRole
+                    ? "目前角色無法提交需求，請洽管理者調整權限。"
+                    : "請先登入客戶帳號後提交需求。"}
+                </div>
+              ) : null}
 
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="space-y-2 text-sm font-medium">
@@ -419,7 +456,7 @@ export default function DemandSection() {
 
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !canSubmitRequirement}
                 className="inline-flex w-full items-center justify-center rounded-full bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-lg shadow-black/10 hover:bg-primary/90 transition disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isSubmitting ? "送出中..." : "送出需求"}

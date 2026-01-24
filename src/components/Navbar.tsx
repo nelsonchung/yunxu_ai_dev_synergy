@@ -2,6 +2,7 @@ import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { getSession, logoutAccount, onSessionChange, type AuthUser } from "@/lib/authClient";
+import { getMyPermissions } from "@/lib/permissionsClient";
 
 const navItems = [
   { label: "核心理念", href: "/#core", type: "anchor" },
@@ -20,6 +21,7 @@ const navItems = [
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [accountUser, setAccountUser] = useState<AuthUser | null>(null);
+  const [canSubmitRequirement, setCanSubmitRequirement] = useState(false);
   const [, setLocation] = useLocation();
 
   useEffect(() => {
@@ -28,6 +30,22 @@ export default function Navbar() {
     const syncSession = async () => {
       const session = await getSession();
       if (active) setAccountUser(session);
+      if (!session) {
+        if (active) setCanSubmitRequirement(false);
+        return;
+      }
+      try {
+        const permissionData = await getMyPermissions();
+        if (active) {
+          setCanSubmitRequirement(
+            session.role === "admin" || permissionData.permissions.includes("requirements.create")
+          );
+        }
+      } catch {
+        if (active) {
+          setCanSubmitRequirement(session.role === "admin");
+        }
+      }
     };
     const unsubscribe = onSessionChange(syncSession);
     syncSession();
@@ -46,6 +64,9 @@ export default function Navbar() {
 
   const isLoggedIn = Boolean(accountUser);
   const isAdmin = accountUser?.role === "admin";
+  const showRequestCta = !accountUser || canSubmitRequirement;
+  const requestHref = accountUser ? "/request" : "/auth";
+  const requestLabel = accountUser ? "提交需求" : "登入後提交需求";
 
   return (
     <nav className="sticky top-0 z-50 border-b bg-white/70 backdrop-blur">
@@ -78,6 +99,12 @@ export default function Navbar() {
               <Link href="/admin/users" className="text-muted-foreground hover:text-primary transition-colors">
                 使用者管理
               </Link>
+              <Link
+                href="/admin/permissions"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                角色權限
+              </Link>
               <Link href="/admin/audit" className="text-muted-foreground hover:text-primary transition-colors">
                 稽核紀錄
               </Link>
@@ -98,12 +125,14 @@ export default function Navbar() {
           )}
         </div>
         <div className="flex items-center gap-3">
-          <Link
-            href="/request"
-            className="hidden md:inline-flex items-center justify-center rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition"
-          >
-            提交需求
-          </Link>
+          {showRequestCta ? (
+            <Link
+              href={requestHref}
+              className="hidden md:inline-flex items-center justify-center rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition"
+            >
+              {requestLabel}
+            </Link>
+          ) : null}
           <button
             type="button"
             className="md:hidden rounded-full border border-border p-2 text-foreground"
@@ -148,6 +177,13 @@ export default function Navbar() {
                   使用者管理
                 </Link>
                 <Link
+                  href="/admin/permissions"
+                  className="text-base font-medium text-muted-foreground hover:text-primary"
+                  onClick={() => setOpen(false)}
+                >
+                  角色權限
+                </Link>
+                <Link
                   href="/admin/audit"
                   className="text-base font-medium text-muted-foreground hover:text-primary"
                   onClick={() => setOpen(false)}
@@ -176,13 +212,15 @@ export default function Navbar() {
                 登入 / 註冊
               </Link>
             )}
-            <Link
-              href="/request"
-              className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition"
-              onClick={() => setOpen(false)}
-            >
-              提交需求
-            </Link>
+            {showRequestCta ? (
+              <Link
+                href={requestHref}
+                className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition"
+                onClick={() => setOpen(false)}
+              >
+                {requestLabel}
+              </Link>
+            ) : null}
           </div>
         </div>
       ) : null}

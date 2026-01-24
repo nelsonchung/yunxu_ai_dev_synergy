@@ -8,6 +8,11 @@ import {
   updateUser,
   updateUserPassword,
 } from "../store.js";
+import {
+  getRolePermissions,
+  listPermissionDefinitions,
+  updateRolePermissions,
+} from "../permissionsStore.js";
 
 const adminRoutes: FastifyPluginAsync = async (app) => {
   app.get("/users", { preHandler: app.requireAdmin }, async () => {
@@ -116,6 +121,31 @@ const adminRoutes: FastifyPluginAsync = async (app) => {
     });
 
     return reply.send({ message: "使用者已刪除。" });
+  });
+
+  app.get("/role-permissions", { preHandler: app.requireAdmin }, async () => {
+    const roles = await getRolePermissions();
+    return { roles, definitions: listPermissionDefinitions() };
+  });
+
+  app.put("/role-permissions", { preHandler: app.requireAdmin }, async (request, reply) => {
+    const body = (request.body as { roles?: unknown }) ?? {};
+    if (!body.roles) {
+      return reply.code(400).send({ message: "請提供 roles 欄位。" });
+    }
+
+    const before = await getRolePermissions();
+    const updated = await updateRolePermissions(body.roles);
+
+    await addAuditLog({
+      actorId: request.user.sub,
+      targetUserId: null,
+      action: "ROLE_PERMISSIONS_UPDATED",
+      before,
+      after: updated,
+    });
+
+    return { roles: updated };
   });
 };
 

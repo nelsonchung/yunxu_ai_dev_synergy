@@ -9,7 +9,10 @@ const milestonesRoutes: FastifyPluginAsync = async (app) => {
     return { milestones };
   });
 
-  app.post("/projects/:id/milestones", { preHandler: app.authenticate }, async (request, reply) => {
+  app.post(
+    "/projects/:id/milestones",
+    { preHandler: app.requirePermission("projects.milestones.manage") },
+    async (request, reply) => {
     const { id } = request.params as { id: string };
     const body = (request.body as {
       title?: string;
@@ -40,7 +43,7 @@ const milestonesRoutes: FastifyPluginAsync = async (app) => {
 
   app.patch(
     "/projects/:id/milestones/:milestoneId",
-    { preHandler: app.authenticate },
+    { preHandler: app.requirePermission("projects.milestones.manage") },
     async (request, reply) => {
       const { id, milestoneId } = request.params as { id: string; milestoneId: string };
       const body = (request.body as {

@@ -104,8 +104,11 @@
 設計重點：
 - 透過同一 `type` 建立 v1/v2 版本，驗證版本控管與內容讀取。
 - 讀取 `server/data/projects.json` 驗證專案落盤。
+- 以管理者身份建立需求/專案/文件。
 
 環境變數：
+- `ADMIN_IDENTIFIER`（選填）：admin 帳號或 Email（未提供時使用腳本內 `DEFAULT_ADMIN_IDENTIFIER`）。
+- `ADMIN_PASSWORD`（選填）：admin 密碼（未提供時使用腳本內 `DEFAULT_ADMIN_PASSWORD`）。
 - `DATA_PROJECTS_FILE`（選填）：projects JSON store 路徑。
   預設：`server/data/projects.json`
 
@@ -218,6 +221,8 @@ ADMIN_IDENTIFIER=admin@example.com \
 ADMIN_PASSWORD=your_password \
 ./docs/autotest/04_requirement_flow.sh
 
+ADMIN_IDENTIFIER=admin@example.com \
+ADMIN_PASSWORD=your_password \
 ./docs/autotest/05_project_documents.sh
 
 ADMIN_IDENTIFIER=admin@example.com \

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { ClipboardCheck, RefreshCcw, ScrollText } from "lucide-react";
 import { Link } from "wouter";
+import { getSession } from "@/lib/authClient";
+import { getMyPermissions } from "@/lib/permissionsClient";
 import { listRequirements, type RequirementSummary } from "@/lib/platformClient";
 
 const statusLabels: Record<string, string> = {
@@ -27,6 +29,8 @@ export default function Requirements() {
   const [requirements, setRequirements] = useState<RequirementSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [accountRole, setAccountRole] = useState<string | null>(null);
+  const [canSubmitRequirement, setCanSubmitRequirement] = useState(false);
 
   const loadRequirements = async () => {
     try {
@@ -43,6 +47,26 @@ export default function Requirements() {
 
   useEffect(() => {
     loadRequirements();
+  }, []);
+
+  useEffect(() => {
+    const loadPermissions = async () => {
+      const session = await getSession();
+      setAccountRole(session?.role ?? null);
+      if (!session) {
+        setCanSubmitRequirement(false);
+        return;
+      }
+      try {
+        const permissionData = await getMyPermissions();
+        setCanSubmitRequirement(
+          session.role === "admin" || permissionData.permissions.includes("requirements.create")
+        );
+      } catch {
+        setCanSubmitRequirement(session.role === "admin");
+      }
+    };
+    loadPermissions();
   }, []);
 
   return (
@@ -68,14 +92,33 @@ export default function Requirements() {
               <RefreshCcw className="h-4 w-4" />
               重新整理
             </button>
-            <Link
-              href="/request"
-              className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition"
-            >
-              提交需求
-            </Link>
+            {!accountRole ? (
+              <Link
+                href="/auth"
+                className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition"
+              >
+                登入後提交需求
+              </Link>
+            ) : canSubmitRequirement ? (
+              <Link
+                href="/request"
+                className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition"
+              >
+                提交需求
+              </Link>
+            ) : (
+              <span className="inline-flex items-center justify-center rounded-full border border-border px-4 py-2 text-sm font-semibold text-muted-foreground">
+                提交需求（無權限）
+              </span>
+            )}
           </div>
         </div>
+
+        {accountRole && !canSubmitRequirement ? (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+            目前角色無法提交需求，請洽管理者調整權限。
+          </div>
+        ) : null}
 
         {error ? (
           <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">

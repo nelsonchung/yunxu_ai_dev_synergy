@@ -12,8 +12,10 @@ import tasksRoutes from "./routes/tasks.js";
 import milestonesRoutes from "./routes/milestones.js";
 import qualityRoutes from "./routes/quality.js";
 import auditRoutes from "./routes/audit.js";
+import permissionsRoutes from "./routes/permissions.js";
 import { initStore } from "./store.js";
 import { initPlatformStore } from "./platformStore.js";
+import { hasPermission, initPermissionsStore } from "./permissionsStore.js";
 
 dotenv.config();
 
@@ -62,6 +64,21 @@ app.decorate("requireAdmin", async (request, reply) => {
   }
 });
 
+app.decorate("requirePermission", (permissionId: string) => {
+  return async (request, reply) => {
+    try {
+      await request.jwtVerify();
+    } catch {
+      return reply.code(401).send({ message: "未授權。" });
+    }
+
+    const allowed = await hasPermission(request.user.role, permissionId);
+    if (!allowed) {
+      return reply.code(403).send({ message: "權限不足。" });
+    }
+  };
+});
+
 app.get("/health", async () => ({ status: "ok" }));
 
 app.register(authRoutes, { prefix: "/auth" });
@@ -73,6 +90,7 @@ app.register(tasksRoutes, { prefix: "/api" });
 app.register(milestonesRoutes, { prefix: "/api" });
 app.register(qualityRoutes, { prefix: "/api" });
 app.register(auditRoutes, { prefix: "/api" });
+app.register(permissionsRoutes, { prefix: "/api" });
 
 const start = async () => {
   try {
@@ -92,4 +110,5 @@ process.on("SIGTERM", shutdown);
 
 await initStore();
 await initPlatformStore();
+await initPermissionsStore();
 start();

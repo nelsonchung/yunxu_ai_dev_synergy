@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ClipboardList, Flag, LayoutGrid, Plus, RefreshCcw } from "lucide-react";
 import { getSession } from "@/lib/authClient";
+import { getMyPermissions } from "@/lib/permissionsClient";
 import {
   createMilestone,
   createTask,
@@ -40,6 +41,13 @@ export default function Collaboration() {
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [accountRole, setAccountRole] = useState<string | null>(null);
+  const [permissions, setPermissions] = useState<string[]>([]);
+
+  const canManageTasks =
+    accountRole === "admin" || permissions.includes("projects.tasks.manage");
+  const canManageMilestones =
+    accountRole === "admin" || permissions.includes("projects.milestones.manage");
 
   const loadProjects = async () => {
     try {
@@ -69,6 +77,17 @@ export default function Collaboration() {
     const syncSession = async () => {
       const session = await getSession();
       setIsLoggedIn(Boolean(session));
+      setAccountRole(session?.role ?? null);
+      if (!session) {
+        setPermissions([]);
+        return;
+      }
+      try {
+        const permissionData = await getMyPermissions();
+        setPermissions(permissionData.permissions);
+      } catch {
+        setPermissions([]);
+      }
     };
     syncSession();
     loadProjects();
@@ -91,6 +110,10 @@ export default function Collaboration() {
   }, [tasks]);
 
   const handleCreateTask = async () => {
+    if (!canManageTasks) {
+      setError("目前角色無法管理任務，請洽管理者調整權限。");
+      return;
+    }
     if (!selectedProjectId || !newTaskTitle.trim()) {
       setError("請選擇專案並輸入任務標題。");
       return;
@@ -112,6 +135,10 @@ export default function Collaboration() {
   };
 
   const handleUpdateTask = async (task: Task, status: string) => {
+    if (!canManageTasks) {
+      setError("目前角色無法管理任務，請洽管理者調整權限。");
+      return;
+    }
     try {
       setError("");
       await updateTask(selectedProjectId, task.id, { status });
@@ -122,6 +149,10 @@ export default function Collaboration() {
   };
 
   const handleCreateMilestone = async () => {
+    if (!canManageMilestones) {
+      setError("目前角色無法管理里程碑，請洽管理者調整權限。");
+      return;
+    }
     if (!selectedProjectId || !newMilestoneTitle.trim()) {
       setError("請選擇專案並輸入里程碑標題。");
       return;
@@ -145,6 +176,10 @@ export default function Collaboration() {
   };
 
   const handleUpdateMilestone = async (milestone: Milestone, status: string) => {
+    if (!canManageMilestones) {
+      setError("目前角色無法管理里程碑，請洽管理者調整權限。");
+      return;
+    }
     try {
       setError("");
       await updateMilestone(selectedProjectId, milestone.id, { status });
@@ -179,6 +214,11 @@ export default function Collaboration() {
         {!isLoggedIn ? (
           <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
             請先登入後使用協作開發功能。
+          </div>
+        ) : null}
+        {isLoggedIn && (!canManageTasks || !canManageMilestones) ? (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+            目前角色無法管理任務或里程碑，請洽管理者調整權限。
           </div>
         ) : null}
 
@@ -223,12 +263,14 @@ export default function Collaboration() {
                 value={newTaskTitle}
                 onChange={(event) => setNewTaskTitle(event.target.value)}
                 placeholder="輸入任務標題"
+                disabled={!canManageTasks}
                 className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
               />
               <div className="flex gap-2">
                 <select
                   value={newTaskStatus}
                   onChange={(event) => setNewTaskStatus(event.target.value)}
+                  disabled={!canManageTasks}
                   className="flex-1 rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                 >
                   {taskColumns.map((column) => (
@@ -240,7 +282,8 @@ export default function Collaboration() {
                 <button
                   type="button"
                   onClick={handleCreateTask}
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition"
+                  disabled={!canManageTasks}
+                  className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   <Plus className="h-4 w-4" />
                   新增
@@ -258,6 +301,7 @@ export default function Collaboration() {
                         <select
                           value={task.status}
                           onChange={(event) => handleUpdateTask(task, event.target.value)}
+                          disabled={!canManageTasks}
                           className="mt-2 w-full rounded-lg border border-border bg-white px-2 py-1 text-xs focus:outline-none"
                         >
                           {taskColumns.map((option) => (
@@ -286,12 +330,14 @@ export default function Collaboration() {
               value={newMilestoneTitle}
               onChange={(event) => setNewMilestoneTitle(event.target.value)}
               placeholder="輸入里程碑標題"
+              disabled={!canManageMilestones}
               className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
             <div className="grid gap-2 md:grid-cols-2">
               <select
                 value={newMilestoneStatus}
                 onChange={(event) => setNewMilestoneStatus(event.target.value)}
+                disabled={!canManageMilestones}
                 className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
               >
                 {milestoneStatuses.map((status) => (
@@ -304,13 +350,15 @@ export default function Collaboration() {
                 type="date"
                 value={newMilestoneDue}
                 onChange={(event) => setNewMilestoneDue(event.target.value)}
+                disabled={!canManageMilestones}
                 className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
               />
             </div>
             <button
               type="button"
               onClick={handleCreateMilestone}
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition"
+              disabled={!canManageMilestones}
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition disabled:cursor-not-allowed disabled:opacity-70"
             >
               <Plus className="h-4 w-4" />
               新增里程碑
@@ -326,6 +374,7 @@ export default function Collaboration() {
                     <select
                       value={milestone.status}
                       onChange={(event) => handleUpdateMilestone(milestone, event.target.value)}
+                      disabled={!canManageMilestones}
                       className="mt-2 w-full rounded-lg border border-border bg-white px-2 py-1 text-xs focus:outline-none"
                     >
                       {milestoneStatuses.map((option) => (

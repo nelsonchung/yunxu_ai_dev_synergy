@@ -78,13 +78,19 @@ assert_status() {
 timestamp="$(date +%s)"
 title="M1需求測試${timestamp}"
 
+log_step "admin login"
+login_payload="$(printf '{"identifier":"%s","password":"%s"}' "$ADMIN_IDENTIFIER" "$ADMIN_PASSWORD")"
+response="$(request_json "POST" "/auth/login" "$login_payload" "" "$admin_cookie")"
+parse_response "$response"
+assert_status "200" "$RESPONSE_STATUS" "admin login"
+
 log_step "create requirement"
 payload="$(
   cat <<JSON
 {"title":"$title","companyName":"測試公司","projectType":"新系統建置","background":"需求背景","goals":"專案目標","scope":"功能範圍","constraints":"限制","budgetRange":"50 - 150 萬","timeline":"1-2 個月","specDoc":"尚未準備","attachments":["spec-link"],"contact":{"name":"測試者","email":"tester${timestamp}@example.com","phone":"0900-000-000"}}
 JSON
 )"
-response="$(request_json "POST" "/api/requirements" "$payload" "" "")"
+response="$(request_json "POST" "/api/requirements" "$payload" "$admin_cookie" "")"
 parse_response "$response"
 assert_status "201" "$RESPONSE_STATUS" "create requirement"
 
@@ -139,12 +145,6 @@ with open(path,"r",encoding="utf-8") as f:
 if not any(item.get("id")==rid for item in data):
     raise SystemExit("FAIL: requirement not found in store")
 PY
-
-log_step "admin login"
-login_payload="$(printf '{"identifier":"%s","password":"%s"}' "$ADMIN_IDENTIFIER" "$ADMIN_PASSWORD")"
-response="$(request_json "POST" "/auth/login" "$login_payload" "" "$admin_cookie")"
-parse_response "$response"
-assert_status "200" "$RESPONSE_STATUS" "admin login"
 
 log_step "approve requirement"
 approve_payload='{"approved":true,"comment":"自動測試核准"}'

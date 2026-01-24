@@ -9,7 +9,10 @@ const tasksRoutes: FastifyPluginAsync = async (app) => {
     return { tasks };
   });
 
-  app.post("/projects/:id/tasks", { preHandler: app.authenticate }, async (request, reply) => {
+  app.post(
+    "/projects/:id/tasks",
+    { preHandler: app.requirePermission("projects.tasks.manage") },
+    async (request, reply) => {
     const { id } = request.params as { id: string };
     const body = (request.body as {
       title?: string;
@@ -40,7 +43,10 @@ const tasksRoutes: FastifyPluginAsync = async (app) => {
     return reply.code(201).send({ task });
   });
 
-  app.patch("/projects/:id/tasks/:taskId", { preHandler: app.authenticate }, async (request, reply) => {
+  app.patch(
+    "/projects/:id/tasks/:taskId",
+    { preHandler: app.requirePermission("projects.tasks.manage") },
+    async (request, reply) => {
     const { id, taskId } = request.params as { id: string; taskId: string };
     const body = (request.body as {
       title?: string;

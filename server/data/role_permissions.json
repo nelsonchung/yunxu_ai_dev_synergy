@@ -1,0 +1,14 @@
+{
+  "customer": [
+    "requirements.create"
+  ],
+  "developer": [
+    "projects.create",
+    "projects.documents.system",
+    "projects.documents.software",
+    "projects.documents.test",
+    "projects.documents.delivery",
+    "projects.tasks.manage",
+    "projects.milestones.manage"
+  ]
+}

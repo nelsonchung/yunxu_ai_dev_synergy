@@ -85,7 +85,7 @@ payload="$(
 {"title":"稽核測試${timestamp}","companyName":"測試公司","projectType":"新系統建置","background":"需求背景","goals":"專案目標","scope":"功能範圍","constraints":"","budgetRange":"50 - 150 萬","timeline":"1-2 個月","specDoc":"尚未準備","attachments":[],"contact":{"name":"測試者","email":"tester${timestamp}@example.com","phone":""}}
 JSON
 )"
-response="$(request_json "POST" "/api/requirements" "$payload" "" "")"
+response="$(request_json "POST" "/api/requirements" "$payload" "$admin_cookie" "")"
 parse_response "$response"
 assert_status "201" "$RESPONSE_STATUS" "create requirement"
 
@@ -99,7 +99,7 @@ PY
 
 log_step "create project"
 project_payload="$(printf '{"requirementId":"%s","name":"%s"}' "$requirement_id" "稽核測試專案")"
-response="$(request_json "POST" "/api/projects" "$project_payload" "" "")"
+response="$(request_json "POST" "/api/projects" "$project_payload" "$admin_cookie" "")"
 parse_response "$response"
 assert_status "201" "$RESPONSE_STATUS" "create project"
 
