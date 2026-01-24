@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgcrypto, citext]
+}
+
+enum UserRole {
+  customer
+  developer
+  admin
+}
+
+enum UserStatus {
+  pending
+  active
+  suspended
+}
+
+model User {
+  id              String      @id @default(uuid()) @db.Uuid
+  username        String      @unique @db.Citext
+  email           String      @unique @db.Citext
+  passwordHash    String      @map("password_hash")
+  role            UserRole    @default(customer)
+  status          UserStatus  @default(pending)
+  emailVerifiedAt DateTime?   @map("email_verified_at")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+  sessions        AuthSession[]
+  auditLogs       AuditLog[]  @relation("AuditActor")
+  auditTargets    AuditLog[]  @relation("AuditTarget")
+
+  @@map("users")
+}
+
+model AuthSession {
+  id               String   @id @default(uuid()) @db.Uuid
+  userId           String   @map("user_id") @db.Uuid
+  refreshTokenHash String   @map("refresh_token_hash")
+  expiresAt        DateTime @map("expires_at")
+  createdAt        DateTime @default(now()) @map("created_at")
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("auth_sessions")
+}
+
+model AuditLog {
+  id           String   @id @default(uuid()) @db.Uuid
+  actorId      String?  @map("actor_id") @db.Uuid
+  targetUserId String?  @map("target_user_id") @db.Uuid
+  action       String
+  before       Json?
+  after        Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+  actor        User?    @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  target       User?    @relation("AuditTarget", fields: [targetUserId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+}
