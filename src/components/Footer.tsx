@@ -1,33 +1,45 @@
 import { useEffect, useState } from "react";
 import { Mail, MapPin, Sparkles } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { onAuthStateChanged, signOut, type User } from "firebase/auth";
-import { firebaseAuth } from "@/lib/firebase";
+import { getSession, logoutAccount, onSessionChange, type AuthUser } from "@/lib/authClient";
 
 const links = [
-  { label: "核心理念", href: "/#core" },
-  { label: "流程設計", href: "/#process" },
-  { label: "AI 角色", href: "/#ai" },
-  { label: "合作模式", href: "/#collaboration" },
-  { label: "品牌介紹", href: "/#brand" },
+  { label: "核心理念", href: "/#core", type: "anchor" },
+  { label: "流程設計", href: "/#process", type: "anchor" },
+  { label: "AI 角色", href: "/#ai", type: "anchor" },
+  { label: "合作模式", href: "/#collaboration", type: "anchor" },
+  { label: "品牌介紹", href: "/#brand", type: "anchor" },
+  { label: "專案管理", href: "/projects", type: "route" },
 ];
 
 export default function Footer() {
-  const [user, setUser] = useState<User | null>(null);
+  const [accountUser, setAccountUser] = useState<AuthUser | null>(null);
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(firebaseAuth, (nextUser) => {
-      setUser(nextUser ?? null);
-    });
+    if (typeof window === "undefined") return;
+    let active = true;
+    const syncSession = async () => {
+      const session = await getSession();
+      if (active) setAccountUser(session);
+    };
+    const unsubscribe = onSessionChange(syncSession);
+    syncSession();
 
-    return unsubscribe;
+    return () => {
+      active = false;
+      unsubscribe();
+    };
   }, []);
 
   const handleLogout = async () => {
-    await signOut(firebaseAuth);
+    await logoutAccount();
+    setAccountUser(null);
     setLocation("/");
   };
+
+  const isLoggedIn = Boolean(accountUser);
+  const isAdmin = accountUser?.role === "admin";
 
   return (
     <footer className="border-t bg-secondary/50">
@@ -48,13 +60,22 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               {links.map((link) => (
                 <li key={link.href}>
-                  <a href={link.href} className="text-muted-foreground hover:text-primary transition">
-                    {link.label}
-                  </a>
+                  {link.type === "route" ? (
+                    <Link
+                      href={link.href}
+                      className="text-muted-foreground hover:text-primary transition"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a href={link.href} className="text-muted-foreground hover:text-primary transition">
+                      {link.label}
+                    </a>
+                  )}
                 </li>
               ))}
               <li>
-                {user ? (
+                {isLoggedIn ? (
                   <button
                     type="button"
                     onClick={handleLogout}
@@ -63,14 +84,21 @@ export default function Footer() {
                     登出
                   </button>
                 ) : (
-                  <Link href="/auth">
-                    <a className="text-muted-foreground hover:text-primary transition">登入 / 註冊</a>
+                  <Link href="/auth" className="text-muted-foreground hover:text-primary transition">
+                    登入 / 註冊
                   </Link>
                 )}
               </li>
+              {isAdmin ? (
+                <li>
+                  <Link href="/admin/users" className="text-muted-foreground hover:text-primary transition">
+                    使用者管理
+                  </Link>
+                </li>
+              ) : null}
               <li>
-                <Link href="/request">
-                  <a className="text-muted-foreground hover:text-primary transition">提交需求</a>
+                <Link href="/request" className="text-muted-foreground hover:text-primary transition">
+                  提交需求
                 </Link>
               </li>
             </ul>

@@ -1,27 +1,19 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { CircleCheck, LogOut, ShieldCheck, Sparkles, UserRound } from "lucide-react";
+import { Link } from "wouter";
 import {
-  onAuthStateChanged,
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-  signOut,
-  type ConfirmationResult,
-  type User,
-} from "firebase/auth";
-import {
-  CircleCheck,
-  LogOut,
-  Phone,
-  ShieldCheck,
-  Sparkles,
-  UserRound,
-} from "lucide-react";
-import { firebaseAuth } from "@/lib/firebase";
-import { Link, useLocation } from "wouter";
+  getSession,
+  loginAccount,
+  logoutAccount,
+  onSessionChange,
+  registerAccount,
+  type AuthUser,
+} from "@/lib/authClient";
 
 const loginHighlights = [
   {
-    title: "安全驗證",
-    description: "採用 Firebase reCAPTCHA 與簡訊驗證，確保登入安全。",
+    title: "安全登入",
+    description: "採用伺服器端密碼驗證與 Session 機制。",
     icon: ShieldCheck,
   },
   {
@@ -37,152 +29,142 @@ const loginHighlights = [
 ];
 
 export default function AuthSection() {
-  const [phone, setPhone] = useState("");
-  const [code, setCode] = useState("");
-  const [confirmation, setConfirmation] = useState<ConfirmationResult | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [authStatus, setAuthStatus] = useState("");
-  const [authError, setAuthError] = useState("");
-  const [authErrorCode, setAuthErrorCode] = useState<string | null>(null);
-  const [isSending, setIsSending] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const recaptchaRef = useRef<RecaptchaVerifier | null>(null);
-  const [, setLocation] = useLocation();
-
-  const readErrorCode = (error: unknown) => {
-    if (typeof error === "object" && error && "code" in error) {
-      const code = (error as { code?: string }).code;
-      return typeof code === "string" ? code : null;
-    }
-    return null;
-  };
-
-  const initRecaptcha = () => {
-    if (recaptchaRef.current) return;
-    if (typeof window === "undefined") return;
-
-    recaptchaRef.current = new RecaptchaVerifier(
-      firebaseAuth,
-      "recaptcha-container",
-      {
-        size: "normal",
-        "expired-callback": () => {
-          setAuthError("reCAPTCHA 已過期，請重新驗證。");
-        },
-      }
-    );
-
-    recaptchaRef.current.render().catch(() => {
-      setAuthError("reCAPTCHA 載入失敗，請重新整理後再試。");
-    });
-  };
-
-  const resetRecaptcha = () => {
-    if (recaptchaRef.current) {
-      recaptchaRef.current.clear();
-      recaptchaRef.current = null;
-    }
-    initRecaptcha();
-  };
+  const [accountTab, setAccountTab] = useState<"login" | "register">("login");
+  const [accountUsername, setAccountUsername] = useState("");
+  const [accountEmail, setAccountEmail] = useState("");
+  const [accountPassword, setAccountPassword] = useState("");
+  const [accountConfirm, setAccountConfirm] = useState("");
+  const [accountStatus, setAccountStatus] = useState("");
+  const [accountError, setAccountError] = useState("");
+  const [accountUser, setAccountUser] = useState<AuthUser | null>(null);
+  const [isAccountBusy, setIsAccountBusy] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(firebaseAuth, (nextUser) => {
-      setUser(nextUser ?? null);
-      if (nextUser) {
-        setAuthStatus("");
-        setAuthError("");
-        setAuthErrorCode(null);
-        setConfirmation(null);
-        setCode("");
-      }
-    });
+    if (typeof window === "undefined") return;
+    let active = true;
+    const syncSession = async () => {
+      const session = await getSession();
+      if (active) setAccountUser(session);
+    };
+    const unsubscribe = onSessionChange(syncSession);
+    syncSession();
 
-    return unsubscribe;
+    return () => {
+      active = false;
+      unsubscribe();
+    };
   }, []);
 
-  useEffect(() => {
-    if (user) {
-      if (recaptchaRef.current) {
-        recaptchaRef.current.clear();
-        recaptchaRef.current = null;
+
+  const resetAccountFeedback = () => {
+    setAccountStatus("");
+    setAccountError("");
+  };
+
+  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validateUsername = (username: string) => /^[a-zA-Z0-9_]{3,20}$/.test(username);
+
+  const handleRegister = async () => {
+    resetAccountFeedback();
+    setIsAccountBusy(true);
+    setAccountStatus("註冊中...");
+    const username = accountUsername.trim();
+    const email = accountEmail.trim();
+    const password = accountPassword.trim();
+    const confirm = accountConfirm.trim();
+
+    if (!username || !email || !password || !confirm) {
+      setAccountError("請完整填寫帳號、Email 與密碼欄位。");
+      setAccountStatus("");
+      setIsAccountBusy(false);
+      return;
+    }
+    if (!validateUsername(username)) {
+      setAccountError("帳號需為 3-20 字英數或底線，且不可包含空白。");
+      setAccountStatus("");
+      setIsAccountBusy(false);
+      return;
+    }
+    if (!validateEmail(email)) {
+      setAccountError("Email 格式不正確，請重新輸入。");
+      setAccountStatus("");
+      setIsAccountBusy(false);
+      return;
+    }
+    if (password.length < 8) {
+      setAccountError("密碼至少 8 碼，建議包含英數組合。");
+      setAccountStatus("");
+      setIsAccountBusy(false);
+      return;
+    }
+    if (password !== confirm) {
+      setAccountError("密碼與確認密碼不一致。");
+      setAccountStatus("");
+      setIsAccountBusy(false);
+      return;
+    }
+
+    try {
+      const userInfo = await registerAccount({
+        username,
+        email,
+        password,
+        confirmPassword: confirm,
+      });
+      if (!userInfo) {
+        throw new Error("註冊成功，但未取得使用者資訊。");
       }
-      return;
+      setAccountUser(userInfo);
+      const session = await getSession();
+      if (session) {
+        setAccountUser(session);
+      }
+      setAccountStatus("註冊成功，已登入。");
+      setAccountPassword("");
+      setAccountConfirm("");
+    } catch (error) {
+      setAccountError(error instanceof Error ? error.message : "註冊失敗，請稍後再試。");
+      setAccountStatus("");
+    } finally {
+      setIsAccountBusy(false);
     }
-    initRecaptcha();
-  }, [user]);
+  };
 
-  const handleSendCode = async () => {
-    setAuthStatus("");
-    setAuthError("");
-    setAuthErrorCode(null);
+  const handleAccountLogin = async () => {
+    resetAccountFeedback();
+    setIsAccountBusy(true);
+    setAccountStatus("登入中...");
+    const username = accountUsername.trim();
+    const password = accountPassword.trim();
 
-    const trimmedPhone = phone.trim();
-    if (!trimmedPhone.startsWith("+")) {
-      setAuthError("請使用國碼格式，例如 +886912345678。");
-      return;
-    }
-
-    if (!recaptchaRef.current) {
-      setAuthError("reCAPTCHA 尚未就緒，請稍後再試。");
+    if (!username || !password) {
+      setAccountError("請輸入帳號與密碼。");
+      setAccountStatus("");
+      setIsAccountBusy(false);
       return;
     }
 
     try {
-      setIsSending(true);
-      const result = await signInWithPhoneNumber(
-        firebaseAuth,
-        trimmedPhone,
-        recaptchaRef.current
-      );
-      setConfirmation(result);
-      setAuthStatus("驗證碼已送出，請查看簡訊。");
+      const userInfo = await loginAccount({ identifier: username, password });
+      setAccountUser(userInfo);
+      setAccountStatus("登入成功。");
+      setAccountPassword("");
     } catch (error) {
-      console.error(error);
-      const errorCode = readErrorCode(error);
-      setAuthError("驗證碼發送失敗，請確認手機號碼與簡訊額度。");
-      setAuthErrorCode(errorCode);
-      resetRecaptcha();
+      setAccountError(error instanceof Error ? error.message : "登入失敗，請稍後再試。");
+      setAccountStatus("");
     } finally {
-      setIsSending(false);
+      setIsAccountBusy(false);
     }
   };
 
-  const handleVerifyCode = async () => {
-    setAuthStatus("");
-    setAuthError("");
-    setAuthErrorCode(null);
-
-    if (!confirmation) {
-      setAuthError("請先取得驗證碼。");
-      return;
-    }
-
-    if (!code.trim()) {
-      setAuthError("請輸入簡訊驗證碼。");
-      return;
-    }
-
+  const handleAccountLogout = async () => {
     try {
-      setIsVerifying(true);
-      await confirmation.confirm(code.trim());
-      setAuthStatus("登入成功。");
-      setCode("");
-    } catch (error) {
-      console.error(error);
-      const errorCode = readErrorCode(error);
-      setAuthError("驗證碼錯誤或已過期，請重新取得。");
-      setAuthErrorCode(errorCode);
-    } finally {
-      setIsVerifying(false);
+      await logoutAccount();
+      setAccountUser(null);
+      setAccountStatus("已登出。");
+    } catch {
+      setAccountError("登出失敗，請稍後再試。");
     }
-  };
-
-  const handleLogout = async () => {
-    setAuthStatus("");
-    setAuthError("");
-    setAuthErrorCode(null);
-    await signOut(firebaseAuth);
-    setLocation("/");
   };
 
   return (
@@ -193,9 +175,9 @@ export default function AuthSection() {
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1 text-sm font-semibold text-primary">
               會員登入
             </span>
-            <h2 className="font-serif text-3xl md:text-4xl font-bold">使用電信業者登入，快速啟動專案</h2>
+            <h2 className="font-serif text-3xl md:text-4xl font-bold">帳號密碼登入，快速啟動專案</h2>
             <p className="text-muted-foreground text-lg leading-relaxed">
-              使用手機號碼登入後，我們能更有效率地安排需求訪談與媒合流程。登入資訊僅用於專案聯繫。
+              使用帳號密碼登入後，即可進入需求對談、媒合與專案追蹤流程。
             </p>
 
             <div className="grid gap-4">
@@ -215,31 +197,36 @@ export default function AuthSection() {
 
           <div className="space-y-6">
             <div className="rounded-3xl border bg-card p-8 shadow-lg space-y-6">
-              <div className="space-y-2">
-                <h3 className="font-serif text-2xl font-bold">手機驗證登入</h3>
-                <p className="text-sm text-muted-foreground">
-                  Firebase 會透過簡訊送出驗證碼。請使用國碼格式輸入手機號碼。
-                </p>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="space-y-1">
+                  <h3 className="font-serif text-2xl font-bold">帳號密碼登入</h3>
+                  <p className="text-sm text-muted-foreground">
+                    使用帳號密碼登入，帳號資料會保存在伺服器，可跨裝置使用。
+                  </p>
+                </div>
               </div>
 
-              {user ? (
+              {accountUser ? (
                 <div className="rounded-2xl border border-primary/30 bg-primary/10 p-5 space-y-4">
                   <div className="flex items-center gap-3">
                     <CircleCheck className="h-6 w-6 text-primary" />
                     <div>
                       <p className="font-semibold">已登入</p>
-                      <p className="text-sm text-muted-foreground">{user.phoneNumber || "已驗證帳號"}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {accountUser.username} · {accountUser.email}
+                      </p>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-3">
-                    <Link href="/request">
-                      <a className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition">
-                        前往提交需求
-                      </a>
+                    <Link
+                      href="/projects"
+                      className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition"
+                    >
+                      前往專案管理
                     </Link>
                     <button
                       type="button"
-                      onClick={handleLogout}
+                      onClick={handleAccountLogout}
                       className="inline-flex items-center justify-center rounded-full border border-primary/30 px-4 py-2 text-sm font-semibold text-primary hover:bg-primary/10 transition"
                     >
                       <LogOut className="mr-2 h-4 w-4" />
@@ -249,63 +236,111 @@ export default function AuthSection() {
                 </div>
               ) : (
                 <div className="space-y-4">
+                  <div className="inline-flex rounded-full border border-border bg-secondary/60 p-1 text-xs font-semibold">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAccountTab("login");
+                        resetAccountFeedback();
+                      }}
+                      className={`rounded-full px-4 py-1 transition ${
+                        accountTab === "login" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                      }`}
+                    >
+                      登入
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAccountTab("register");
+                        resetAccountFeedback();
+                      }}
+                      className={`rounded-full px-4 py-1 transition ${
+                        accountTab === "register" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                      }`}
+                    >
+                      註冊
+                    </button>
+                  </div>
+
                   <label className="space-y-2 text-sm font-medium">
-                    手機號碼
-                    <div className="flex items-center gap-2 rounded-xl border border-border bg-white/90 px-4 py-3">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                      <input
-                        type="tel"
-                        name="phone"
-                        placeholder="+886912345678"
-                        value={phone}
-                        onChange={(event) => setPhone(event.target.value)}
-                        className="w-full bg-transparent text-sm focus:outline-none"
-                      />
-                    </div>
-                  </label>
-                  <div id="recaptcha-container" className="rounded-2xl border border-dashed p-3" />
-                  <button
-                    type="button"
-                    onClick={handleSendCode}
-                    disabled={isSending}
-                    className="inline-flex w-full items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-black/10 hover:bg-primary/90 transition disabled:cursor-not-allowed disabled:opacity-70"
-                  >
-                    {isSending ? "傳送中..." : "發送驗證碼"}
-                  </button>
-                  <label className="space-y-2 text-sm font-medium">
-                    簡訊驗證碼
+                    帳號
                     <input
                       type="text"
-                      name="code"
-                      placeholder="輸入 6 位數驗證碼"
-                      value={code}
-                      onChange={(event) => setCode(event.target.value)}
+                      name="username"
+                      placeholder="3-20 字英數或底線"
+                      value={accountUsername}
+                      onChange={(event) => setAccountUsername(event.target.value)}
                       className="w-full rounded-xl border border-border bg-white/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                     />
                   </label>
+
+                  {accountTab === "register" && (
+                    <label className="space-y-2 text-sm font-medium">
+                      Email
+                      <input
+                        type="email"
+                        name="email"
+                        placeholder="name@company.com"
+                        value={accountEmail}
+                        onChange={(event) => setAccountEmail(event.target.value)}
+                        className="w-full rounded-xl border border-border bg-white/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                      />
+                    </label>
+                  )}
+
+                  <label className="space-y-2 text-sm font-medium">
+                    密碼
+                    <input
+                      type="password"
+                      name="password"
+                      placeholder="至少 8 碼"
+                      value={accountPassword}
+                      onChange={(event) => setAccountPassword(event.target.value)}
+                      className="w-full rounded-xl border border-border bg-white/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    />
+                  </label>
+
+                  {accountTab === "register" && (
+                    <label className="space-y-2 text-sm font-medium">
+                      確認密碼
+                      <input
+                        type="password"
+                        name="confirm"
+                        placeholder="再次輸入密碼"
+                        value={accountConfirm}
+                        onChange={(event) => setAccountConfirm(event.target.value)}
+                        className="w-full rounded-xl border border-border bg-white/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                      />
+                    </label>
+                  )}
+
                   <button
                     type="button"
-                    onClick={handleVerifyCode}
-                    disabled={isVerifying}
-                    className="inline-flex w-full items-center justify-center rounded-full border border-primary/30 px-6 py-3 text-sm font-semibold text-primary hover:bg-primary/10 transition disabled:cursor-not-allowed disabled:opacity-70"
+                    onClick={accountTab === "register" ? handleRegister : handleAccountLogin}
+                    disabled={isAccountBusy}
+                    className="inline-flex w-full items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-black/10 hover:bg-primary/90 transition disabled:cursor-not-allowed disabled:opacity-70"
                   >
-                    {isVerifying ? "驗證中..." : "確認登入"}
+                    {isAccountBusy
+                      ? accountTab === "register"
+                        ? "註冊中..."
+                        : "登入中..."
+                      : accountTab === "register"
+                      ? "註冊並登入"
+                      : "帳號登入"}
                   </button>
                 </div>
               )}
 
-              {!user && (authStatus || authError) && (
+              {(accountStatus || accountError) && (
                 <div
                   className={`rounded-2xl border p-4 text-sm ${
-                    authError
+                    accountError
                       ? "border-red-200 bg-red-50 text-red-700"
                       : "border-emerald-200 bg-emerald-50 text-emerald-700"
                   }`}
                 >
-                  <p>{authError || authStatus}</p>
-                  {authError && authErrorCode && (
-                    <p className="mt-2 text-xs text-red-600">錯誤代碼：{authErrorCode}</p>
-                  )}
+                  {accountError || accountStatus}
                 </div>
               )}
             </div>

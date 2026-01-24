@@ -14,5 +14,26 @@ if [[ ! -d "node_modules" ]]; then
   pnpm install
 fi
 
-echo "Starting dev server..."
+if [[ ! -d "server/node_modules" ]]; then
+  echo "server/node_modules not found. Installing backend dependencies..."
+  pnpm --dir server install
+fi
+
+if [[ ! -f "server/.env" ]]; then
+  echo "Warning: server/.env not found. Copy from server/.env.nosqljson.example and update JWT_SECRET."
+fi
+
+echo "Starting backend dev server..."
+pnpm --dir server dev &
+BACKEND_PID=$!
+
+cleanup() {
+  if ps -p "$BACKEND_PID" >/dev/null 2>&1; then
+    kill "$BACKEND_PID"
+  fi
+}
+
+trap cleanup EXIT
+
+echo "Starting frontend dev server..."
 pnpm dev

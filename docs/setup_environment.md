@@ -34,6 +34,31 @@ pnpm install
 若要調整 Firebase 專案或 API Key，請同時更新設定並參考：
 - `docs/cellphone_authentication_by_firebase.md`
 
+## Backend（方案 B：JSON NoSQL）
+若要實作帳號/密碼登入（方案 B），需新增後端服務與 JSON 儲存檔案。
+
+### 建議環境變數（後端）
+```env
+DATA_FILE="./data/auth.json"
+JWT_SECRET="change_me"
+JWT_EXPIRES_IN="7d"
+CORS_ORIGIN="http://localhost:5173"
+```
+
+> `DATA_FILE` 為使用者與角色的 JSON 儲存位置。
+
+### 後端安裝與啟動（Fastify）
+```bash
+cd server
+cp .env.nosqljson.example .env
+pnpm install
+pnpm dev
+```
+
+> 後端預設埠：`8787`（可用 `PORT` 環境變數調整）。
+
+> 若要改回 PostgreSQL 模式，可改用 `server/.env.postgresql.example` 作為範本。
+
 ## Start dev server
 啟動 Vite 開發伺服器（預設 `http://localhost:5173`）。
 ```bash

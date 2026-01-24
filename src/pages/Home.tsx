@@ -146,11 +146,12 @@ export default function Home() {
                 讓發案、協作與交付更快更準、更可控。
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link href="/request">
-                  <a className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-lg shadow-black/20 hover:bg-primary/90 transition">
-                    立即提交需求
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </a>
+                <Link
+                  href="/request"
+                  className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-lg shadow-black/20 hover:bg-primary/90 transition"
+                >
+                  立即提交需求
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
                 <a
                   href="#core"
@@ -354,11 +355,12 @@ export default function Home() {
                 鋆旭 AI-Dev 讓軟體外包合作更安心、更高效。
               </p>
             </div>
-            <Link href="/request">
-              <a className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-base font-semibold text-slate-900 hover:bg-white/90 transition">
-                立即諮詢需求
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </a>
+            <Link
+              href="/request"
+              className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-base font-semibold text-slate-900 hover:bg-white/90 transition"
+            >
+              立即諮詢需求
+              <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
           </div>
         </div>
