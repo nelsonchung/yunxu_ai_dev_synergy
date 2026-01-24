@@ -9,6 +9,7 @@ const navItems = [
   { label: "AI 角色", href: "/#ai", type: "anchor" },
   { label: "合作模式", href: "/#collaboration", type: "anchor" },
   { label: "品牌介紹", href: "/#brand", type: "anchor" },
+  { label: "需求中心", href: "/requirements", type: "route" },
   { label: "專案管理", href: "/projects", type: "route" },
   { label: "文件中心", href: "/documents", type: "route" },
 ];

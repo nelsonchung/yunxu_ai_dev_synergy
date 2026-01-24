@@ -33,17 +33,17 @@ export default function Projects() {
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link
-                  href="/projects/new"
+                  href="/requirements"
                   className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-lg shadow-black/20 hover:bg-primary/90 transition"
                 >
-                  新增需求
+                  需求中心
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
                 <Link
-                  href="/request"
+                  href="/documents"
                   className="inline-flex items-center justify-center rounded-full border border-white/60 px-6 py-3 text-base font-semibold text-white hover:bg-white/10 transition"
                 >
-                  需求對談入口
+                  文件中心
                 </Link>
               </div>
             </div>

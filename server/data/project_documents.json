@@ -10,5 +10,17 @@
     "versionNote": "",
     "createdAt": "2026-01-24T08:27:19.434Z",
     "updatedAt": "2026-01-24T08:27:19.434Z"
+  },
+  {
+    "id": "2a6ec100-b64f-4ba1-b377-0b7d3921bdff",
+    "projectId": "70013659-95c4-4919-836d-562754c74dc0",
+    "type": "system",
+    "title": "系統開發文件",
+    "version": 1,
+    "contentUrl": "projects/70013659-95c4-4919-836d-562754c74dc0/system/v1.md",
+    "status": "pending_approval",
+    "versionNote": "系統開發文件",
+    "createdAt": "2026-01-24T08:41:27.925Z",
+    "updatedAt": "2026-01-24T08:41:27.925Z"
   }
 ]

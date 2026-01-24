@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import Auth from "@/pages/Auth";
 import AdminUsers from "@/pages/AdminUsers";
 import Documents from "@/pages/Documents";
+import Requirements from "@/pages/Requirements";
 import Home from "@/pages/Home";
 import ProjectDetail from "@/pages/ProjectDetail";
 import ProjectNew from "@/pages/ProjectNew";
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="/" component={Home} />
           <Route path="/auth" component={Auth} />
           <Route path="/documents" component={Documents} />
+          <Route path="/requirements" component={Requirements} />
           <Route path="/admin/users" component={AdminUsers} />
           <Route path="/projects/new" component={ProjectNew} />
           <Route path="/projects/:id" component={ProjectDetail} />
