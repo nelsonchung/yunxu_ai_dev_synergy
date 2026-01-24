@@ -24,10 +24,10 @@
     "username": "user",
     "email": "user@outlook.com",
     "passwordHash": "$2a$12$wxYDg0N7cPepIITW/sraOuaGcuJNmdKUIS/ynD5ES220iKz5vwn26",
-    "role": "customer",
+    "role": "developer",
     "status": "active",
     "createdAt": "2026-01-23T12:48:16.076Z",
-    "updatedAt": "2026-01-24T03:04:14.514Z"
+    "updatedAt": "2026-01-24T05:14:20.979Z"
   },
   {
     "id": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
@@ -37,6 +37,6 @@
     "role": "developer",
     "status": "active",
     "createdAt": "2026-01-24T02:05:56.216Z",
-    "updatedAt": "2026-01-24T04:38:09.691Z"
+    "updatedAt": "2026-01-24T05:14:17.933Z"
   }
 ]
