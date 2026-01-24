@@ -1,24 +1,13 @@
 [
   {
-    "id": "b0e1835e-7b44-4892-9141-367281446f4f",
-    "requirementId": "57809268-7cb1-439e-beb4-a7b722152654",
+    "id": "916563b0-0929-49f0-b257-c64e362e457a",
+    "requirementId": "b87da452-8676-456e-9c92-a042f80f7414",
     "version": 1,
-    "contentUrl": "requirements/57809268-7cb1-439e-beb4-a7b722152654/v1.md",
-    "status": "archived",
-    "approvedBy": null,
-    "reviewComment": null,
-    "createdAt": "2026-01-24T10:05:19.465Z",
-    "updatedAt": "2026-01-24T10:13:47.973Z"
-  },
-  {
-    "id": "51047995-2618-4fef-8811-a9b5ef10fa6a",
-    "requirementId": "57809268-7cb1-439e-beb4-a7b722152654",
-    "version": 2,
-    "contentUrl": "requirements/57809268-7cb1-439e-beb4-a7b722152654/v2.md",
-    "status": "pending_approval",
-    "approvedBy": null,
-    "reviewComment": null,
-    "createdAt": "2026-01-24T10:13:47.973Z",
-    "updatedAt": "2026-01-24T10:13:47.973Z"
+    "contentUrl": "requirements/b87da452-8676-456e-9c92-a042f80f7414/v1.md",
+    "status": "approved",
+    "approvedBy": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "reviewComment": "",
+    "createdAt": "2026-01-24T14:19:56.013Z",
+    "updatedAt": "2026-01-24T14:32:10.057Z"
   }
 ]

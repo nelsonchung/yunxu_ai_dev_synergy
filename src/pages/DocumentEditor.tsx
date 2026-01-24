@@ -309,6 +309,12 @@ export default function DocumentEditor() {
   };
 
   const docTitle = docKind === "requirement" ? "需求文件編輯" : "專案文件編輯";
+  const backLink =
+    accountRole === "developer"
+      ? { href: "/workspace", label: "返回專案工作台" }
+      : accountRole === "customer"
+      ? { href: "/my/requirements", label: "返回我的需求" }
+      : { href: "/documents", label: "返回文件中心" };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-secondary/30 to-background">
@@ -321,10 +327,10 @@ export default function DocumentEditor() {
                 文件編輯器
               </span>
               <Link
-                href="/documents"
+                href={backLink.href}
                 className="text-sm text-muted-foreground hover:text-primary transition"
               >
-                <ArrowLeft className="inline-block h-4 w-4" /> 返回文件中心
+                <ArrowLeft className="inline-block h-4 w-4" /> {backLink.label}
               </Link>
             </div>
             <h1 className="font-serif text-3xl md:text-4xl font-bold">{docTitle}</h1>

@@ -25,28 +25,26 @@
     "updatedAt": "2026-01-24T07:51:27.378Z"
   },
   {
-    "title": "第二次需求",
-    "companyName": "測試公司",
-    "projectType": "既有系統擴充",
-    "background": "第二次需求",
-    "goals": "第二次需求",
-    "scope": "第二次需求",
-    "constraints": "第二次需求",
-    "budgetRange": "50 - 150 萬",
-    "timeline": "6 個月以上",
-    "specDoc": "有部分資料",
-    "attachments": [
-      "第二次需求"
-    ],
+    "title": "系統媒合平台",
+    "companyName": "鋆旭科技",
+    "projectType": "新系統建置",
+    "background": "客戶想要尋找有品質的開發商。\n軟體開發商想要找案子。\n\n想要解決的需求如下\n1. 如何保證開發品質？\n2. 如何讓減少客戶與軟體開發商之間的溝通成本？\n3. 如何讓開發過程更透明？",
+    "goals": "需要一個品牌網站，能夠提供軟體外包溝通平台。",
+    "scope": "要能夠解決需求\n1. 提出保證開發品質的方法\n2. 有效降低客戶與軟體開發商之間的溝通成本\n3. 要有專案開發的狀態瀏覽功能",
+    "constraints": "無",
+    "budgetRange": "50 萬以下",
+    "timeline": "3-6 個月",
+    "specDoc": "尚未準備",
+    "attachments": [],
     "contact": {
-      "name": "測試姓名",
-      "email": "customer@outlook.com",
-      "phone": "0919520508"
+      "name": "陳小姐",
+      "email": "yunxu_services@outlook.com",
+      "phone": "0981157516"
     },
     "ownerId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
-    "id": "57809268-7cb1-439e-beb4-a7b722152654",
-    "status": "under_review",
-    "createdAt": "2026-01-24T10:05:19.465Z",
-    "updatedAt": "2026-01-24T10:13:47.973Z"
+    "id": "b87da452-8676-456e-9c92-a042f80f7414",
+    "status": "approved",
+    "createdAt": "2026-01-24T14:19:56.013Z",
+    "updatedAt": "2026-01-24T14:32:10.057Z"
   }
 ]

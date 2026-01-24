@@ -12,6 +12,20 @@ export type RequirementSummary = {
   updatedAt: string;
 };
 
+export type RequirementDetail = RequirementSummary & {
+  background: string;
+  goals: string;
+  scope: string;
+  constraints: string;
+  specDoc: string;
+  attachments: string[];
+  contact?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+  };
+};
+
 export type RequirementDocumentSummary = {
   id: string;
   version: number;
@@ -149,7 +163,7 @@ export const listMyRequirements = async () => {
 };
 
 export const getRequirement = async (requirementId: string) => {
-  const data = await apiRequest<{ requirement: RequirementSummary & { contact?: unknown } }>(
+  const data = await apiRequest<{ requirement: RequirementDetail }>(
     `/api/requirements/${requirementId}`,
     { method: "GET" }
   );

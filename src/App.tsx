@@ -9,6 +9,7 @@ import CustomerOverviewSingle from "@/pages/CustomerOverviewSingle";
 import CustomerOverviewTabs from "@/pages/CustomerOverviewTabs";
 import MyRequirements from "@/pages/MyRequirements";
 import RequirementDetailTabs from "@/pages/RequirementDetailTabs";
+import RequirementDetail from "@/pages/RequirementDetail";
 import Documents from "@/pages/Documents";
 import Matching from "@/pages/Matching";
 import Requirements from "@/pages/Requirements";
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="/preview/customer-tabs" component={CustomerOverviewTabs} />
           <Route path="/my/requirements" component={MyRequirements} />
           <Route path="/my/requirements/:id" component={RequirementDetailTabs} />
+          <Route path="/requirements/:id" component={RequirementDetail} />
           <Route path="/requirements" component={Requirements} />
           <Route path="/admin/users" component={AdminUsers} />
           <Route path="/projects/new" component={ProjectNew} />

@@ -26,5 +26,33 @@
     "updatedAt": "2026-01-24T14:06:20.037Z",
     "reviewComment": null,
     "approvedBy": "e38600d9-8f72-42d4-94b1-51928890e9b1"
+  },
+  {
+    "id": "8873f007-7b14-4ae0-b485-1bf038a39ad2",
+    "projectId": "7cd0c49d-140c-4ab3-a01d-004f32a54d78",
+    "type": "system",
+    "title": "系統架構文件",
+    "version": 1,
+    "contentUrl": "projects/7cd0c49d-140c-4ab3-a01d-004f32a54d78/system/v1.md",
+    "status": "archived",
+    "versionNote": null,
+    "reviewComment": "已看過draft版本，請問何時可以有正式版本",
+    "approvedBy": null,
+    "createdAt": "2026-01-24T14:31:24.684Z",
+    "updatedAt": "2026-01-24T14:35:39.978Z"
+  },
+  {
+    "id": "23084e01-ce8b-4e2c-bd94-f14edee6d1c2",
+    "projectId": "7cd0c49d-140c-4ab3-a01d-004f32a54d78",
+    "type": "system",
+    "title": "系統架構文件",
+    "version": 2,
+    "contentUrl": "projects/7cd0c49d-140c-4ab3-a01d-004f32a54d78/system/v2.md",
+    "status": "approved",
+    "versionNote": null,
+    "reviewComment": "已review完成，確認沒問題。",
+    "approvedBy": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "createdAt": "2026-01-24T14:35:39.978Z",
+    "updatedAt": "2026-01-24T14:36:48.794Z"
   }
 ]

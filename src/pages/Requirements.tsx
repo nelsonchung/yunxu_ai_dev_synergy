@@ -183,6 +183,12 @@ export default function Requirements() {
                     <span>更新：{item.updatedAt}</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
+                    <Link
+                      href={`/requirements/${item.id}`}
+                      className="inline-flex items-center justify-center rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition"
+                    >
+                      查看需求內容
+                    </Link>
                     {showDocumentLink ? (
                       <Link
                         href={`/documents?requirement=${item.id}`}

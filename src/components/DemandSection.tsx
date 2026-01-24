@@ -250,7 +250,7 @@ export default function DemandSection() {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="space-y-2 text-sm font-medium">
-                  專案名稱
+                  需求主題
                   <input
                     type="text"
                     name="title"
