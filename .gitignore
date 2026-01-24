@@ -2,5 +2,4 @@ pasta-house
 node_modules/
 server/.env
 server/dist/
-server/data/
 server/node_modules/
