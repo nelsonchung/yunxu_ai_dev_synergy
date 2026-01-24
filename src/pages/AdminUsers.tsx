@@ -5,11 +5,18 @@ import {
   KeyRound,
   RefreshCcw,
   ShieldCheck,
+  Trash2,
   UserCog,
   UserRound,
   Users,
 } from "lucide-react";
-import { listUsers, resetUserPassword, updateUserRole, type AdminUser } from "@/lib/adminClient";
+import {
+  deleteUser,
+  listUsers,
+  resetUserPassword,
+  updateUserRole,
+  type AdminUser,
+} from "@/lib/adminClient";
 
 const roleLabels: Record<AdminUser["role"], string> = {
   admin: "管理者",
@@ -51,8 +58,11 @@ export default function AdminUsers() {
   const [resetPassword, setResetPassword] = useState("");
   const [resetConfirm, setResetConfirm] = useState("");
   const [adminConfirmTarget, setAdminConfirmTarget] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState("");
   const [isSavingRole, setIsSavingRole] = useState<string | null>(null);
   const [isResetting, setIsResetting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const loadUsers = async () => {
     try {
@@ -144,6 +154,30 @@ export default function AdminUsers() {
       setError(err instanceof Error ? err.message : "重設密碼失敗。");
     } finally {
       setIsResetting(false);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!deleteTarget) return;
+    const target = users.find((user) => user.id === deleteTarget);
+    if (!target) return;
+    if (deleteConfirm.trim() !== target.username) {
+      setError("請輸入帳號名稱以確認刪除。");
+      return;
+    }
+    try {
+      setIsDeleting(true);
+      setError("");
+      setStatus("");
+      await deleteUser(deleteTarget);
+      setUsers((prev) => prev.filter((user) => user.id !== deleteTarget));
+      setStatus("帳號已刪除。");
+      setDeleteTarget(null);
+      setDeleteConfirm("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "刪除帳號失敗。");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -337,6 +371,24 @@ export default function AdminUsers() {
                         選擇此帳號重設密碼
                       </button>
                     </div>
+                    <div className="space-y-2">
+                      <p className="text-sm font-semibold text-red-700">帳號刪除</p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDeleteTarget(user.id);
+                          setDeleteConfirm("");
+                          setResetTarget(null);
+                          setAdminConfirmTarget(null);
+                          setError("");
+                          setStatus("");
+                        }}
+                        className="inline-flex items-center gap-2 rounded-full border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 transition"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        選擇此帳號刪除
+                      </button>
+                    </div>
                   </div>
 
                   {resetTarget === user.id && (
@@ -378,6 +430,48 @@ export default function AdminUsers() {
                           type="button"
                           onClick={() => setResetTarget(null)}
                           className="inline-flex items-center gap-2 rounded-full border border-amber-300 px-4 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-50 transition"
+                        >
+                          取消
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  {deleteTarget === user.id && (
+                    <div className="rounded-2xl border border-red-200 bg-red-50/70 p-4 space-y-3">
+                      <div className="flex items-center gap-2 text-sm font-semibold text-red-700">
+                        <AlertCircle className="h-4 w-4" />
+                        刪除帳號 {user.username}
+                      </div>
+                      <p className="text-xs text-red-700">
+                        此操作無法復原，請輸入帳號名稱以確認刪除。
+                      </p>
+                      <input
+                        type="text"
+                        name="delete-confirm"
+                        placeholder="輸入帳號名稱"
+                        value={deleteConfirm}
+                        onChange={(event) => setDeleteConfirm(event.target.value)}
+                        autoComplete="off"
+                        autoCorrect="off"
+                        autoCapitalize="none"
+                        className="w-full rounded-xl border border-red-200 bg-white/90 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-300"
+                      />
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={handleDeleteUser}
+                          disabled={isDeleting}
+                          className="inline-flex items-center gap-2 rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500 transition disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                          {isDeleting ? "刪除中..." : "確認刪除"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDeleteTarget(null);
+                            setDeleteConfirm("");
+                          }}
+                          className="inline-flex items-center gap-2 rounded-full border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 transition"
                         >
                           取消
                         </button>

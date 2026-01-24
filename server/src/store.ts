@@ -194,6 +194,17 @@ export const updateUserPassword = async (id: string, passwordHash: string) => {
   });
 };
 
+export const deleteUser = async (id: string) => {
+  return withWriteLock(async () => {
+    const users = await readUsers();
+    const index = users.findIndex((user) => user.id === id);
+    if (index === -1) return null;
+    const [removed] = users.splice(index, 1);
+    await writeUsers(users);
+    return removed;
+  });
+};
+
 export const addAuditLog = async (payload: Omit<AuditLog, "id" | "createdAt">) => {
   return withWriteLock(async () => {
     const logs = await readAuditLogs();

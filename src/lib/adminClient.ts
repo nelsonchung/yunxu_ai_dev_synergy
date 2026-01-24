@@ -23,3 +23,7 @@ export const resetUserPassword = async (userId: string, password: string) => {
     body: JSON.stringify({ password }),
   });
 };
+
+export const deleteUser = async (userId: string) => {
+  await apiRequest(`/admin/users/${userId}`, { method: "DELETE" });
+};

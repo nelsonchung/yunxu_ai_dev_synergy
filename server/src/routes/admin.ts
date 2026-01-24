@@ -2,6 +2,7 @@ import type { FastifyPluginAsync } from "fastify";
 import bcrypt from "bcryptjs";
 import {
   addAuditLog,
+  deleteUser,
   listUsers,
   toPublicUser,
   updateUser,
@@ -86,6 +87,35 @@ const adminRoutes: FastifyPluginAsync = async (app) => {
     });
 
     return reply.send({ message: "密碼已重設。" });
+  });
+
+  app.delete("/users/:id", { preHandler: app.requireAdmin }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+
+    if (request.user.sub === id) {
+      return reply.code(400).send({ message: "不可刪除自己的帳號。" });
+    }
+
+    const removed = await deleteUser(id);
+    if (!removed) {
+      return reply.code(404).send({ message: "找不到使用者。" });
+    }
+
+    await addAuditLog({
+      actorId: request.user.sub,
+      targetUserId: id,
+      action: "USER_DELETED",
+      before: {
+        id: removed.id,
+        username: removed.username,
+        email: removed.email,
+        role: removed.role,
+        status: removed.status,
+      },
+      after: null,
+    });
+
+    return reply.send({ message: "使用者已刪除。" });
   });
 };
 
