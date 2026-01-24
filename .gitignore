@@ -2,3 +2,5 @@ pasta-house
 node_modules/
 server/dist/
 server/node_modules/
+docs/requirement/html/
+docs/requirement/pdf/
