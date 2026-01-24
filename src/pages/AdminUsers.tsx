@@ -1,5 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { AlertCircle, KeyRound, RefreshCcw, ShieldCheck, Users } from "lucide-react";
+import {
+  AlertCircle,
+  Crown,
+  KeyRound,
+  RefreshCcw,
+  ShieldCheck,
+  UserCog,
+  UserRound,
+  Users,
+} from "lucide-react";
 import { listUsers, resetUserPassword, updateUserRole, type AdminUser } from "@/lib/adminClient";
 
 const roleLabels: Record<AdminUser["role"], string> = {
@@ -7,6 +16,29 @@ const roleLabels: Record<AdminUser["role"], string> = {
   customer: "客戶",
   developer: "開發者",
 };
+
+const roleOptions: Array<{
+  value: AdminUser["role"];
+  label: string;
+  description: string;
+  icon: typeof UserRound;
+  tone: string;
+}> = [
+  {
+    value: "customer",
+    label: "客戶",
+    description: "提出需求、確認文件與驗收",
+    icon: UserRound,
+    tone: "border-emerald-200 bg-emerald-50/70 text-emerald-700",
+  },
+  {
+    value: "developer",
+    label: "開發者",
+    description: "負責規劃、實作與交付",
+    icon: UserCog,
+    tone: "border-sky-200 bg-sky-50/70 text-sky-700",
+  },
+];
 
 export default function AdminUsers() {
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -18,6 +50,7 @@ export default function AdminUsers() {
   const [resetTarget, setResetTarget] = useState<string | null>(null);
   const [resetPassword, setResetPassword] = useState("");
   const [resetConfirm, setResetConfirm] = useState("");
+  const [adminConfirmTarget, setAdminConfirmTarget] = useState<string | null>(null);
   const [isSavingRole, setIsSavingRole] = useState<string | null>(null);
   const [isResetting, setIsResetting] = useState(false);
 
@@ -62,11 +95,29 @@ export default function AdminUsers() {
     if (!role) return;
     try {
       setIsSavingRole(userId);
+      setError("");
+      setStatus("");
       const updated = await updateUserRole(userId, role);
       setUsers((prev) => prev.map((user) => (user.id === userId ? updated : user)));
       setStatus("角色已更新。");
     } catch (err) {
       setError(err instanceof Error ? err.message : "更新角色失敗。");
+    } finally {
+      setIsSavingRole(null);
+    }
+  };
+
+  const handleAdminUpgrade = async (userId: string) => {
+    try {
+      setIsSavingRole(userId);
+      setError("");
+      setStatus("");
+      const updated = await updateUserRole(userId, "admin");
+      setUsers((prev) => prev.map((user) => (user.id === userId ? updated : user)));
+      setStatus("已升級為管理者。");
+      setAdminConfirmTarget(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "升級管理者失敗。");
     } finally {
       setIsSavingRole(null);
     }
@@ -171,23 +222,50 @@ export default function AdminUsers() {
                   </div>
 
                   <div className="grid gap-4 md:grid-cols-[1fr_1fr]">
-                    <div className="space-y-2">
-                      <p className="text-sm font-semibold">角色設定</p>
+                    <div className="space-y-3">
                       <div className="flex flex-wrap items-center gap-2">
-                        <select
-                          value={roleDrafts[user.id] ?? user.role}
-                          onChange={(event) =>
-                            setRoleDrafts((prev) => ({
-                              ...prev,
-                              [user.id]: event.target.value as AdminUser["role"],
-                            }))
-                          }
-                          className="rounded-xl border bg-white/90 px-3 py-2 text-sm"
-                        >
-                          <option value="customer">客戶</option>
-                          <option value="developer">開發者</option>
-                          <option value="admin">管理者</option>
-                        </select>
+                        <p className="text-sm font-semibold">角色設定</p>
+                        {user.role === "admin" ? (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                            <Crown className="h-3.5 w-3.5" />
+                            目前為管理者
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {roleOptions.map((option) => {
+                          const Icon = option.icon;
+                          const selected = (roleDrafts[user.id] ?? user.role) === option.value;
+                          return (
+                            <button
+                              key={option.value}
+                              type="button"
+                              onClick={() =>
+                                setRoleDrafts((prev) => ({
+                                  ...prev,
+                                  [user.id]: option.value,
+                                }))
+                              }
+                              className={`w-full text-left rounded-2xl border px-4 py-3 transition ${
+                                selected
+                                  ? `${option.tone} shadow-sm`
+                                  : "border-border bg-white hover:border-primary/40"
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/80">
+                                  <Icon className="h-4 w-4" />
+                                </span>
+                                <div>
+                                  <p className="text-sm font-semibold">{option.label}</p>
+                                  <p className="text-xs text-muted-foreground">{option.description}</p>
+                                </div>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
                         <button
                           type="button"
                           onClick={() => handleRoleSave(user.id)}
@@ -197,7 +275,49 @@ export default function AdminUsers() {
                           <ShieldCheck className="h-4 w-4" />
                           {isSavingRole === user.id ? "更新中..." : "更新角色"}
                         </button>
+                        {user.role !== "admin" ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAdminConfirmTarget(user.id);
+                              setError("");
+                              setStatus("");
+                            }}
+                            className="inline-flex items-center gap-2 rounded-full border border-amber-300 px-4 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-50 transition"
+                          >
+                            <Crown className="h-4 w-4" />
+                            升級為管理者
+                          </button>
+                        ) : null}
                       </div>
+                      {adminConfirmTarget === user.id && (
+                        <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4 space-y-3">
+                          <div className="flex items-center gap-2 text-sm font-semibold text-amber-700">
+                            <AlertCircle className="h-4 w-4" />
+                            將此帳號升級為管理者（最高權限）
+                          </div>
+                          <p className="text-xs text-amber-700">
+                            管理者可修改其他使用者角色與密碼，請確認權限指派正確。
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleAdminUpgrade(user.id)}
+                              disabled={isSavingRole === user.id}
+                              className="inline-flex items-center gap-2 rounded-full bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-400 transition disabled:cursor-not-allowed disabled:opacity-70"
+                            >
+                              {isSavingRole === user.id ? "升級中..." : "確認升級"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setAdminConfirmTarget(null)}
+                              className="inline-flex items-center gap-2 rounded-full border border-amber-300 px-4 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-50 transition"
+                            >
+                              取消
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className="space-y-2">
