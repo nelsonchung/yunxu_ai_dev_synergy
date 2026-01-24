@@ -114,6 +114,22 @@ export default function MarkdownEditor({
           </button>
           <button
             type="button"
+            onClick={() => wrapSelection("### ", "", "子標題")}
+            disabled={readOnly}
+            className="rounded-full border px-3 py-1 text-xs font-semibold text-muted-foreground hover:text-primary hover:border-primary/40 transition disabled:opacity-60"
+          >
+            H3
+          </button>
+          <button
+            type="button"
+            onClick={() => wrapSelection("#### ", "", "小節標題")}
+            disabled={readOnly}
+            className="rounded-full border px-3 py-1 text-xs font-semibold text-muted-foreground hover:text-primary hover:border-primary/40 transition disabled:opacity-60"
+          >
+            H4
+          </button>
+          <button
+            type="button"
             onClick={() => wrapSelection("**", "**", "粗體文字")}
             disabled={readOnly}
             className="rounded-full border px-3 py-1 text-xs font-semibold text-muted-foreground hover:text-primary hover:border-primary/40 transition disabled:opacity-60"

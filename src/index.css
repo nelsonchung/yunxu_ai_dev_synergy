@@ -118,6 +118,12 @@
     font-weight: 600;
   }
 
+  .markdown-preview h4 {
+    font-size: 1rem;
+    margin-top: 0.9rem;
+    font-weight: 600;
+  }
+
   .markdown-preview p {
     margin-top: 0.75rem;
   }
