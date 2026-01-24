@@ -15,6 +15,12 @@ export const permissionDefinitions = [
     category: "需求",
   },
   {
+    id: "requirements.documents.manage",
+    label: "編修需求文件",
+    description: "新增或更新需求文件版本",
+    category: "需求",
+  },
+  {
     id: "projects.create",
     label: "建立專案",
     description: "依需求建立專案並啟動流程",
@@ -72,7 +78,7 @@ export type RolePermissions = {
 };
 
 export const defaultRolePermissions: RolePermissions = {
-  customer: ["requirements.create"],
+  customer: ["requirements.create", "requirements.documents.manage"],
   developer: [
     "projects.create",
     "projects.documents.system",
@@ -88,4 +94,3 @@ export const permissionIdSet = new Set(permissionDefinitions.map((item) => item.
 
 export const isKnownRole = (role: string): role is Exclude<UserRole, "admin"> =>
   role === "customer" || role === "developer";
-

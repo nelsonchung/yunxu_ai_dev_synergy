@@ -23,5 +23,30 @@
     "status": "submitted",
     "createdAt": "2026-01-24T07:51:27.378Z",
     "updatedAt": "2026-01-24T07:51:27.378Z"
+  },
+  {
+    "title": "第二次需求",
+    "companyName": "測試公司",
+    "projectType": "既有系統擴充",
+    "background": "第二次需求",
+    "goals": "第二次需求",
+    "scope": "第二次需求",
+    "constraints": "第二次需求",
+    "budgetRange": "50 - 150 萬",
+    "timeline": "6 個月以上",
+    "specDoc": "有部分資料",
+    "attachments": [
+      "第二次需求"
+    ],
+    "contact": {
+      "name": "測試姓名",
+      "email": "customer@outlook.com",
+      "phone": "0919520508"
+    },
+    "ownerId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "id": "57809268-7cb1-439e-beb4-a7b722152654",
+    "status": "under_review",
+    "createdAt": "2026-01-24T10:05:19.465Z",
+    "updatedAt": "2026-01-24T10:13:47.973Z"
   }
 ]

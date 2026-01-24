@@ -167,6 +167,52 @@ export const listRequirementDocuments = async (requirementId: string) => {
     .sort((a, b) => b.version - a.version);
 };
 
+export const createRequirementDocument = async (payload: {
+  requirementId: string;
+  content: string;
+  status?: DocumentStatus;
+}) => {
+  const requirements = await platformStores.requirements.read();
+  const requirementIndex = requirements.findIndex((item) => item.id === payload.requirementId);
+  if (requirementIndex === -1) return null;
+
+  const documents = await platformStores.requirementDocuments.read();
+  const existing = documents.filter((doc) => doc.requirementId === payload.requirementId);
+  const nextVersion = existing.length ? Math.max(...existing.map((doc) => doc.version)) + 1 : 1;
+  const now = new Date().toISOString();
+  const contentUrl = requirementDocPath(payload.requirementId, nextVersion);
+  const document: RequirementDocument = {
+    id: randomUUID(),
+    requirementId: payload.requirementId,
+    version: nextVersion,
+    contentUrl,
+    status: payload.status ?? "pending_approval",
+    approvedBy: null,
+    reviewComment: null,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  const updatedDocuments = documents.map((doc) =>
+    doc.requirementId === payload.requirementId && doc.status !== "archived"
+      ? { ...doc, status: "archived", updatedAt: now }
+      : doc
+  );
+
+  await writeDocumentFile(contentUrl, payload.content);
+  updatedDocuments.push(document);
+  await platformStores.requirementDocuments.write(updatedDocuments);
+
+  requirements[requirementIndex] = {
+    ...requirements[requirementIndex],
+    status: "under_review",
+    updatedAt: now,
+  };
+  await platformStores.requirements.write(requirements);
+
+  return document;
+};
+
 export const getRequirementDocument = async (requirementId: string, docId: string) => {
   const documents = await platformStores.requirementDocuments.read();
   const document = documents.find((doc) => doc.requirementId === requirementId && doc.id === docId);

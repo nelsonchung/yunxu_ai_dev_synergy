@@ -2,6 +2,7 @@ import type { FastifyPluginAsync } from "fastify";
 import {
   approveRequirement,
   createRequirement,
+  createRequirementDocument,
   deleteRequirement,
   deleteRequirementDocument,
   getRequirementById,
@@ -138,6 +139,34 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
       content: result.content,
     };
   });
+
+  app.post(
+    "/requirements/:id/documents",
+    { preHandler: app.requirePermission("requirements.documents.manage") },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const body = (request.body as { content?: string }) ?? {};
+      const content = String(body.content ?? "").trim();
+      if (!content) {
+        return reply.code(400).send({ message: "請提供文件內容。" });
+      }
+
+      const document = await createRequirementDocument({ requirementId: id, content });
+      if (!document) {
+        return reply.code(404).send({ message: "找不到需求。" });
+      }
+
+      await addAuditLog({
+        actorId: request.user.sub,
+        targetUserId: null,
+        action: "REQUIREMENT_DOCUMENT_CREATED",
+        before: null,
+        after: { requirementId: id, documentId: document.id, version: document.version },
+      });
+
+      return reply.code(201).send({ document_id: document.id, version: document.version });
+    }
+  );
 
   app.post(
     "/requirements/:id/approve",

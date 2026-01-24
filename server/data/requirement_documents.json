@@ -1,1 +1,24 @@
-[]
+[
+  {
+    "id": "b0e1835e-7b44-4892-9141-367281446f4f",
+    "requirementId": "57809268-7cb1-439e-beb4-a7b722152654",
+    "version": 1,
+    "contentUrl": "requirements/57809268-7cb1-439e-beb4-a7b722152654/v1.md",
+    "status": "archived",
+    "approvedBy": null,
+    "reviewComment": null,
+    "createdAt": "2026-01-24T10:05:19.465Z",
+    "updatedAt": "2026-01-24T10:13:47.973Z"
+  },
+  {
+    "id": "51047995-2618-4fef-8811-a9b5ef10fa6a",
+    "requirementId": "57809268-7cb1-439e-beb4-a7b722152654",
+    "version": 2,
+    "contentUrl": "requirements/57809268-7cb1-439e-beb4-a7b722152654/v2.md",
+    "status": "pending_approval",
+    "approvedBy": null,
+    "reviewComment": null,
+    "createdAt": "2026-01-24T10:13:47.973Z",
+    "updatedAt": "2026-01-24T10:13:47.973Z"
+  }
+]

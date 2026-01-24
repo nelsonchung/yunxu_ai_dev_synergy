@@ -31,6 +31,8 @@ export default function Requirements() {
   const [error, setError] = useState("");
   const [accountRole, setAccountRole] = useState<string | null>(null);
   const [canSubmitRequirement, setCanSubmitRequirement] = useState(false);
+  const [permissions, setPermissions] = useState<string[]>([]);
+  const canEditRequirementDoc = accountRole === "admin" || permissions.includes("requirements.documents.manage");
 
   const loadRequirements = async () => {
     try {
@@ -55,15 +57,18 @@ export default function Requirements() {
       setAccountRole(session?.role ?? null);
       if (!session) {
         setCanSubmitRequirement(false);
+        setPermissions([]);
         return;
       }
       try {
         const permissionData = await getMyPermissions();
+        setPermissions(permissionData.permissions);
         setCanSubmitRequirement(
           session.role === "admin" || permissionData.permissions.includes("requirements.create")
         );
       } catch {
         setCanSubmitRequirement(session.role === "admin");
+        setPermissions([]);
       }
     };
     loadPermissions();
@@ -175,7 +180,7 @@ export default function Requirements() {
                       href={`/documents?requirement=${item.id}`}
                       className="inline-flex items-center justify-center rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition"
                     >
-                      查看文件
+                      {canEditRequirementDoc ? "查看 / 編輯文件" : "查看文件"}
                     </Link>
                   </div>
                 </div>

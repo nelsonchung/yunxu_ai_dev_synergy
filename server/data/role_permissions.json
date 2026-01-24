@@ -1,6 +1,7 @@
 {
   "customer": [
-    "requirements.create"
+    "requirements.create",
+    "requirements.documents.manage"
   ],
   "developer": [
     "projects.create",

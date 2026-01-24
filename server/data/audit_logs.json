@@ -557,5 +557,18 @@
         "projects.milestones.manage"
       ]
     }
+  },
+  {
+    "id": "c5baaaea-cebd-4b49-9ff3-0fe481e43671",
+    "createdAt": "2026-01-24T10:13:48.027Z",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "targetUserId": null,
+    "action": "REQUIREMENT_DOCUMENT_CREATED",
+    "before": null,
+    "after": {
+      "requirementId": "57809268-7cb1-439e-beb4-a7b722152654",
+      "documentId": "51047995-2618-4fef-8811-a9b5ef10fa6a",
+      "version": 2
+    }
   }
 ]

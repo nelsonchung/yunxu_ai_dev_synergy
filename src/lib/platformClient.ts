@@ -160,6 +160,17 @@ export const getRequirementDocument = async (requirementId: string, docId: strin
   return { ...data.document, content: data.content };
 };
 
+export const createRequirementDocument = async (requirementId: string, content: string) => {
+  const data = await apiRequest<{ document_id: string; version: number }>(
+    `/api/requirements/${requirementId}/documents`,
+    {
+      method: "POST",
+      body: JSON.stringify({ content }),
+    }
+  );
+  return data;
+};
+
 export const deleteRequirementDocument = async (requirementId: string, docId: string) => {
   await apiRequest(`/api/requirements/${requirementId}/documents/${docId}`, { method: "DELETE" });
 };

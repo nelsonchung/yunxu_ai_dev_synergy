@@ -7,6 +7,7 @@ import {
   approveRequirement,
   createProject,
   createProjectDocument,
+  createRequirementDocument,
   deleteRequirement,
   deleteProject,
   deleteProjectDocument,
@@ -51,6 +52,8 @@ export default function Documents() {
   const [selectedRequirementId, setSelectedRequirementId] = useState<string | null>(null);
   const [selectedRequirementDocId, setSelectedRequirementDocId] = useState<string | null>(null);
   const [requirementContent, setRequirementContent] = useState("");
+  const [newRequirementContent, setNewRequirementContent] = useState("");
+  const [newRequirementFeedback, setNewRequirementFeedback] = useState("");
 
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [selectedProjectDocId, setSelectedProjectDocId] = useState<string | null>(null);
@@ -86,6 +89,7 @@ export default function Documents() {
 
   const isAdmin = accountRole === "admin";
   const canCreateProject = isAdmin || permissions.includes("projects.create");
+  const canEditRequirementDoc = isAdmin || permissions.includes("requirements.documents.manage");
   const canCreateDocType = (type: string) =>
     isAdmin || permissions.includes(`projects.documents.${type}`);
   const availableDocTypes = useMemo(
@@ -165,6 +169,8 @@ export default function Documents() {
       setRequirementDocs([]);
       setSelectedRequirementDocId(null);
       setRequirementContent("");
+      setNewRequirementContent("");
+      setNewRequirementFeedback("");
       return;
     }
     const loadDocs = async () => {
@@ -200,6 +206,12 @@ export default function Documents() {
     };
     loadContent();
   }, [selectedRequirementDocId, selectedRequirementId]);
+
+  useEffect(() => {
+    if (!requirementContent) return;
+    setNewRequirementFeedback("");
+    setNewRequirementContent((prev) => (prev ? prev : requirementContent));
+  }, [requirementContent]);
 
   useEffect(() => {
     if (!selectedProjectId) {
@@ -287,6 +299,32 @@ export default function Documents() {
       setRequirementError(error instanceof Error ? error.message : "簽核失敗。");
     } finally {
       setIsApproving(false);
+    }
+  };
+
+  const handleCreateRequirementDocument = async () => {
+    if (!selectedRequirementId) {
+      setNewRequirementFeedback("請先選擇需求。");
+      return;
+    }
+    if (!canEditRequirementDoc) {
+      setNewRequirementFeedback("目前角色無法編修需求文件。");
+      return;
+    }
+    if (!newRequirementContent.trim()) {
+      setNewRequirementFeedback("請輸入需求文件內容。");
+      return;
+    }
+    try {
+      await createRequirementDocument(selectedRequirementId, newRequirementContent.trim());
+      setNewRequirementFeedback("已新增需求文件版本。");
+      setNewRequirementContent("");
+      await loadRequirements();
+      const docs = await listRequirementDocuments(selectedRequirementId);
+      setRequirementDocs(docs);
+      setSelectedRequirementDocId(docs[0]?.id ?? null);
+    } catch (error) {
+      setNewRequirementFeedback(error instanceof Error ? error.message : "新增需求文件失敗。");
     }
   };
 
@@ -600,6 +638,43 @@ export default function Documents() {
                   <div className="rounded-2xl border bg-white/90 p-4 text-sm text-muted-foreground">
                     <p className="font-semibold text-foreground">文件內容</p>
                     <pre className="mt-2 whitespace-pre-wrap text-xs text-muted-foreground">{requirementContent || "尚未選擇版本。"}</pre>
+                  </div>
+                  <div className="rounded-2xl border bg-white/90 p-4 space-y-3">
+                    <p className="text-sm font-semibold">新增需求文件版本</p>
+                    {!canEditRequirementDoc ? (
+                      <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700">
+                        {accountRole ? "目前角色無法編修需求文件，請洽管理者調整權限。" : "請先登入後編修需求文件。"}
+                      </div>
+                    ) : null}
+                    <textarea
+                      value={newRequirementContent}
+                      onChange={(event) => setNewRequirementContent(event.target.value)}
+                      rows={6}
+                      placeholder="輸入需求文件內容"
+                      disabled={!canEditRequirementDoc}
+                      className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-70"
+                    />
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setNewRequirementContent(requirementContent)}
+                        disabled={!canEditRequirementDoc || !requirementContent}
+                        className="inline-flex items-center justify-center rounded-full border border-primary/30 px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/10 transition disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        使用目前版本內容
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCreateRequirementDocument}
+                        disabled={!canEditRequirementDoc}
+                        className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        新增版本
+                      </button>
+                    </div>
+                    {newRequirementFeedback ? (
+                      <p className="text-xs text-muted-foreground">{newRequirementFeedback}</p>
+                    ) : null}
                   </div>
                   {isAdmin ? (
                     <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4 space-y-3">
