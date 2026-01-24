@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd -- "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
 API_BASE_URL="${API_BASE_URL:-http://localhost:8787}"
-DATA_USERS_FILE="${DATA_USERS_FILE:-server/data/users.json}"
+DATA_USERS_FILE="${DATA_USERS_FILE:-$ROOT_DIR/server/data/users.json}"
 
 if ! command -v curl >/dev/null 2>&1; then
   echo "curl is required."
