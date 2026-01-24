@@ -12,7 +12,10 @@ const anchorItems = [
   { label: "品牌介紹", href: "/#brand", type: "anchor" },
 ];
 
-const customerRoutes = [{ label: "我的需求", href: "/my/requirements", type: "route" }];
+const customerRoutes = [
+  { label: "需求中心", href: "/requirements", type: "route" },
+  { label: "我的需求", href: "/my/requirements", type: "route" },
+];
 
 const developerRoutes = [
   { label: "專案管理", href: "/projects", type: "route" },

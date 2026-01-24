@@ -32,7 +32,9 @@ export default function Requirements() {
   const [accountRole, setAccountRole] = useState<string | null>(null);
   const [canSubmitRequirement, setCanSubmitRequirement] = useState(false);
   const [permissions, setPermissions] = useState<string[]>([]);
-  const canEditRequirementDoc = accountRole === "admin" || permissions.includes("requirements.documents.manage");
+  const canEditRequirementDoc =
+    accountRole === "admin" || permissions.includes("requirements.documents.manage");
+  const showDocumentLink = accountRole !== "customer" && canEditRequirementDoc;
 
   const loadRequirements = async () => {
     try {
@@ -124,6 +126,11 @@ export default function Requirements() {
             目前角色無法提交需求，請洽管理者調整權限。
           </div>
         ) : null}
+        {accountRole === "customer" ? (
+          <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-700">
+            此頁為所有客戶需求的公開總覽，可作為靈感參考。你的需求文件請至「我的需求」查看與編輯。
+          </div>
+        ) : null}
 
         {error ? (
           <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -176,12 +183,18 @@ export default function Requirements() {
                     <span>更新：{item.updatedAt}</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <Link
-                      href={`/documents?requirement=${item.id}`}
-                      className="inline-flex items-center justify-center rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition"
-                    >
-                      {canEditRequirementDoc ? "查看 / 編輯文件" : "查看文件"}
-                    </Link>
+                    {showDocumentLink ? (
+                      <Link
+                        href={`/documents?requirement=${item.id}`}
+                        className="inline-flex items-center justify-center rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition"
+                      >
+                        查看 / 編輯文件
+                      </Link>
+                    ) : (
+                      <span className="inline-flex items-center justify-center rounded-full border border-border px-3 py-1 text-xs font-semibold text-muted-foreground">
+                        僅供瀏覽
+                      </span>
+                    )}
                   </div>
                 </div>
               ))}
