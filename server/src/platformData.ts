@@ -290,6 +290,37 @@ export const deleteProjectDocument = async (projectId: string, docId: string) =>
   return true;
 };
 
+export const deleteProject = async (projectId: string) => {
+  const projects = await platformStores.projects.read();
+  const index = projects.findIndex((project) => project.id === projectId);
+  if (index === -1) return { error: "NOT_FOUND" as const };
+
+  projects.splice(index, 1);
+  await platformStores.projects.write(projects);
+
+  const documents = await platformStores.projectDocuments.read();
+  const [remaining, removed] = documents.reduce<[ProjectDocument[], ProjectDocument[]]>(
+    (acc, doc) => {
+      if (doc.projectId === projectId) {
+        acc[1].push(doc);
+      } else {
+        acc[0].push(doc);
+      }
+      return acc;
+    },
+    [[], []]
+  );
+  await platformStores.projectDocuments.write(remaining);
+  await Promise.all(removed.map((doc) => deleteDocumentFile(doc.contentUrl)));
+
+  const tasks = await platformStores.tasks.read();
+  const milestones = await platformStores.milestones.read();
+  await platformStores.tasks.write(tasks.filter((task) => task.projectId !== projectId));
+  await platformStores.milestones.write(milestones.filter((milestone) => milestone.projectId !== projectId));
+
+  return { ok: true };
+};
+
 export const createProjectDocument = async (payload: {
   projectId: string;
   type: string;

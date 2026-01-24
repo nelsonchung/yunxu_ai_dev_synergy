@@ -7,6 +7,7 @@ import {
   createProject,
   createProjectDocument,
   deleteRequirement,
+  deleteProject,
   deleteProjectDocument,
   deleteRequirementDocument,
   getProjectDocument,
@@ -67,6 +68,7 @@ export default function Documents() {
   const [isApproving, setIsApproving] = useState(false);
   const [deletingRequirementId, setDeletingRequirementId] = useState<string | null>(null);
   const [deletingRequirementDocId, setDeletingRequirementDocId] = useState<string | null>(null);
+  const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null);
   const [deletingProjectDocId, setDeletingProjectDocId] = useState<string | null>(null);
 
   const [newProjectName, setNewProjectName] = useState("");
@@ -314,6 +316,31 @@ export default function Documents() {
       await loadProjects();
     } catch (error) {
       setNewProjectStatus(error instanceof Error ? error.message : "建立專案失敗。");
+    }
+  };
+
+  const handleDeleteProject = async (projectId: string) => {
+    if (!window.confirm("確定要刪除此專案？相關文件與任務也會一併移除。")) return;
+    setProjectError("");
+    setDeletingProjectId(projectId);
+    try {
+      await deleteProject(projectId);
+      await loadProjects();
+      if (selectedProjectId === projectId) {
+        setSelectedProjectId(null);
+        setSelectedProjectDocId(null);
+        setProjectDocs([]);
+        setProjectContent("");
+        setCompareLeftId("");
+        setCompareRightId("");
+        setCompareLeftContent("");
+        setCompareRightContent("");
+      }
+      setProjectStatus("已刪除專案。");
+    } catch (error) {
+      setProjectError(error instanceof Error ? error.message : "刪除專案失敗。");
+    } finally {
+      setDeletingProjectId(null);
     }
   };
 
@@ -596,33 +623,48 @@ export default function Documents() {
                   尚無專案紀錄。
                 </div>
               ) : (
-                projects.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setSelectedProjectId(item.id)}
-                    className={`w-full text-left rounded-2xl border p-4 transition ${
-                      selectedProjectId === item.id
-                        ? "border-primary bg-primary/10"
-                        : "border-border bg-white hover:border-primary/40"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-xs text-muted-foreground">#{item.id.slice(0, 8)}</p>
-                        <p className="mt-1 font-semibold">{item.name}</p>
-                        <p className="text-xs text-muted-foreground">需求：{item.requirementId.slice(0, 8)}</p>
-                      </div>
-                      <span
-                        className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-                          documentStatusTone[item.status] ?? "border-primary/20 bg-primary/10 text-primary"
-                        }`}
+                projects.map((item) => {
+                  const isActive = selectedProjectId === item.id;
+                  return (
+                    <div
+                      key={item.id}
+                      className={`flex items-start justify-between gap-3 rounded-2xl border p-4 transition ${
+                        isActive ? "border-primary bg-primary/10" : "border-border bg-white hover:border-primary/40"
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setSelectedProjectId(item.id)}
+                        className="flex-1 text-left"
                       >
-                        {item.status}
-                      </span>
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-xs text-muted-foreground">#{item.id.slice(0, 8)}</p>
+                            <p className="mt-1 font-semibold">{item.name}</p>
+                            <p className="text-xs text-muted-foreground">需求：{item.requirementId.slice(0, 8)}</p>
+                          </div>
+                          <span
+                            className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+                              documentStatusTone[item.status] ?? "border-primary/20 bg-primary/10 text-primary"
+                            }`}
+                          >
+                            {item.status}
+                          </span>
+                        </div>
+                      </button>
+                      {isAdmin ? (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteProject(item.id)}
+                          disabled={deletingProjectId === item.id}
+                          className="rounded-full border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {deletingProjectId === item.id ? "刪除中" : "刪除"}
+                        </button>
+                      ) : null}
                     </div>
-                  </button>
-                ))
+                  );
+                })
               )}
             </div>
             <div className="rounded-2xl border bg-white/90 p-4 space-y-3">

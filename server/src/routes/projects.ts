@@ -2,6 +2,7 @@ import type { FastifyPluginAsync } from "fastify";
 import {
   createProject,
   createProjectDocument,
+  deleteProject,
   deleteProjectDocument,
   getProjectDocument,
   listProjectDocuments,
@@ -122,6 +123,15 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
       return { ok: true };
     }
   );
+
+  app.delete("/projects/:id", { preHandler: app.requireAdmin }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const result = await deleteProject(id);
+    if ("error" in result) {
+      return reply.code(404).send({ message: "找不到專案。" });
+    }
+    return { ok: true };
+  });
 };
 
 export default projectsRoutes;

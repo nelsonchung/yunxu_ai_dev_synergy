@@ -126,6 +126,10 @@ export const listProjects = async () => {
   return data.projects;
 };
 
+export const deleteProject = async (projectId: string) => {
+  await apiRequest(`/api/projects/${projectId}`, { method: "DELETE" });
+};
+
 export const createProject = async (payload: { requirementId: string; name: string }) => {
   const data = await apiRequest<{ project_id: string; status: string }>("/api/projects", {
     method: "POST",
