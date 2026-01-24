@@ -1,7 +1,13 @@
 import fs from "node:fs/promises";
-import path from "node:path";
 import { randomUUID } from "node:crypto";
-import { fileURLToPath } from "node:url";
+import {
+  ensureFile,
+  fileExists,
+  readJsonFile,
+  resolveDataPath,
+  withWriteLock,
+  writeJsonFile,
+} from "./jsonStore.js";
 
 export type UserRole = "customer" | "developer" | "admin";
 export type UserStatus = "pending" | "active" | "suspended";
@@ -32,42 +38,9 @@ type LegacyStoreData = {
   auditLogs: AuditLog[];
 };
 
-const moduleDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-
-const resolveDataPath = (rawPath: string) =>
-  path.isAbsolute(rawPath) ? rawPath : path.resolve(moduleDir, rawPath);
-
 const USERS_FILE = resolveDataPath(process.env.DATA_USERS_FILE ?? "./data/users.json");
 const AUDIT_FILE = resolveDataPath(process.env.DATA_AUDIT_FILE ?? "./data/audit_logs.json");
 const LEGACY_FILE = resolveDataPath(process.env.DATA_FILE ?? "./data/auth.json");
-
-let writeChain: Promise<void> = Promise.resolve();
-
-const withWriteLock = async <T>(fn: () => Promise<T>) => {
-  const next = writeChain.then(fn, fn);
-  writeChain = next.then(
-    () => undefined,
-    () => undefined
-  );
-  return next;
-};
-
-const fileExists = async (filePath: string) => {
-  try {
-    await fs.access(filePath);
-    return true;
-  } catch {
-    return false;
-  }
-};
-
-const ensureFile = async <T>(filePath: string, defaultContent: T) => {
-  const dir = path.dirname(filePath);
-  await fs.mkdir(dir, { recursive: true });
-  if (!(await fileExists(filePath))) {
-    await fs.writeFile(filePath, JSON.stringify(defaultContent, null, 2));
-  }
-};
 
 const migrateLegacyIfNeeded = async () => {
   const legacyExists = await fileExists(LEGACY_FILE);
@@ -104,38 +77,22 @@ const migrateLegacyIfNeeded = async () => {
 
 const readUsers = async (): Promise<StoredUser[]> => {
   await migrateLegacyIfNeeded();
-  const raw = await fs.readFile(USERS_FILE, "utf-8");
-  try {
-    const data = JSON.parse(raw) as StoredUser[];
-    return Array.isArray(data) ? data : [];
-  } catch {
-    return [];
-  }
+  const data = await readJsonFile<StoredUser[]>(USERS_FILE, []);
+  return Array.isArray(data) ? data : [];
 };
 
 const readAuditLogs = async (): Promise<AuditLog[]> => {
   await migrateLegacyIfNeeded();
-  const raw = await fs.readFile(AUDIT_FILE, "utf-8");
-  try {
-    const data = JSON.parse(raw) as AuditLog[];
-    return Array.isArray(data) ? data : [];
-  } catch {
-    return [];
-  }
+  const data = await readJsonFile<AuditLog[]>(AUDIT_FILE, []);
+  return Array.isArray(data) ? data : [];
 };
 
 const writeUsers = async (users: StoredUser[]) => {
-  await ensureFile(USERS_FILE, []);
-  const tempFile = `${USERS_FILE}.tmp`;
-  await fs.writeFile(tempFile, JSON.stringify(users, null, 2));
-  await fs.rename(tempFile, USERS_FILE);
+  await writeJsonFile(USERS_FILE, users, []);
 };
 
 const writeAuditLogs = async (logs: AuditLog[]) => {
-  await ensureFile(AUDIT_FILE, []);
-  const tempFile = `${AUDIT_FILE}.tmp`;
-  await fs.writeFile(tempFile, JSON.stringify(logs, null, 2));
-  await fs.rename(tempFile, AUDIT_FILE);
+  await writeJsonFile(AUDIT_FILE, logs, []);
 };
 
 export const initStore = async () => {

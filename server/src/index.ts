@@ -6,6 +6,7 @@ import jwt from "@fastify/jwt";
 import authRoutes from "./routes/auth.js";
 import adminRoutes from "./routes/admin.js";
 import { initStore } from "./store.js";
+import { initPlatformStore } from "./platformStore.js";
 
 dotenv.config();
 
@@ -76,4 +77,5 @@ process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
 await initStore();
+await initPlatformStore();
 start();
