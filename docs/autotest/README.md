@@ -54,14 +54,14 @@
 - 驗證 audit log 有記錄角色/狀態/密碼變更。
 
 設計重點：
-- 需以環境變數提供 admin 帳密。
+- 預設可使用腳本內的 `DEFAULT_ADMIN_*`（若有填），也可用環境變數覆寫。
 - 每次建立一位新使用者供測試操作。
 - 分開使用 admin 與 user 的 cookie jar。
 - 讀取 `server/data/audit_logs.json` 驗證記錄。
 
 環境變數：
-- `ADMIN_IDENTIFIER`（必填）：admin 帳號或 Email。
-- `ADMIN_PASSWORD`（必填）：admin 密碼。
+- `ADMIN_IDENTIFIER`（選填）：admin 帳號或 Email（未提供時使用腳本內 `DEFAULT_ADMIN_IDENTIFIER`）。
+- `ADMIN_PASSWORD`（選填）：admin 密碼（未提供時使用腳本內 `DEFAULT_ADMIN_PASSWORD`）。
 - `DATA_USERS_FILE`（選填）：users JSON store 路徑。
   預設：`server/data/users.json`
 - `DATA_AUDIT_FILE`（選填）：audit log JSON store 路徑。
@@ -71,6 +71,44 @@
 - 會新增一筆使用者到 `server/data/users.json`。
 - 會新增 audit log 到 `server/data/audit_logs.json`。
 
+安全提醒：
+- 若要在腳本內填入 `DEFAULT_ADMIN_*`，請避免提交真實或生產環境密碼。
+
+### `04_requirement_flow.sh`
+用途：
+- 建立需求並產生需求文件版本。
+- 查詢需求文件列表與內容。
+- 以管理者核准需求並驗證狀態更新。
+
+設計重點：
+- 建立需求後會確認文件內容包含專案名稱。
+- 需要管理者帳密完成核准流程。
+- 讀取 `server/data/requirements.json` 驗證需求落盤。
+
+環境變數：
+- `ADMIN_IDENTIFIER`（選填）：admin 帳號或 Email（未提供時使用腳本內 `DEFAULT_ADMIN_IDENTIFIER`）。
+- `ADMIN_PASSWORD`（選填）：admin 密碼（未提供時使用腳本內 `DEFAULT_ADMIN_PASSWORD`）。
+- `DATA_REQUIREMENTS_FILE`（選填）：requirements JSON store 路徑。
+  預設：`server/data/requirements.json`
+
+資料影響：
+- 會新增一筆需求到 `server/data/requirements.json`。
+- 會新增需求文件版本到資料資料夾。
+
+### `05_project_documents.sh`
+用途：
+- 建立需求與專案。
+- 建立同一文件類型的多版本文件並檢查內容。
+- 驗證專案資料落盤。
+
+設計重點：
+- 透過同一 `type` 建立 v1/v2 版本，驗證版本控管與內容讀取。
+- 讀取 `server/data/projects.json` 驗證專案落盤。
+
+環境變數：
+- `DATA_PROJECTS_FILE`（選填）：projects JSON store 路徑。
+  預設：`server/data/projects.json`
+
 ## 執行範例
 ```bash
 ./docs/autotest/01_health_check.sh
@@ -79,6 +117,12 @@
 ADMIN_IDENTIFIER=admin@example.com \
 ADMIN_PASSWORD=your_password \
 ./docs/autotest/03_admin_flow.sh
+
+ADMIN_IDENTIFIER=admin@example.com \
+ADMIN_PASSWORD=your_password \
+./docs/autotest/04_requirement_flow.sh
+
+./docs/autotest/05_project_documents.sh
 ```
 
 ## 常見失敗與除錯建議

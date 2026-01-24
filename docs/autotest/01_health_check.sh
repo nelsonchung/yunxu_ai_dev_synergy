@@ -8,6 +8,7 @@ if ! command -v curl >/dev/null 2>&1; then
   exit 1
 fi
 
+echo "-- check /health"
 response="$(curl -sS -w $'\n__STATUS__%{http_code}' "$API_BASE_URL/health")"
 body="${response%$'\n__STATUS__'*}"
 status="${response##*__STATUS__}"

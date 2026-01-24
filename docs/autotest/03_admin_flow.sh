@@ -1,11 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd -- "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
 API_BASE_URL="${API_BASE_URL:-http://localhost:8787}"
-DATA_USERS_FILE="${DATA_USERS_FILE:-server/data/users.json}"
-DATA_AUDIT_FILE="${DATA_AUDIT_FILE:-server/data/audit_logs.json}"
-ADMIN_IDENTIFIER="${ADMIN_IDENTIFIER:-}"
-ADMIN_PASSWORD="${ADMIN_PASSWORD:-}"
+DATA_USERS_FILE="${DATA_USERS_FILE:-$ROOT_DIR/server/data/users.json}"
+DATA_AUDIT_FILE="${DATA_AUDIT_FILE:-$ROOT_DIR/server/data/audit_logs.json}"
+
+# Optional defaults for local testing (fill in if you want no env vars).
+DEFAULT_ADMIN_IDENTIFIER="yunxu"
+DEFAULT_ADMIN_PASSWORD="20231031wecanhelp"
+
+ADMIN_IDENTIFIER="${ADMIN_IDENTIFIER:-$DEFAULT_ADMIN_IDENTIFIER}"
+ADMIN_PASSWORD="${ADMIN_PASSWORD:-$DEFAULT_ADMIN_PASSWORD}"
 
 if ! command -v curl >/dev/null 2>&1; then
   echo "curl is required."
@@ -16,9 +24,17 @@ if ! command -v python3 >/dev/null 2>&1; then
   exit 1
 fi
 if [ -z "$ADMIN_IDENTIFIER" ] || [ -z "$ADMIN_PASSWORD" ]; then
-  echo "Set ADMIN_IDENTIFIER and ADMIN_PASSWORD to run admin tests."
+  echo "Set ADMIN_IDENTIFIER and ADMIN_PASSWORD (or edit DEFAULT_ADMIN_* in this script)."
   exit 1
 fi
+
+log_step() {
+  echo "-- $1"
+}
+
+log_ok() {
+  echo "OK: $1"
+}
 
 tmp_dir="$(mktemp -d)"
 admin_cookie="$tmp_dir/admin_cookie.txt"
@@ -67,6 +83,7 @@ email="admtest${timestamp}@example.com"
 password="Passw0rd123"
 new_password="Newpass456"
 
+log_step "register test user"
 register_payload="$(printf '{"username":"%s","email":"%s","password":"%s","confirmPassword":"%s"}' \
   "$username" "$email" "$password" "$password")"
 response="$(request_json "POST" "/auth/register" "$register_payload" "" "$user_cookie")"
@@ -81,11 +98,13 @@ print(data["user"]["id"])
 PY
 )"
 
+log_step "admin login"
 admin_login_payload="$(printf '{"identifier":"%s","password":"%s"}' "$ADMIN_IDENTIFIER" "$ADMIN_PASSWORD")"
 response="$(request_json "POST" "/auth/login" "$admin_login_payload" "" "$admin_cookie")"
 parse_response "$response"
 assert_status "200" "$RESPONSE_STATUS" "admin login"
 
+log_step "list users"
 response="$(request_json "GET" "/admin/users" "" "$admin_cookie" "")"
 parse_response "$response"
 assert_status "200" "$RESPONSE_STATUS" "list users"
@@ -98,6 +117,7 @@ if not any(u.get("id") == target for u in data.get("users", [])):
     raise SystemExit("FAIL: test user not found in admin list")
 PY
 
+log_step "update role to developer"
 role_payload='{"role":"developer"}'
 response="$(request_json "PATCH" "/admin/users/$test_user_id/role" "$role_payload" "$admin_cookie" "")"
 parse_response "$response"
@@ -109,6 +129,7 @@ if data.get("user", {}).get("role") != "developer":
     raise SystemExit("FAIL: role not updated")
 PY
 
+log_step "suspend user"
 status_payload='{"status":"suspended"}'
 response="$(request_json "PATCH" "/admin/users/$test_user_id/status" "$status_payload" "$admin_cookie" "")"
 parse_response "$response"
@@ -120,6 +141,7 @@ if data.get("user", {}).get("status") != "suspended":
     raise SystemExit("FAIL: status not updated")
 PY
 
+log_step "verify suspended user cannot log in"
 login_payload="$(printf '{"identifier":"%s","password":"%s"}' "$username" "$password")"
 response="$(request_json "POST" "/auth/login" "$login_payload" "" "")"
 parse_response "$response"
@@ -128,21 +150,25 @@ if [ "$RESPONSE_STATUS" != "403" ]; then
   exit 1
 fi
 
+log_step "reactivate user"
 status_payload='{"status":"active"}'
 response="$(request_json "PATCH" "/admin/users/$test_user_id/status" "$status_payload" "$admin_cookie" "")"
 parse_response "$response"
 assert_status "200" "$RESPONSE_STATUS" "activate user"
 
+log_step "reset password"
 reset_payload="$(printf '{"password":"%s"}' "$new_password")"
 response="$(request_json "PATCH" "/admin/users/$test_user_id/password" "$reset_payload" "$admin_cookie" "")"
 parse_response "$response"
 assert_status "200" "$RESPONSE_STATUS" "reset password"
 
+log_step "login with new password"
 login_payload="$(printf '{"identifier":"%s","password":"%s"}' "$username" "$new_password")"
 response="$(request_json "POST" "/auth/login" "$login_payload" "" "$user_cookie")"
 parse_response "$response"
 assert_status "200" "$RESPONSE_STATUS" "login with reset password"
 
+log_step "verify audit logs"
 python3 - "$DATA_AUDIT_FILE" "$test_user_id" <<'PY'
 import json,sys
 path=sys.argv[1]
@@ -154,5 +180,6 @@ required={"ROLE_CHANGED","STATUS_CHANGED","PASSWORD_RESET"}
 missing=required-actions
 if missing:
     raise SystemExit(f"FAIL: missing audit actions: {', '.join(sorted(missing))}")
-print("OK: admin flow")
 PY
+
+log_ok "admin flow"

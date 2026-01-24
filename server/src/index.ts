@@ -5,6 +5,8 @@ import cookie from "@fastify/cookie";
 import jwt from "@fastify/jwt";
 import authRoutes from "./routes/auth.js";
 import adminRoutes from "./routes/admin.js";
+import requirementsRoutes from "./routes/requirements.js";
+import projectsRoutes from "./routes/projects.js";
 import { initStore } from "./store.js";
 import { initPlatformStore } from "./platformStore.js";
 
@@ -59,6 +61,8 @@ app.get("/health", async () => ({ status: "ok" }));
 
 app.register(authRoutes, { prefix: "/auth" });
 app.register(adminRoutes, { prefix: "/admin" });
+app.register(requirementsRoutes, { prefix: "/api" });
+app.register(projectsRoutes, { prefix: "/api" });
 
 const start = async () => {
   try {

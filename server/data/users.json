@@ -38,5 +38,55 @@
     "status": "active",
     "createdAt": "2026-01-24T02:05:56.216Z",
     "updatedAt": "2026-01-24T05:14:17.933Z"
+  },
+  {
+    "id": "d1d43a13-9946-40ae-b2df-be133f73f1e6",
+    "username": "auto1769237237",
+    "email": "auto1769237237@example.com",
+    "passwordHash": "$2a$12$..s6/kPevquLFrnxuA1IAO.qKv/4K3WxEHNoDE.sjIUEnhUfZLn5m",
+    "role": "customer",
+    "status": "active",
+    "createdAt": "2026-01-24T06:47:17.949Z",
+    "updatedAt": "2026-01-24T06:47:17.949Z"
+  },
+  {
+    "id": "e750645b-407f-43cc-95a0-870e85d87e7d",
+    "username": "admtest1769238543",
+    "email": "admtest1769238543@example.com",
+    "passwordHash": "$2a$12$ZEhXDhx0heoZqZd3..xyJOWPPbUI5JTV9RsSq0zNSkjg1Mcp6mpLi",
+    "role": "developer",
+    "status": "active",
+    "createdAt": "2026-01-24T07:09:03.769Z",
+    "updatedAt": "2026-01-24T07:09:04.586Z"
+  },
+  {
+    "id": "83acedb9-432d-44cd-a4c6-61a48f3fec77",
+    "username": "admtest1769238755",
+    "email": "admtest1769238755@example.com",
+    "passwordHash": "$2a$12$NYu00CZCAw1L6f9KHck6we1IQuzwFHZq6NVNR6ixeWW4bAyxa5RXW",
+    "role": "developer",
+    "status": "active",
+    "createdAt": "2026-01-24T07:12:35.841Z",
+    "updatedAt": "2026-01-24T07:12:36.892Z"
+  },
+  {
+    "id": "b8a1e730-12c1-461e-9101-80d663026a0e",
+    "username": "admtest1769238812",
+    "email": "admtest1769238812@example.com",
+    "passwordHash": "$2a$12$oWxfEgeBYk56R4rmK/437eyxNX914Z6jikZ.MzdqZsY94UUxTxj2q",
+    "role": "developer",
+    "status": "active",
+    "createdAt": "2026-01-24T07:13:33.119Z",
+    "updatedAt": "2026-01-24T07:13:33.976Z"
+  },
+  {
+    "id": "09624552-75a1-455d-94a8-4e1c379a3dab",
+    "username": "auto1769238823",
+    "email": "auto1769238823@example.com",
+    "passwordHash": "$2a$12$eAx.v15W4DIxNy74eLRZieLBnBesPAtNGmMVHLW4WMQ1S3BvbFFx2",
+    "role": "customer",
+    "status": "active",
+    "createdAt": "2026-01-24T07:13:43.984Z",
+    "updatedAt": "2026-01-24T07:13:43.984Z"
   }
 ]

@@ -16,6 +16,14 @@ if ! command -v python3 >/dev/null 2>&1; then
   exit 1
 fi
 
+log_step() {
+  echo "-- $1"
+}
+
+log_ok() {
+  echo "OK: $1"
+}
+
 tmp_dir="$(mktemp -d)"
 cookie_jar="$tmp_dir/cookies.txt"
 trap 'rm -rf "$tmp_dir"' EXIT
@@ -61,6 +69,7 @@ username="auto${timestamp}"
 email="auto${timestamp}@example.com"
 password="Passw0rd123"
 
+log_step "register user"
 register_payload="$(printf '{"username":"%s","email":"%s","password":"%s","confirmPassword":"%s"}' \
   "$username" "$email" "$password" "$password")"
 response="$(request_json "POST" "/auth/register" "$register_payload" "" "$cookie_jar")"
@@ -91,10 +100,12 @@ if [ "$me_id" != "$user_id" ]; then
   exit 1
 fi
 
+log_step "logout"
 response="$(request_json "POST" "/auth/logout" "" "$cookie_jar" "$cookie_jar")"
 parse_response "$response"
 assert_status "200" "$RESPONSE_STATUS" "logout"
 
+log_step "verify session cleared"
 response="$(request_json "GET" "/auth/me" "" "$cookie_jar" "")"
 parse_response "$response"
 assert_status "200" "$RESPONSE_STATUS" "me after logout"
@@ -105,6 +116,7 @@ if data.get("user") is not None:
     raise SystemExit("FAIL: /auth/me should be null after logout")
 PY
 
+log_step "login"
 login_payload="$(printf '{"identifier":"%s","password":"%s"}' "$username" "$password")"
 response="$(request_json "POST" "/auth/login" "$login_payload" "" "$cookie_jar")"
 parse_response "$response"
@@ -122,6 +134,7 @@ if [ "$login_id" != "$user_id" ]; then
   exit 1
 fi
 
+log_step "verify user persisted"
 python3 - "$DATA_USERS_FILE" "$user_id" <<'PY'
 import json,sys
 path=sys.argv[1]
@@ -130,5 +143,6 @@ with open(path,"r",encoding="utf-8") as f:
     data=json.load(f)
 if not any(u.get("id") == user_id for u in data):
     raise SystemExit("FAIL: user not found in users store")
-print("OK: auth flow")
 PY
+
+log_ok "auth flow"

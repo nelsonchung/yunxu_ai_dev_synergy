@@ -1,0 +1,26 @@
+[
+  {
+    "id": "ef179aa9-7098-475f-82b5-bbba6724d29b",
+    "projectId": "0fbcc2a1-7b66-4ab5-8349-a52b8bda557c",
+    "type": "system",
+    "title": "系統文件 v1",
+    "version": 1,
+    "contentUrl": "projects/0fbcc2a1-7b66-4ab5-8349-a52b8bda557c/system/v1.md",
+    "status": "archived",
+    "versionNote": "初版",
+    "createdAt": "2026-01-24T07:43:06.692Z",
+    "updatedAt": "2026-01-24T07:43:06.752Z"
+  },
+  {
+    "id": "78b3034d-104b-4acc-9c99-f74e669eeeee",
+    "projectId": "0fbcc2a1-7b66-4ab5-8349-a52b8bda557c",
+    "type": "system",
+    "title": "系統文件 v2",
+    "version": 2,
+    "contentUrl": "projects/0fbcc2a1-7b66-4ab5-8349-a52b8bda557c/system/v2.md",
+    "status": "pending_approval",
+    "versionNote": "更新流程",
+    "createdAt": "2026-01-24T07:43:06.752Z",
+    "updatedAt": "2026-01-24T07:43:06.752Z"
+  }
+]

@@ -10,6 +10,7 @@ const navItems = [
   { label: "合作模式", href: "/#collaboration", type: "anchor" },
   { label: "品牌介紹", href: "/#brand", type: "anchor" },
   { label: "專案管理", href: "/projects", type: "route" },
+  { label: "文件中心", href: "/documents", type: "route" },
 ];
 
 export default function Navbar() {

@@ -4,6 +4,7 @@ export type RequirementStatus =
   | "draft"
   | "submitted"
   | "under_review"
+  | "rejected"
   | "approved"
   | "matched"
   | "converted";
@@ -15,9 +16,23 @@ export type AIJobStatus = "queued" | "running" | "succeeded" | "failed" | "cance
 export type Requirement = {
   id: string;
   title: string;
+  companyName: string;
+  projectType: string;
   background: string;
+  goals: string;
+  scope: string;
+  constraints: string;
+  budgetRange: string;
+  timeline: string;
+  specDoc: string;
+  attachments: string[];
+  contact: {
+    name: string;
+    email: string;
+    phone: string;
+  };
   status: RequirementStatus;
-  ownerId: string;
+  ownerId: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -29,6 +44,7 @@ export type RequirementDocument = {
   contentUrl: string;
   status: DocumentStatus;
   approvedBy: string | null;
+  reviewComment: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -36,9 +52,12 @@ export type RequirementDocument = {
 export type Project = {
   id: string;
   requirementId: string;
+  name: string;
   status: ProjectStatus;
   startDate: string | null;
   endDate: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type Task = {
@@ -84,6 +103,19 @@ export type TestDocument = {
   contentUrl: string;
 };
 
+export type ProjectDocument = {
+  id: string;
+  projectId: string;
+  type: string;
+  title: string;
+  version: number;
+  contentUrl: string;
+  status: DocumentStatus;
+  versionNote: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type AIJob = {
   id: string;
   type: string;
@@ -112,6 +144,9 @@ const QUALITY_REPORTS_FILE = resolveDataPath(
 const TEST_DOCUMENTS_FILE = resolveDataPath(
   process.env.DATA_TEST_DOCUMENTS_FILE ?? "./data/test_documents.json"
 );
+const PROJECT_DOCUMENTS_FILE = resolveDataPath(
+  process.env.DATA_PROJECT_DOCUMENTS_FILE ?? "./data/project_documents.json"
+);
 const AI_JOBS_FILE = resolveDataPath(process.env.DATA_AI_JOBS_FILE ?? "./data/ai_jobs.json");
 
 export const platformStores = {
@@ -123,6 +158,7 @@ export const platformStores = {
   matchingResults: createJsonStore<MatchingResult[]>(MATCHING_FILE, []),
   qualityReports: createJsonStore<QualityReport[]>(QUALITY_REPORTS_FILE, []),
   testDocuments: createJsonStore<TestDocument[]>(TEST_DOCUMENTS_FILE, []),
+  projectDocuments: createJsonStore<ProjectDocument[]>(PROJECT_DOCUMENTS_FILE, []),
   aiJobs: createJsonStore<AIJob[]>(AI_JOBS_FILE, []),
 };
 

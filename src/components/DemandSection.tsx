@@ -1,6 +1,8 @@
-import type { FormEvent } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { useMemo, useState } from "react";
+import { Link } from "wouter";
 import { FileText, ShieldCheck, Users, Workflow } from "lucide-react";
+import { createRequirement } from "@/lib/platformClient";
 
 const inquiryFlow = [
   {
@@ -46,20 +48,104 @@ const budgetOptions = [
 ];
 
 const timelineOptions = ["1-2 個月", "3-6 個月", "6 個月以上", "未定"];
+const specDocOptions = ["已有規格文件", "有部分資料", "尚未準備"];
 
 export default function DemandSection() {
   const [activeFlowIndex, setActiveFlowIndex] = useState(0);
   const [inquiryStatus, setInquiryStatus] = useState("");
+  const [inquiryError, setInquiryError] = useState("");
+  const [submitResult, setSubmitResult] = useState<{
+    id: string;
+    status: string;
+    documentId: string;
+  } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formState, setFormState] = useState({
+    title: "",
+    companyName: "",
+    projectType: "",
+    budgetRange: "",
+    timeline: "",
+    contactName: "",
+    contactEmail: "",
+    contactPhone: "",
+    background: "",
+    goals: "",
+    scope: "",
+    constraints: "",
+    specDoc: "",
+    attachments: "",
+  });
   const activeFlow = useMemo(() => inquiryFlow[activeFlowIndex], [activeFlowIndex]);
 
-  const handleSubmitInquiry = (event: FormEvent<HTMLFormElement>) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = event.target;
+    setFormState((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const resetFeedback = () => {
+    setInquiryStatus("");
+    setInquiryError("");
+    setSubmitResult(null);
+  };
+
+  const handleSubmitInquiry = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    resetFeedback();
+
+    if (
+      !formState.title.trim() ||
+      !formState.background.trim() ||
+      !formState.goals.trim() ||
+      !formState.scope.trim() ||
+      !formState.contactName.trim() ||
+      !formState.contactEmail.trim()
+    ) {
+      setInquiryError("請填寫專案名稱、需求背景、目標、範圍與聯絡資訊。");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formState.contactEmail.trim())) {
+      setInquiryError("聯絡 Email 格式不正確。");
+      return;
+    }
+
+    const attachments = formState.attachments
+      .split(/[\n,]/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+
     setIsSubmitting(true);
-    setTimeout(() => {
+    try {
+      const result = await createRequirement({
+        title: formState.title.trim(),
+        companyName: formState.companyName.trim(),
+        projectType: formState.projectType.trim(),
+        background: formState.background.trim(),
+        goals: formState.goals.trim(),
+        scope: formState.scope.trim(),
+        constraints: formState.constraints.trim(),
+        budgetRange: formState.budgetRange.trim(),
+        timeline: formState.timeline.trim(),
+        specDoc: formState.specDoc.trim(),
+        attachments,
+        contact: {
+          name: formState.contactName.trim(),
+          email: formState.contactEmail.trim(),
+          phone: formState.contactPhone.trim(),
+        },
+      });
+      setSubmitResult({
+        id: result.id,
+        status: result.status,
+        documentId: result.document_id,
+      });
+      setInquiryStatus("需求已送出，我們將進一步彙整文件並安排簽核。");
+    } catch (error) {
+      setInquiryError(error instanceof Error ? error.message : "送出需求失敗，請稍後再試。");
+    } finally {
       setIsSubmitting(false);
-      setInquiryStatus("已收到您的需求，我們將在 1 個工作日內與您聯繫。");
-    }, 300);
+    }
   };
 
   return (
@@ -115,7 +201,7 @@ export default function DemandSection() {
           <div className="rounded-3xl border bg-card p-8 shadow-lg">
             <form
               onSubmit={handleSubmitInquiry}
-              onChange={() => inquiryStatus && setInquiryStatus("")}
+              onChange={resetFeedback}
               className="space-y-6"
             >
               <div className="space-y-2">
@@ -127,44 +213,52 @@ export default function DemandSection() {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="space-y-2 text-sm font-medium">
-                  公司 / 單位名稱
+                  專案名稱
                   <input
                     type="text"
-                    name="company"
-                    placeholder="例如：鋆旭科技"
+                    name="title"
+                    placeholder="例如：智慧物流排程平台"
                     required
+                    value={formState.title}
+                    onChange={handleChange}
                     className="w-full rounded-xl border border-border bg-white/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                   />
                 </label>
+                <label className="space-y-2 text-sm font-medium">
+                  公司 / 單位名稱
+                  <input
+                    type="text"
+                    name="companyName"
+                    placeholder="例如：鋆旭科技"
+                    value={formState.companyName}
+                    onChange={handleChange}
+                    className="w-full rounded-xl border border-border bg-white/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                  />
+                </label>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
                 <label className="space-y-2 text-sm font-medium">
                   聯絡人姓名
                   <input
                     type="text"
-                    name="name"
+                    name="contactName"
                     placeholder="請輸入您的姓名"
                     required
+                    value={formState.contactName}
+                    onChange={handleChange}
                     className="w-full rounded-xl border border-border bg-white/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                   />
                 </label>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
                 <label className="space-y-2 text-sm font-medium">
                   聯絡 Email
                   <input
                     type="email"
-                    name="email"
+                    name="contactEmail"
                     placeholder="name@company.com"
                     required
-                    className="w-full rounded-xl border border-border bg-white/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-                  />
-                </label>
-                <label className="space-y-2 text-sm font-medium">
-                  聯絡電話
-                  <input
-                    type="tel"
-                    name="phone"
-                    placeholder="請輸入聯絡電話"
+                    value={formState.contactEmail}
+                    onChange={handleChange}
                     className="w-full rounded-xl border border-border bg-white/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                   />
                 </label>
@@ -172,10 +266,22 @@ export default function DemandSection() {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="space-y-2 text-sm font-medium">
+                  聯絡電話
+                  <input
+                    type="tel"
+                    name="contactPhone"
+                    placeholder="請輸入聯絡電話"
+                    value={formState.contactPhone}
+                    onChange={handleChange}
+                    className="w-full rounded-xl border border-border bg-white/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                  />
+                </label>
+                <label className="space-y-2 text-sm font-medium">
                   專案類型
                   <select
                     name="projectType"
-                    defaultValue=""
+                    value={formState.projectType}
+                    onChange={handleChange}
                     required
                     className="w-full rounded-xl border border-border bg-white/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                   >
@@ -192,8 +298,9 @@ export default function DemandSection() {
                 <label className="space-y-2 text-sm font-medium">
                   預算範圍
                   <select
-                    name="budget"
-                    defaultValue=""
+                    name="budgetRange"
+                    value={formState.budgetRange}
+                    onChange={handleChange}
                     className="w-full rounded-xl border border-border bg-white/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                   >
                     <option value="" disabled>
@@ -213,7 +320,8 @@ export default function DemandSection() {
                   預計時程
                   <select
                     name="timeline"
-                    defaultValue=""
+                    value={formState.timeline}
+                    onChange={handleChange}
                     className="w-full rounded-xl border border-border bg-white/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                   >
                     <option value="" disabled>
@@ -230,33 +338,84 @@ export default function DemandSection() {
                   是否已有規格文件
                   <select
                     name="specDoc"
-                    defaultValue=""
+                    value={formState.specDoc}
+                    onChange={handleChange}
                     className="w-full rounded-xl border border-border bg-white/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                   >
                     <option value="" disabled>
                       請選擇
                     </option>
-                    <option value="有">已有規格文件</option>
-                    <option value="部分">有部分資料</option>
-                    <option value="無">尚未準備</option>
+                    {specDocOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
                   </select>
                 </label>
               </div>
 
               <label className="space-y-2 text-sm font-medium">
-                需求描述
+                需求背景
                 <textarea
-                  name="description"
-                  rows={4}
-                  placeholder="請描述需求背景、核心功能、期待成果..."
+                  name="background"
+                  rows={3}
+                  placeholder="描述需求背景與現況"
                   required
+                  value={formState.background}
+                  onChange={handleChange}
                   className="w-full rounded-xl border border-border bg-white/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                 />
               </label>
 
-              <div className="rounded-2xl border bg-secondary/50 p-4 text-sm text-muted-foreground">
-                建議準備：現有文件 / 預期目標 / 預算範圍 / 時程需求，能讓媒合更快更準。
-              </div>
+              <label className="space-y-2 text-sm font-medium">
+                專案目標
+                <textarea
+                  name="goals"
+                  rows={3}
+                  placeholder="描述期望達成的目標與成效"
+                  required
+                  value={formState.goals}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-border bg-white/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                />
+              </label>
+
+              <label className="space-y-2 text-sm font-medium">
+                功能範圍
+                <textarea
+                  name="scope"
+                  rows={4}
+                  placeholder="描述需求範圍與核心功能"
+                  required
+                  value={formState.scope}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-border bg-white/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                />
+              </label>
+
+              <label className="space-y-2 text-sm font-medium">
+                限制與備註
+                <textarea
+                  name="constraints"
+                  rows={3}
+                  placeholder="例如：既有系統限制、期望技術、法規等"
+                  value={formState.constraints}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-border bg-white/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                />
+              </label>
+
+              <label className="space-y-2 text-sm font-medium">
+                附件 / 參考資料（可用換行或逗號分隔）
+                <textarea
+                  name="attachments"
+                  rows={3}
+                  placeholder="例如：現有文件連結、簡報或規格"
+                  value={formState.attachments}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-border bg-white/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                />
+              </label>
 
               <button
                 type="submit"
@@ -266,8 +425,23 @@ export default function DemandSection() {
                 {isSubmitting ? "送出中..." : "送出需求"}
               </button>
 
-              {inquiryStatus ? (
-                <p className="text-sm text-primary">{inquiryStatus}</p>
+              {inquiryError ? (
+                <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                  {inquiryError}
+                </div>
+              ) : null}
+              {submitResult ? (
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700 space-y-2">
+                  <p>{inquiryStatus}</p>
+                  <p>需求編號：{submitResult.id}</p>
+                  <p>文件編號：{submitResult.documentId}</p>
+                  <Link
+                    href={`/documents?requirement=${submitResult.id}`}
+                    className="inline-flex items-center justify-center rounded-full border border-emerald-300 px-4 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition"
+                  >
+                    前往文件中心查看
+                  </Link>
+                </div>
               ) : (
                 <p className="text-xs text-muted-foreground">
                   提交後 1 個工作日內回覆，若有緊急需求請備註。

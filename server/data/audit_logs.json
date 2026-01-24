@@ -165,5 +165,239 @@
     "after": {
       "role": "developer"
     }
+  },
+  {
+    "id": "3b163c06-b017-4255-a69f-2e63a2874c5e",
+    "createdAt": "2026-01-24T07:04:46.864Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "16864c7b-3a50-4baf-8082-29a8cd55cff1",
+    "action": "USER_DELETED",
+    "before": {
+      "id": "16864c7b-3a50-4baf-8082-29a8cd55cff1",
+      "username": "auto1769238163",
+      "email": "auto1769238163@example.com",
+      "role": "customer",
+      "status": "active"
+    },
+    "after": null
+  },
+  {
+    "id": "94d932bb-30dd-44c3-aac8-446617bf825e",
+    "createdAt": "2026-01-24T07:04:52.533Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "fa10c3d9-a558-4cf9-b5b2-0f8a9a54d7f2",
+    "action": "USER_DELETED",
+    "before": {
+      "id": "fa10c3d9-a558-4cf9-b5b2-0f8a9a54d7f2",
+      "username": "auto1769238020",
+      "email": "auto1769238020@example.com",
+      "role": "customer",
+      "status": "active"
+    },
+    "after": null
+  },
+  {
+    "id": "4f89139a-8392-464d-b643-a8f83d437f9e",
+    "createdAt": "2026-01-24T07:04:58.868Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "b499ee71-bb2c-4683-b5d0-3c9bcc755897",
+    "action": "USER_DELETED",
+    "before": {
+      "id": "b499ee71-bb2c-4683-b5d0-3c9bcc755897",
+      "username": "auto1769237936",
+      "email": "auto1769237936@example.com",
+      "role": "customer",
+      "status": "active"
+    },
+    "after": null
+  },
+  {
+    "id": "fd39c85a-f871-48c1-b89b-5be98d8e5e7d",
+    "createdAt": "2026-01-24T07:05:04.846Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "d9861428-4da9-4193-a696-53802a327c7c",
+    "action": "USER_DELETED",
+    "before": {
+      "id": "d9861428-4da9-4193-a696-53802a327c7c",
+      "username": "auto1769237929",
+      "email": "auto1769237929@example.com",
+      "role": "customer",
+      "status": "active"
+    },
+    "after": null
+  },
+  {
+    "id": "1a4e095b-3c69-4e7e-8f94-0056cc7202ac",
+    "createdAt": "2026-01-24T07:05:09.588Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "23956f34-b3f1-46cc-b4eb-4f573b36d145",
+    "action": "USER_DELETED",
+    "before": {
+      "id": "23956f34-b3f1-46cc-b4eb-4f573b36d145",
+      "username": "auto1769237917",
+      "email": "auto1769237917@example.com",
+      "role": "customer",
+      "status": "active"
+    },
+    "after": null
+  },
+  {
+    "id": "9c2f17de-25dc-4724-b7ca-d1f8294c35e4",
+    "createdAt": "2026-01-24T07:05:13.586Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "bbfb5103-d53b-4af7-b44f-fce1a03451a0",
+    "action": "USER_DELETED",
+    "before": {
+      "id": "bbfb5103-d53b-4af7-b44f-fce1a03451a0",
+      "username": "auto1769237762",
+      "email": "auto1769237762@example.com",
+      "role": "customer",
+      "status": "active"
+    },
+    "after": null
+  },
+  {
+    "id": "a4b78625-3e01-4016-9f57-024a24fc6e0a",
+    "createdAt": "2026-01-24T07:09:04.218Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "e750645b-407f-43cc-95a0-870e85d87e7d",
+    "action": "ROLE_CHANGED",
+    "before": {
+      "role": "customer"
+    },
+    "after": {
+      "role": "developer"
+    }
+  },
+  {
+    "id": "8c8d4bf1-fc24-4d95-946e-2137d2c8240c",
+    "createdAt": "2026-01-24T07:09:04.250Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "e750645b-407f-43cc-95a0-870e85d87e7d",
+    "action": "STATUS_CHANGED",
+    "before": {
+      "status": "active"
+    },
+    "after": {
+      "status": "suspended"
+    }
+  },
+  {
+    "id": "9ae2af1b-e250-4039-9002-c4afb947d1cc",
+    "createdAt": "2026-01-24T07:09:04.281Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "e750645b-407f-43cc-95a0-870e85d87e7d",
+    "action": "STATUS_CHANGED",
+    "before": {
+      "status": "suspended"
+    },
+    "after": {
+      "status": "active"
+    }
+  },
+  {
+    "id": "af8981d2-d5c2-44a9-96c8-04cd7849db3f",
+    "createdAt": "2026-01-24T07:09:04.588Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "e750645b-407f-43cc-95a0-870e85d87e7d",
+    "action": "PASSWORD_RESET",
+    "before": null,
+    "after": null
+  },
+  {
+    "id": "4e5d988d-983e-4ca9-82dc-afce826060a6",
+    "createdAt": "2026-01-24T07:12:36.292Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "83acedb9-432d-44cd-a4c6-61a48f3fec77",
+    "action": "ROLE_CHANGED",
+    "before": {
+      "role": "customer"
+    },
+    "after": {
+      "role": "developer"
+    }
+  },
+  {
+    "id": "efb1096f-22a2-4996-8233-7a70f19b4fbf",
+    "createdAt": "2026-01-24T07:12:36.317Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "83acedb9-432d-44cd-a4c6-61a48f3fec77",
+    "action": "STATUS_CHANGED",
+    "before": {
+      "status": "active"
+    },
+    "after": {
+      "status": "suspended"
+    }
+  },
+  {
+    "id": "cbe2245b-ea99-401d-8ec3-6adabf73b3d7",
+    "createdAt": "2026-01-24T07:12:36.470Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "83acedb9-432d-44cd-a4c6-61a48f3fec77",
+    "action": "STATUS_CHANGED",
+    "before": {
+      "status": "suspended"
+    },
+    "after": {
+      "status": "active"
+    }
+  },
+  {
+    "id": "efbea7ea-23f8-439e-bdad-b5d4c6198f94",
+    "createdAt": "2026-01-24T07:12:36.911Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "83acedb9-432d-44cd-a4c6-61a48f3fec77",
+    "action": "PASSWORD_RESET",
+    "before": null,
+    "after": null
+  },
+  {
+    "id": "dd0f0c07-3e33-4d26-9e36-910db44bbaf8",
+    "createdAt": "2026-01-24T07:13:33.525Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "b8a1e730-12c1-461e-9101-80d663026a0e",
+    "action": "ROLE_CHANGED",
+    "before": {
+      "role": "customer"
+    },
+    "after": {
+      "role": "developer"
+    }
+  },
+  {
+    "id": "2c86df85-ed67-416a-93c9-52ca7fa3487f",
+    "createdAt": "2026-01-24T07:13:33.568Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "b8a1e730-12c1-461e-9101-80d663026a0e",
+    "action": "STATUS_CHANGED",
+    "before": {
+      "status": "active"
+    },
+    "after": {
+      "status": "suspended"
+    }
+  },
+  {
+    "id": "ed7c7d13-e09d-4570-8a1d-e1ca02477125",
+    "createdAt": "2026-01-24T07:13:33.659Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "b8a1e730-12c1-461e-9101-80d663026a0e",
+    "action": "STATUS_CHANGED",
+    "before": {
+      "status": "suspended"
+    },
+    "after": {
+      "status": "active"
+    }
+  },
+  {
+    "id": "afa0cbd1-a563-433f-b9fc-a1efff888280",
+    "createdAt": "2026-01-24T07:13:33.978Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "b8a1e730-12c1-461e-9101-80d663026a0e",
+    "action": "PASSWORD_RESET",
+    "before": null,
+    "after": null
   }
 ]

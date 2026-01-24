@@ -1,1 +1,75 @@
-[]
+[
+  {
+    "title": "M1需求測試1769240365",
+    "companyName": "測試公司",
+    "projectType": "新系統建置",
+    "background": "需求背景",
+    "goals": "專案目標",
+    "scope": "功能範圍",
+    "constraints": "限制",
+    "budgetRange": "50 - 150 萬",
+    "timeline": "1-2 個月",
+    "specDoc": "尚未準備",
+    "attachments": [
+      "spec-link"
+    ],
+    "contact": {
+      "name": "測試者",
+      "email": "tester1769240365@example.com",
+      "phone": "0900-000-000"
+    },
+    "ownerId": null,
+    "id": "9eaf9e7f-67b3-4c70-b505-6b86faac7089",
+    "status": "approved",
+    "createdAt": "2026-01-24T07:39:25.426Z",
+    "updatedAt": "2026-01-24T07:39:26.189Z"
+  },
+  {
+    "title": "M1需求測試1769240376",
+    "companyName": "測試公司",
+    "projectType": "新系統建置",
+    "background": "需求背景",
+    "goals": "專案目標",
+    "scope": "功能範圍",
+    "constraints": "限制",
+    "budgetRange": "50 - 150 萬",
+    "timeline": "1-2 個月",
+    "specDoc": "尚未準備",
+    "attachments": [
+      "spec-link"
+    ],
+    "contact": {
+      "name": "測試者",
+      "email": "tester1769240376@example.com",
+      "phone": "0900-000-000"
+    },
+    "ownerId": null,
+    "id": "077af774-a234-4d6b-8101-34a3e2512830",
+    "status": "approved",
+    "createdAt": "2026-01-24T07:39:36.773Z",
+    "updatedAt": "2026-01-24T07:39:37.756Z"
+  },
+  {
+    "title": "M2需求1769240586",
+    "companyName": "測試公司",
+    "projectType": "系統擴充",
+    "background": "需求背景",
+    "goals": "專案目標",
+    "scope": "功能範圍",
+    "constraints": "",
+    "budgetRange": "150 - 300 萬",
+    "timeline": "3-6 個月",
+    "specDoc": "尚未準備",
+    "attachments": [],
+    "contact": {
+      "name": "測試者",
+      "email": "tester1769240586@example.com",
+      "phone": ""
+    },
+    "ownerId": null,
+    "id": "6ef49121-a640-43df-a00f-cd72197b7f5b",
+    "status": "submitted",
+    "createdAt": "2026-01-24T07:43:06.538Z",
+    "updatedAt": "2026-01-24T07:43:06.538Z"
+  }
+]
