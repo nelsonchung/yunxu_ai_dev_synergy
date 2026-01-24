@@ -570,5 +570,31 @@
       "documentId": "51047995-2618-4fef-8811-a9b5ef10fa6a",
       "version": 2
     }
+  },
+  {
+    "id": "bc262cd7-1c5f-410d-8f1e-242a6a06b4cc",
+    "createdAt": "2026-01-24T14:06:16.559Z",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_REVIEWED",
+    "before": null,
+    "after": {
+      "projectId": "70013659-95c4-4919-836d-562754c74dc0",
+      "documentId": "54ab0e55-d49f-4bc3-872a-ea9a4eb4cfd0",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "f6a4140a-b264-4607-bd64-32a021ecbf32",
+    "createdAt": "2026-01-24T14:06:20.048Z",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_REVIEWED",
+    "before": null,
+    "after": {
+      "projectId": "70013659-95c4-4919-836d-562754c74dc0",
+      "documentId": "2a6ec100-b64f-4ba1-b377-0b7d3921bdff",
+      "status": "approved"
+    }
   }
 ]
