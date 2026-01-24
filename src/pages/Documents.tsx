@@ -6,6 +6,9 @@ import {
   approveRequirement,
   createProject,
   createProjectDocument,
+  deleteRequirement,
+  deleteProjectDocument,
+  deleteRequirementDocument,
   getProjectDocument,
   getRequirementDocument,
   listProjectDocuments,
@@ -62,6 +65,9 @@ export default function Documents() {
 
   const [approvalComment, setApprovalComment] = useState("");
   const [isApproving, setIsApproving] = useState(false);
+  const [deletingRequirementId, setDeletingRequirementId] = useState<string | null>(null);
+  const [deletingRequirementDocId, setDeletingRequirementDocId] = useState<string | null>(null);
+  const [deletingProjectDocId, setDeletingProjectDocId] = useState<string | null>(null);
 
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectRequirementId, setNewProjectRequirementId] = useState("");
@@ -252,6 +258,47 @@ export default function Documents() {
     }
   };
 
+  const handleDeleteRequirement = async (requirementId: string) => {
+    if (!window.confirm("確定要刪除此需求？相關需求文件將一併移除。")) return;
+    setRequirementError("");
+    setDeletingRequirementId(requirementId);
+    try {
+      await deleteRequirement(requirementId);
+      await loadRequirements();
+      if (selectedRequirementId === requirementId) {
+        setSelectedRequirementId(null);
+        setSelectedRequirementDocId(null);
+        setRequirementDocs([]);
+        setRequirementContent("");
+      }
+      setRequirementStatus("已刪除需求。");
+    } catch (error) {
+      setRequirementError(error instanceof Error ? error.message : "刪除需求失敗。");
+    } finally {
+      setDeletingRequirementId(null);
+    }
+  };
+
+  const handleDeleteRequirementDoc = async (docId: string) => {
+    if (!selectedRequirementId) return;
+    if (!window.confirm("確定要刪除這個需求文件版本？此動作無法復原。")) return;
+    setRequirementError("");
+    setDeletingRequirementDocId(docId);
+    try {
+      await deleteRequirementDocument(selectedRequirementId, docId);
+      const docs = await listRequirementDocuments(selectedRequirementId);
+      setRequirementDocs(docs);
+      const nextId = docs[0]?.id ?? null;
+      setSelectedRequirementDocId(nextId);
+      setRequirementContent("");
+      setRequirementStatus("已刪除文件版本。");
+    } catch (error) {
+      setRequirementError(error instanceof Error ? error.message : "刪除文件失敗。");
+    } finally {
+      setDeletingRequirementDocId(null);
+    }
+  };
+
   const handleCreateProject = async () => {
     if (!newProjectRequirementId || !newProjectName.trim()) {
       setNewProjectStatus("請選擇需求並輸入專案名稱。");
@@ -267,6 +314,26 @@ export default function Documents() {
       await loadProjects();
     } catch (error) {
       setNewProjectStatus(error instanceof Error ? error.message : "建立專案失敗。");
+    }
+  };
+
+  const handleDeleteProjectDoc = async (docId: string) => {
+    if (!selectedProjectId) return;
+    if (!window.confirm("確定要刪除這個專案文件版本？此動作無法復原。")) return;
+    setProjectError("");
+    setDeletingProjectDocId(docId);
+    try {
+      await deleteProjectDocument(selectedProjectId, docId);
+      const docs = await listProjectDocuments(selectedProjectId);
+      setProjectDocs(docs);
+      const nextId = docs[0]?.id ?? null;
+      setSelectedProjectDocId(nextId);
+      setProjectContent("");
+      setProjectStatus("已刪除文件版本。");
+    } catch (error) {
+      setProjectError(error instanceof Error ? error.message : "刪除文件失敗。");
+    } finally {
+      setDeletingProjectDocId(null);
     }
   };
 
@@ -351,38 +418,59 @@ export default function Documents() {
                   尚無需求紀錄。
                 </div>
               ) : (
-                requirements.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setSelectedRequirementId(item.id)}
-                    className={`w-full text-left rounded-2xl border p-4 transition ${
-                      selectedRequirementId === item.id
-                        ? "border-primary bg-primary/10"
-                        : "border-border bg-white hover:border-primary/40"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-xs text-muted-foreground">#{item.id.slice(0, 8)}</p>
-                        <p className="mt-1 font-semibold">{item.title}</p>
-                        <p className="text-xs text-muted-foreground">{item.companyName || "未提供公司"}</p>
-                      </div>
-                      <span
-                        className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-                          documentStatusTone[item.status] ?? "border-primary/20 bg-primary/10 text-primary"
-                        }`}
+                requirements.map((item) => {
+                  const isActive = selectedRequirementId === item.id;
+                  return (
+                    <div
+                      key={item.id}
+                      className={`flex items-start justify-between gap-3 rounded-2xl border p-4 transition ${
+                        isActive ? "border-primary bg-primary/10" : "border-border bg-white hover:border-primary/40"
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setSelectedRequirementId(item.id)}
+                        className="flex-1 text-left"
                       >
-                        {item.status}
-                      </span>
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-xs text-muted-foreground">#{item.id.slice(0, 8)}</p>
+                            <p className="mt-1 font-semibold">{item.title}</p>
+                            <p className="text-xs text-muted-foreground">{item.companyName || "未提供公司"}</p>
+                          </div>
+                          <span
+                            className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+                              documentStatusTone[item.status] ?? "border-primary/20 bg-primary/10 text-primary"
+                            }`}
+                          >
+                            {item.status}
+                          </span>
+                        </div>
+                        <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                          {item.projectType ? (
+                            <span className="rounded-full border px-3 py-1">{item.projectType}</span>
+                          ) : null}
+                          {item.budgetRange ? (
+                            <span className="rounded-full border px-3 py-1">{item.budgetRange}</span>
+                          ) : null}
+                          {item.timeline ? (
+                            <span className="rounded-full border px-3 py-1">{item.timeline}</span>
+                          ) : null}
+                        </div>
+                      </button>
+                      {isAdmin ? (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteRequirement(item.id)}
+                          disabled={deletingRequirementId === item.id}
+                          className="rounded-full border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {deletingRequirementId === item.id ? "刪除中" : "刪除"}
+                        </button>
+                      ) : null}
                     </div>
-                    <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                      {item.projectType ? <span className="rounded-full border px-3 py-1">{item.projectType}</span> : null}
-                      {item.budgetRange ? <span className="rounded-full border px-3 py-1">{item.budgetRange}</span> : null}
-                      {item.timeline ? <span className="rounded-full border px-3 py-1">{item.timeline}</span> : null}
-                    </div>
-                  </button>
-                ))
+                  );
+                })
               )}
             </div>
           </div>
@@ -399,32 +487,47 @@ export default function Documents() {
                     {requirementStatus || "選擇版本以檢視內容"}
                   </div>
                   <div className="space-y-2">
-                    {requirementDocs.map((doc) => (
-                      <button
-                        key={doc.id}
-                        type="button"
-                        onClick={() => setSelectedRequirementDocId(doc.id)}
-                        className={`w-full text-left rounded-2xl border px-4 py-3 text-sm transition ${
-                          selectedRequirementDocId === doc.id
-                            ? "border-primary bg-primary/10"
-                            : "border-border bg-white hover:border-primary/40"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <p className="font-semibold">版本 v{doc.version}</p>
-                          <span
-                            className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-                              documentStatusTone[doc.status] ?? "border-primary/20 bg-primary/10 text-primary"
-                            }`}
+                    {requirementDocs.map((doc) => {
+                      const isActive = selectedRequirementDocId === doc.id;
+                      return (
+                        <div
+                          key={doc.id}
+                          className={`flex items-start justify-between gap-3 rounded-2xl border px-4 py-3 text-sm transition ${
+                            isActive ? "border-primary bg-primary/10" : "border-border bg-white hover:border-primary/40"
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => setSelectedRequirementDocId(doc.id)}
+                            className="flex-1 text-left"
                           >
-                            {doc.status}
-                          </span>
+                            <div className="flex items-center justify-between">
+                              <p className="font-semibold">版本 v{doc.version}</p>
+                              <span
+                                className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+                                  documentStatusTone[doc.status] ?? "border-primary/20 bg-primary/10 text-primary"
+                                }`}
+                              >
+                                {doc.status}
+                              </span>
+                            </div>
+                            {doc.reviewComment ? (
+                              <p className="mt-2 text-xs text-muted-foreground">備註：{doc.reviewComment}</p>
+                            ) : null}
+                          </button>
+                          {isAdmin ? (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteRequirementDoc(doc.id)}
+                              disabled={deletingRequirementDocId === doc.id}
+                              className="rounded-full border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {deletingRequirementDocId === doc.id ? "刪除中" : "刪除"}
+                            </button>
+                          ) : null}
                         </div>
-                        {doc.reviewComment ? (
-                          <p className="mt-2 text-xs text-muted-foreground">備註：{doc.reviewComment}</p>
-                        ) : null}
-                      </button>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -571,35 +674,50 @@ export default function Documents() {
                 </div>
                 <div className="grid gap-4 lg:grid-cols-[0.4fr_0.6fr]">
                   <div className="space-y-2">
-                    {projectDocs.map((doc) => (
-                      <button
-                        key={doc.id}
-                        type="button"
-                        onClick={() => setSelectedProjectDocId(doc.id)}
-                        className={`w-full text-left rounded-2xl border px-4 py-3 text-sm transition ${
-                          selectedProjectDocId === doc.id
-                            ? "border-primary bg-primary/10"
-                            : "border-border bg-white hover:border-primary/40"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <p className="font-semibold">{doc.title}</p>
-                          <span
-                            className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-                              documentStatusTone[doc.status] ?? "border-primary/20 bg-primary/10 text-primary"
-                            }`}
+                    {projectDocs.map((doc) => {
+                      const isActive = selectedProjectDocId === doc.id;
+                      return (
+                        <div
+                          key={doc.id}
+                          className={`flex items-start justify-between gap-3 rounded-2xl border px-4 py-3 text-sm transition ${
+                            isActive ? "border-primary bg-primary/10" : "border-border bg-white hover:border-primary/40"
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => setSelectedProjectDocId(doc.id)}
+                            className="flex-1 text-left"
                           >
-                            {doc.status}
-                          </span>
+                            <div className="flex items-center justify-between">
+                              <p className="font-semibold">{doc.title}</p>
+                              <span
+                                className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+                                  documentStatusTone[doc.status] ?? "border-primary/20 bg-primary/10 text-primary"
+                                }`}
+                              >
+                                {doc.status}
+                              </span>
+                            </div>
+                            <div className="mt-2 text-xs text-muted-foreground">
+                              {doc.type} · v{doc.version}
+                            </div>
+                            {doc.versionNote ? (
+                              <p className="mt-1 text-xs text-muted-foreground">備註：{doc.versionNote}</p>
+                            ) : null}
+                          </button>
+                          {isAdmin ? (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteProjectDoc(doc.id)}
+                              disabled={deletingProjectDocId === doc.id}
+                              className="rounded-full border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {deletingProjectDocId === doc.id ? "刪除中" : "刪除"}
+                            </button>
+                          ) : null}
                         </div>
-                        <div className="mt-2 text-xs text-muted-foreground">
-                          {doc.type} · v{doc.version}
-                        </div>
-                        {doc.versionNote ? (
-                          <p className="mt-1 text-xs text-muted-foreground">備註：{doc.versionNote}</p>
-                        ) : null}
-                      </button>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   <div className="rounded-2xl border bg-white/90 p-4 text-sm text-muted-foreground">

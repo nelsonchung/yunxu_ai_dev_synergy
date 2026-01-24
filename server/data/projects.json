@@ -8,5 +8,15 @@
     "endDate": null,
     "createdAt": "2026-01-24T07:43:06.659Z",
     "updatedAt": "2026-01-24T07:43:06.659Z"
+  },
+  {
+    "id": "70013659-95c4-4919-836d-562754c74dc0",
+    "requirementId": "a03368d9-7926-4ec7-b7e6-9e2e1e79c9bb",
+    "name": "M1需求功能驗證-專案",
+    "status": "planned",
+    "startDate": null,
+    "endDate": null,
+    "createdAt": "2026-01-24T08:18:30.602Z",
+    "updatedAt": "2026-01-24T08:18:30.602Z"
   }
 ]

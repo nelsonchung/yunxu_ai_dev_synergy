@@ -1,55 +1,5 @@
 [
   {
-    "title": "M1需求測試1769240365",
-    "companyName": "測試公司",
-    "projectType": "新系統建置",
-    "background": "需求背景",
-    "goals": "專案目標",
-    "scope": "功能範圍",
-    "constraints": "限制",
-    "budgetRange": "50 - 150 萬",
-    "timeline": "1-2 個月",
-    "specDoc": "尚未準備",
-    "attachments": [
-      "spec-link"
-    ],
-    "contact": {
-      "name": "測試者",
-      "email": "tester1769240365@example.com",
-      "phone": "0900-000-000"
-    },
-    "ownerId": null,
-    "id": "9eaf9e7f-67b3-4c70-b505-6b86faac7089",
-    "status": "approved",
-    "createdAt": "2026-01-24T07:39:25.426Z",
-    "updatedAt": "2026-01-24T07:39:26.189Z"
-  },
-  {
-    "title": "M1需求測試1769240376",
-    "companyName": "測試公司",
-    "projectType": "新系統建置",
-    "background": "需求背景",
-    "goals": "專案目標",
-    "scope": "功能範圍",
-    "constraints": "限制",
-    "budgetRange": "50 - 150 萬",
-    "timeline": "1-2 個月",
-    "specDoc": "尚未準備",
-    "attachments": [
-      "spec-link"
-    ],
-    "contact": {
-      "name": "測試者",
-      "email": "tester1769240376@example.com",
-      "phone": "0900-000-000"
-    },
-    "ownerId": null,
-    "id": "077af774-a234-4d6b-8101-34a3e2512830",
-    "status": "approved",
-    "createdAt": "2026-01-24T07:39:36.773Z",
-    "updatedAt": "2026-01-24T07:39:37.756Z"
-  },
-  {
     "title": "M2需求1769240586",
     "companyName": "測試公司",
     "projectType": "系統擴充",
@@ -71,5 +21,30 @@
     "status": "submitted",
     "createdAt": "2026-01-24T07:43:06.538Z",
     "updatedAt": "2026-01-24T07:43:06.538Z"
+  },
+  {
+    "title": "M1需求功能驗證",
+    "companyName": "customer",
+    "projectType": "新系統建置",
+    "background": "M1需求功能驗證",
+    "goals": "M1需求功能驗證",
+    "scope": "M1需求功能驗證",
+    "constraints": "M1需求功能驗證",
+    "budgetRange": "50 萬以下",
+    "timeline": "6 個月以上",
+    "specDoc": "尚未準備",
+    "attachments": [
+      "M1需求功能驗證"
+    ],
+    "contact": {
+      "name": "customer",
+      "email": "customer@outlook.com",
+      "phone": "0919520508"
+    },
+    "ownerId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "id": "a03368d9-7926-4ec7-b7e6-9e2e1e79c9bb",
+    "status": "submitted",
+    "createdAt": "2026-01-24T07:51:27.378Z",
+    "updatedAt": "2026-01-24T07:51:27.378Z"
   }
 ]

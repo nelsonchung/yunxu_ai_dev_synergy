@@ -86,6 +86,10 @@ export const listRequirements = async () => {
   return data.requirements;
 };
 
+export const deleteRequirement = async (requirementId: string) => {
+  await apiRequest(`/api/requirements/${requirementId}`, { method: "DELETE" });
+};
+
 export const listRequirementDocuments = async (requirementId: string) => {
   const data = await apiRequest<{ documents: RequirementDocumentSummary[] }>(
     `/api/requirements/${requirementId}/documents`,
@@ -100,6 +104,10 @@ export const getRequirementDocument = async (requirementId: string, docId: strin
     { method: "GET" }
   );
   return { ...data.document, content: data.content };
+};
+
+export const deleteRequirementDocument = async (requirementId: string, docId: string) => {
+  await apiRequest(`/api/requirements/${requirementId}/documents/${docId}`, { method: "DELETE" });
 };
 
 export const approveRequirement = async (requirementId: string, approved: boolean, comment: string) => {
@@ -140,6 +148,10 @@ export const getProjectDocument = async (projectId: string, docId: string) => {
     { method: "GET" }
   );
   return { ...data.document, content: data.content };
+};
+
+export const deleteProjectDocument = async (projectId: string, docId: string) => {
+  await apiRequest(`/api/projects/${projectId}/documents/${docId}`, { method: "DELETE" });
 };
 
 export const createProjectDocument = async (projectId: string, payload: {

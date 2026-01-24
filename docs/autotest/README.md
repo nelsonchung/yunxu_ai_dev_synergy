@@ -109,6 +109,32 @@
 - `DATA_PROJECTS_FILE`（選填）：projects JSON store 路徑。
   預設：`server/data/projects.json`
 
+### `06_delete_documents.sh`
+用途：
+- 刪除需求文件版本與專案文件版本（管理者權限）。
+- 驗證刪除後文件查詢回傳 404。
+
+設計重點：
+- 使用管理者帳密進行刪除操作。
+- 驗證需求/專案文件均不可再讀取。
+
+環境變數：
+- `ADMIN_IDENTIFIER`（選填）：admin 帳號或 Email（未提供時使用腳本內 `DEFAULT_ADMIN_IDENTIFIER`）。
+- `ADMIN_PASSWORD`（選填）：admin 密碼（未提供時使用腳本內 `DEFAULT_ADMIN_PASSWORD`）。
+
+### `07_delete_requirement.sh`
+用途：
+- 刪除需求（管理者權限）。
+- 驗證需求已無法查詢。
+
+設計重點：
+- 以管理者身份刪除需求。
+- 刪除後 `GET /api/requirements/:id` 應回 404。
+
+環境變數：
+- `ADMIN_IDENTIFIER`（選填）：admin 帳號或 Email（未提供時使用腳本內 `DEFAULT_ADMIN_IDENTIFIER`）。
+- `ADMIN_PASSWORD`（選填）：admin 密碼（未提供時使用腳本內 `DEFAULT_ADMIN_PASSWORD`）。
+
 ## 執行範例
 ```bash
 ./docs/autotest/01_health_check.sh
@@ -123,6 +149,14 @@ ADMIN_PASSWORD=your_password \
 ./docs/autotest/04_requirement_flow.sh
 
 ./docs/autotest/05_project_documents.sh
+
+ADMIN_IDENTIFIER=admin@example.com \
+ADMIN_PASSWORD=your_password \
+./docs/autotest/06_delete_documents.sh
+
+ADMIN_IDENTIFIER=admin@example.com \
+ADMIN_PASSWORD=your_password \
+./docs/autotest/07_delete_requirement.sh
 ```
 
 ## 常見失敗與除錯建議

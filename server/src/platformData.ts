@@ -32,6 +32,17 @@ const readDocumentFile = async (relativePath: string) => {
   return fs.readFile(fullPath, "utf-8");
 };
 
+const deleteDocumentFile = async (relativePath: string) => {
+  const fullPath = resolveDocumentPath(relativePath);
+  try {
+    await fs.unlink(fullPath);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+      throw error;
+    }
+  }
+};
+
 const normalizeDocType = (raw: string) =>
   raw
     .trim()
@@ -150,6 +161,49 @@ export const getRequirementDocument = async (requirementId: string, docId: strin
   return { document, content };
 };
 
+export const deleteRequirementDocument = async (requirementId: string, docId: string) => {
+  const documents = await platformStores.requirementDocuments.read();
+  const index = documents.findIndex(
+    (doc) => doc.requirementId === requirementId && doc.id === docId
+  );
+  if (index === -1) return false;
+  const [removed] = documents.splice(index, 1);
+  await platformStores.requirementDocuments.write(documents);
+  await deleteDocumentFile(removed.contentUrl);
+  return true;
+};
+
+export const deleteRequirement = async (requirementId: string) => {
+  const requirements = await platformStores.requirements.read();
+  const projects = await platformStores.projects.read();
+  if (projects.some((project) => project.requirementId === requirementId)) {
+    return { error: "HAS_PROJECTS" as const };
+  }
+
+  const index = requirements.findIndex((item) => item.id === requirementId);
+  if (index === -1) return { error: "NOT_FOUND" as const };
+
+  requirements.splice(index, 1);
+  await platformStores.requirements.write(requirements);
+
+  const documents = await platformStores.requirementDocuments.read();
+  const [remaining, removed] = documents.reduce<[RequirementDocument[], RequirementDocument[]]>(
+    (acc, doc) => {
+      if (doc.requirementId === requirementId) {
+        acc[1].push(doc);
+      } else {
+        acc[0].push(doc);
+      }
+      return acc;
+    },
+    [[], []]
+  );
+
+  await platformStores.requirementDocuments.write(remaining);
+  await Promise.all(removed.map((doc) => deleteDocumentFile(doc.contentUrl)));
+  return { ok: true };
+};
+
 export const approveRequirement = async (
   requirementId: string,
   approved: boolean,
@@ -224,6 +278,16 @@ export const getProjectDocument = async (projectId: string, docId: string) => {
   if (!document) return null;
   const content = await readDocumentFile(document.contentUrl);
   return { document, content };
+};
+
+export const deleteProjectDocument = async (projectId: string, docId: string) => {
+  const documents = await platformStores.projectDocuments.read();
+  const index = documents.findIndex((doc) => doc.projectId === projectId && doc.id === docId);
+  if (index === -1) return false;
+  const [removed] = documents.splice(index, 1);
+  await platformStores.projectDocuments.write(documents);
+  await deleteDocumentFile(removed.contentUrl);
+  return true;
 };
 
 export const createProjectDocument = async (payload: {

@@ -399,5 +399,80 @@
     "action": "PASSWORD_RESET",
     "before": null,
     "after": null
+  },
+  {
+    "id": "55971faf-7446-4213-b40e-60ec601c75da",
+    "createdAt": "2026-01-24T07:54:40.009Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "09624552-75a1-455d-94a8-4e1c379a3dab",
+    "action": "USER_DELETED",
+    "before": {
+      "id": "09624552-75a1-455d-94a8-4e1c379a3dab",
+      "username": "auto1769238823",
+      "email": "auto1769238823@example.com",
+      "role": "customer",
+      "status": "active"
+    },
+    "after": null
+  },
+  {
+    "id": "1b73a0bf-dcd7-44c1-818e-4309ac65b25f",
+    "createdAt": "2026-01-24T07:54:48.692Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "b8a1e730-12c1-461e-9101-80d663026a0e",
+    "action": "USER_DELETED",
+    "before": {
+      "id": "b8a1e730-12c1-461e-9101-80d663026a0e",
+      "username": "admtest1769238812",
+      "email": "admtest1769238812@example.com",
+      "role": "developer",
+      "status": "active"
+    },
+    "after": null
+  },
+  {
+    "id": "3e4aa96d-ceeb-4eb3-9906-f2288bf8c04a",
+    "createdAt": "2026-01-24T07:54:55.821Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "83acedb9-432d-44cd-a4c6-61a48f3fec77",
+    "action": "USER_DELETED",
+    "before": {
+      "id": "83acedb9-432d-44cd-a4c6-61a48f3fec77",
+      "username": "admtest1769238755",
+      "email": "admtest1769238755@example.com",
+      "role": "developer",
+      "status": "active"
+    },
+    "after": null
+  },
+  {
+    "id": "1cce769e-267f-41c3-9f17-0ca4cc5b5106",
+    "createdAt": "2026-01-24T07:55:00.798Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "e750645b-407f-43cc-95a0-870e85d87e7d",
+    "action": "USER_DELETED",
+    "before": {
+      "id": "e750645b-407f-43cc-95a0-870e85d87e7d",
+      "username": "admtest1769238543",
+      "email": "admtest1769238543@example.com",
+      "role": "developer",
+      "status": "active"
+    },
+    "after": null
+  },
+  {
+    "id": "88e52820-4df2-4573-83b2-71004139469b",
+    "createdAt": "2026-01-24T07:55:05.175Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "d1d43a13-9946-40ae-b2df-be133f73f1e6",
+    "action": "USER_DELETED",
+    "before": {
+      "id": "d1d43a13-9946-40ae-b2df-be133f73f1e6",
+      "username": "auto1769237237",
+      "email": "auto1769237237@example.com",
+      "role": "customer",
+      "status": "active"
+    },
+    "after": null
   }
 ]

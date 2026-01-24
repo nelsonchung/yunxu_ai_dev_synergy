@@ -2,6 +2,8 @@ import type { FastifyPluginAsync } from "fastify";
 import {
   approveRequirement,
   createRequirement,
+  deleteRequirement,
+  deleteRequirementDocument,
   getRequirementById,
   getRequirementDocument,
   listRequirementDocuments,
@@ -158,6 +160,35 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
       }
 
       return { status: updated.status, approved_at: updated.updatedAt };
+    }
+  );
+
+  app.delete(
+    "/requirements/:id/documents/:docId",
+    { preHandler: app.requireAdmin },
+    async (request, reply) => {
+      const { id, docId } = request.params as { id: string; docId: string };
+      const deleted = await deleteRequirementDocument(id, docId);
+      if (!deleted) {
+        return reply.code(404).send({ message: "找不到文件。" });
+      }
+      return { ok: true };
+    }
+  );
+
+  app.delete(
+    "/requirements/:id",
+    { preHandler: app.requireAdmin },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const result = await deleteRequirement(id);
+      if ("error" in result) {
+        if (result.error === "HAS_PROJECTS") {
+          return reply.code(409).send({ message: "已有專案建立，無法刪除需求。" });
+        }
+        return reply.code(404).send({ message: "找不到需求。" });
+      }
+      return { ok: true };
     }
   );
 };
