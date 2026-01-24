@@ -1,5 +1,4 @@
 pasta-house
 node_modules/
-server/.env
 server/dist/
 server/node_modules/
