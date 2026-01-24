@@ -18,6 +18,7 @@ const customerRoutes = [
 ];
 
 const developerRoutes = [
+  { label: "需求中心", href: "/requirements", type: "route" },
   { label: "專案管理", href: "/projects", type: "route" },
   { label: "協作開發", href: "/collaboration", type: "route" },
   { label: "文件中心", href: "/documents", type: "route" },
