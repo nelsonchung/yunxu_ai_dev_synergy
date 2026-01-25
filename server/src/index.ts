@@ -3,6 +3,7 @@ import fastify from "fastify";
 import cors from "@fastify/cors";
 import cookie from "@fastify/cookie";
 import jwt from "@fastify/jwt";
+import type { Socket } from "node:net";
 import authRoutes from "./routes/auth.js";
 import adminRoutes from "./routes/admin.js";
 import requirementsRoutes from "./routes/requirements.js";
@@ -18,6 +19,7 @@ import { initStore } from "./store.js";
 import { initPlatformStore } from "./platformStore.js";
 import { hasPermission, initPermissionsStore } from "./permissionsStore.js";
 import { initNotificationsStore } from "./notificationsStore.js";
+import { handleNotificationsUpgrade } from "./notificationHub.js";
 
 dotenv.config();
 
@@ -94,6 +96,10 @@ app.register(qualityRoutes, { prefix: "/api" });
 app.register(auditRoutes, { prefix: "/api" });
 app.register(permissionsRoutes, { prefix: "/api" });
 app.register(notificationsRoutes, { prefix: "/api" });
+
+app.server.on("upgrade", (request, socket) => {
+  void handleNotificationsUpgrade(app, request, socket as Socket);
+});
 
 const start = async () => {
   try {

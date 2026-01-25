@@ -734,5 +734,18 @@
       "requirementId": "b87da452-8676-456e-9c92-a042f80f7414",
       "comment": "review ok"
     }
+  },
+  {
+    "id": "12b6fcc1-7154-4f47-b10c-eaa2226b6fe9",
+    "createdAt": "2026-01-25T08:50:49.547Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_CREATED",
+    "before": null,
+    "after": {
+      "projectId": "7cd0c49d-140c-4ab3-a01d-004f32a54d78",
+      "documentId": "fed9861c-5e80-41fc-bd48-a9f170e1cd53",
+      "version": 5
+    }
   }
 ]

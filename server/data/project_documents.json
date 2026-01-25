@@ -76,11 +76,25 @@
     "title": "系統架構文件",
     "version": 4,
     "contentUrl": "projects/7cd0c49d-140c-4ab3-a01d-004f32a54d78/system/v4.md",
-    "status": "pending_approval",
+    "status": "archived",
     "versionNote": null,
     "reviewComment": null,
     "approvedBy": null,
     "createdAt": "2026-01-25T03:27:21.480Z",
-    "updatedAt": "2026-01-25T03:27:21.480Z"
+    "updatedAt": "2026-01-25T08:50:49.530Z"
+  },
+  {
+    "id": "fed9861c-5e80-41fc-bd48-a9f170e1cd53",
+    "projectId": "7cd0c49d-140c-4ab3-a01d-004f32a54d78",
+    "type": "system",
+    "title": "系統架構文件",
+    "version": 5,
+    "contentUrl": "projects/7cd0c49d-140c-4ab3-a01d-004f32a54d78/system/v5.md",
+    "status": "pending_approval",
+    "versionNote": null,
+    "reviewComment": null,
+    "approvedBy": null,
+    "createdAt": "2026-01-25T08:50:49.530Z",
+    "updatedAt": "2026-01-25T08:50:49.530Z"
   }
 ]

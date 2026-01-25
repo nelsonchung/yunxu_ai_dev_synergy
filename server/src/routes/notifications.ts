@@ -1,4 +1,5 @@
 import type { FastifyPluginAsync } from "fastify";
+import { broadcastUnreadCount } from "../notificationHub.js";
 import {
   countUnreadNotifications,
   listNotificationsByRecipient,
@@ -27,6 +28,11 @@ const notificationsRoutes: FastifyPluginAsync = async (app) => {
       if (!updated) {
         return reply.code(404).send({ message: "找不到通知。" });
       }
+      try {
+        await broadcastUnreadCount(request.user.sub);
+      } catch (error) {
+        app.log.error(error);
+      }
       return { ok: true };
     }
   );
@@ -36,6 +42,11 @@ const notificationsRoutes: FastifyPluginAsync = async (app) => {
     { preHandler: app.authenticate },
     async (request) => {
       const updated = await markAllNotificationsRead(request.user.sub);
+      try {
+        await broadcastUnreadCount(request.user.sub);
+      } catch (error) {
+        app.log.error(error);
+      }
       return { updated };
     }
   );

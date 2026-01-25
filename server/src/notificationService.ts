@@ -1,3 +1,4 @@
+import { broadcastNewNotification } from "./notificationHub.js";
 import { createNotification } from "./notificationsStore.js";
 import { listUsers, type UserRole } from "./store.js";
 
@@ -20,7 +21,7 @@ export const notifyUsers = async (payload: {
     (id) => id && id !== payload.actorId
   );
   if (uniqueRecipients.length === 0) return [];
-  return Promise.all(
+  const notifications = await Promise.all(
     uniqueRecipients.map((recipientId) =>
       createNotification({
         recipientId,
@@ -32,4 +33,6 @@ export const notifyUsers = async (payload: {
       })
     )
   );
+  await Promise.all(notifications.map((item) => broadcastNewNotification(item)));
+  return notifications;
 };

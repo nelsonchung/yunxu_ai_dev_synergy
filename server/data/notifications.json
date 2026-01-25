@@ -1,0 +1,134 @@
+[
+  {
+    "id": "565f1bdd-fd7d-447a-9ecb-f663a23017d2",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "project.document.created",
+    "title": "專案文件已更新",
+    "message": "專案「系統媒合平台-engineer」新增 system 文件版本 v3。",
+    "link": "/workspace",
+    "createdAt": "2026-01-25T03:23:59.079Z",
+    "readAt": null
+  },
+  {
+    "id": "f21632ea-a2c8-4902-b96e-03769696c0e3",
+    "recipientId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "project.document.created",
+    "title": "專案文件已更新",
+    "message": "專案「系統媒合平台-engineer」新增 system 文件版本 v3。",
+    "link": "/workspace",
+    "createdAt": "2026-01-25T03:23:59.081Z",
+    "readAt": "2026-01-25T03:24:15.804Z"
+  },
+  {
+    "id": "263a1104-4b05-4243-a92b-b594b1414e76",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "專案文件需調整",
+    "message": "專案「系統媒合平台-engineer」的文件已完成簽核回覆。",
+    "link": "/workspace",
+    "createdAt": "2026-01-25T03:26:38.424Z",
+    "readAt": null
+  },
+  {
+    "id": "d4095d05-103a-4056-9764-fcbc273670c3",
+    "recipientId": "a9428c6b-15ba-47b0-84a6-f721048c3651",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "專案文件需調整",
+    "message": "專案「系統媒合平台-engineer」的文件已完成簽核回覆。",
+    "link": "/workspace",
+    "createdAt": "2026-01-25T03:26:38.425Z",
+    "readAt": null
+  },
+  {
+    "id": "13024507-866f-4a16-835c-4dde76f9abe3",
+    "recipientId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "專案文件需調整",
+    "message": "專案「系統媒合平台-engineer」的文件已完成簽核回覆。",
+    "link": "/workspace",
+    "createdAt": "2026-01-25T03:26:38.426Z",
+    "readAt": "2026-01-25T03:26:56.951Z"
+  },
+  {
+    "id": "e190ca62-57a3-4c78-adbb-6e8981a6ae4e",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "project.document.created",
+    "title": "專案文件已更新",
+    "message": "專案「系統媒合平台-engineer」新增 system 文件版本 v4。",
+    "link": "/workspace",
+    "createdAt": "2026-01-25T03:27:21.494Z",
+    "readAt": null
+  },
+  {
+    "id": "69915c1c-a34e-4a84-b7ef-0fc072ca01a4",
+    "recipientId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "project.document.created",
+    "title": "專案文件已更新",
+    "message": "專案「系統媒合平台-engineer」新增 system 文件版本 v4。",
+    "link": "/workspace",
+    "createdAt": "2026-01-25T03:27:21.498Z",
+    "readAt": "2026-01-25T03:27:27.382Z"
+  },
+  {
+    "id": "22e0c5c2-5a33-48ab-8e7c-0c091fd35c50",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "requirement.reviewed",
+    "title": "需求已核准",
+    "message": "需求「系統媒合平台」已核准。",
+    "link": "/requirements/b87da452-8676-456e-9c92-a042f80f7414",
+    "createdAt": "2026-01-25T03:28:03.158Z",
+    "readAt": null
+  },
+  {
+    "id": "9c810641-4159-48e8-9561-280a0fb15353",
+    "recipientId": "a9428c6b-15ba-47b0-84a6-f721048c3651",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "requirement.reviewed",
+    "title": "需求已核准",
+    "message": "需求「系統媒合平台」已核准。",
+    "link": "/requirements/b87da452-8676-456e-9c92-a042f80f7414",
+    "createdAt": "2026-01-25T03:28:03.160Z",
+    "readAt": null
+  },
+  {
+    "id": "5e42a925-13f6-4c57-a7d7-e8330d917ba5",
+    "recipientId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "requirement.reviewed",
+    "title": "需求已核准",
+    "message": "需求「系統媒合平台」已核准。",
+    "link": "/requirements/b87da452-8676-456e-9c92-a042f80f7414",
+    "createdAt": "2026-01-25T03:28:03.161Z",
+    "readAt": "2026-01-25T08:47:07.052Z"
+  },
+  {
+    "id": "299ab662-b39d-4f50-a02c-3cecb32beb02",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "project.document.created",
+    "title": "專案文件已更新",
+    "message": "專案「系統媒合平台-engineer」新增 system 文件版本 v5。",
+    "link": "/workspace",
+    "createdAt": "2026-01-25T08:50:49.550Z",
+    "readAt": null
+  },
+  {
+    "id": "cd7e909c-4269-42c9-8af2-c899e400c5c0",
+    "recipientId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "project.document.created",
+    "title": "專案文件已更新",
+    "message": "專案「系統媒合平台-engineer」新增 system 文件版本 v5。",
+    "link": "/workspace",
+    "createdAt": "2026-01-25T08:50:49.551Z",
+    "readAt": null
+  }
+]

@@ -5,6 +5,7 @@ import {
   listNotifications,
   markAllNotificationsRead,
   markNotificationRead,
+  onNotificationsChange,
   type NotificationItem,
 } from "@/lib/notificationsClient";
 
@@ -14,21 +15,29 @@ export default function Notifications() {
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
 
-  const loadNotifications = async () => {
+  const loadNotifications = async (options?: { silent?: boolean }) => {
+    const silent = options?.silent ?? false;
     try {
-      setIsLoading(true);
+      if (!silent) setIsLoading(true);
       setError("");
       const data = await listNotifications();
       setNotifications(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "無法載入通知清單。");
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
     }
   };
 
   useEffect(() => {
     loadNotifications();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onNotificationsChange(() => {
+      void loadNotifications({ silent: true });
+    });
+    return unsubscribe;
   }, []);
 
   const unreadCount = notifications.filter((item) => !item.readAt).length;

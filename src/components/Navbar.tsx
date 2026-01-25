@@ -2,7 +2,12 @@ import { Menu, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { getSession, logoutAccount, onSessionChange, type AuthUser } from "@/lib/authClient";
-import { getUnreadNotificationCount, onNotificationsChange } from "@/lib/notificationsClient";
+import {
+  connectNotificationsSocket,
+  disconnectNotificationsSocket,
+  getUnreadNotificationCount,
+  onNotificationsChange,
+} from "@/lib/notificationsClient";
 import { getMyPermissions } from "@/lib/permissionsClient";
 
 const anchorItems = [
@@ -61,8 +66,11 @@ export default function Navbar() {
       if (!session) {
         if (active) setCanSubmitRequirement(false);
         if (active) setUnreadCount(0);
+        disconnectNotificationsSocket();
         return;
       }
+      disconnectNotificationsSocket();
+      connectNotificationsSocket();
       try {
         const permissionData = await getMyPermissions();
         if (active) {
@@ -85,10 +93,12 @@ export default function Navbar() {
       active = false;
       unsubscribe();
       unsubscribeNotifications();
+      disconnectNotificationsSocket();
     };
   }, []);
 
   const handleLogout = async () => {
+    disconnectNotificationsSocket();
     await logoutAccount();
     setAccountUser(null);
     setLocation("/");
