@@ -328,6 +328,7 @@ export const approveRequirement = async (
 const legacyProjectStatusMap: Record<string, ProjectStatus> = {
   planned: "intake",
   active: "implementation",
+  architecture_signed: "system_architecture_signed",
   on_hold: "on_hold",
   closed: "closed",
 };
@@ -335,12 +336,13 @@ const legacyProjectStatusMap: Record<string, ProjectStatus> = {
 const baseProjectTransitions: Record<ProjectStatus, ProjectStatus[]> = {
   intake: ["requirements_signed"],
   requirements_signed: ["architecture_review"],
-  architecture_review: ["architecture_signed"],
-  architecture_signed: ["software_design_review"],
+  architecture_review: ["system_architecture_signed"],
+  system_architecture_signed: ["software_design_review"],
   software_design_review: ["software_design_signed"],
   software_design_signed: ["implementation"],
   implementation: ["system_verification"],
-  system_verification: ["delivery_review"],
+  system_verification: ["system_verification_signed"],
+  system_verification_signed: ["delivery_review"],
   delivery_review: ["closed"],
   on_hold: [],
   canceled: ["intake"],
@@ -351,11 +353,12 @@ const stageStatuses = new Set<ProjectStatus>([
   "intake",
   "requirements_signed",
   "architecture_review",
-  "architecture_signed",
+  "system_architecture_signed",
   "software_design_review",
   "software_design_signed",
   "implementation",
   "system_verification",
+  "system_verification_signed",
   "delivery_review",
 ]);
 
@@ -384,6 +387,7 @@ const normalizeProjectRecord = (project: Project) => {
     !startDate &&
     (normalizedStatus === "implementation" ||
       normalizedStatus === "system_verification" ||
+      normalizedStatus === "system_verification_signed" ||
       normalizedStatus === "delivery_review" ||
       normalizedStatus === "closed")
   ) {
@@ -446,10 +450,10 @@ const getLatestProjectDocumentByType = (
 
 const transitionGuards: Partial<Record<`${ProjectStatus}->${ProjectStatus}`, string>> = {
   "intake->requirements_signed": "需求文件需為核准狀態",
-  "architecture_review->architecture_signed": "系統架構文件需為核准狀態",
+  "architecture_review->system_architecture_signed": "系統架構文件需為核准狀態",
   "software_design_review->software_design_signed": "軟體設計文件需為核准狀態",
-  "implementation->system_verification": "測試文件需為核准狀態",
-  "system_verification->delivery_review": "交付文件需已建立",
+  "system_verification->system_verification_signed": "測試文件需為核准狀態",
+  "system_verification_signed->delivery_review": "交付文件需已建立",
   "delivery_review->closed": "交付文件需為核准狀態",
 };
 
@@ -490,7 +494,7 @@ const checkTransitionGuard = async (project: Project, nextStatus: ProjectStatus)
       : { ok: false as const, reason: transitionGuards[key] };
   }
 
-  if (key === "architecture_review->architecture_signed") {
+  if (key === "architecture_review->system_architecture_signed") {
     const latest = getLatestProjectDocumentByType(project.id, "system", projectDocs);
     return latest?.status === "approved"
       ? { ok: true as const }
@@ -504,14 +508,14 @@ const checkTransitionGuard = async (project: Project, nextStatus: ProjectStatus)
       : { ok: false as const, reason: transitionGuards[key] };
   }
 
-  if (key === "implementation->system_verification") {
+  if (key === "system_verification->system_verification_signed") {
     const latest = getLatestProjectDocumentByType(project.id, "test", projectDocs);
     return latest?.status === "approved"
       ? { ok: true as const }
       : { ok: false as const, reason: transitionGuards[key] };
   }
 
-  if (key === "system_verification->delivery_review") {
+  if (key === "system_verification_signed->delivery_review") {
     const latest = getLatestProjectDocumentByType(project.id, "delivery", projectDocs);
     return latest
       ? { ok: true as const }

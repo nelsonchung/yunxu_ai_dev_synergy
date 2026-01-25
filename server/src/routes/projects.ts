@@ -29,11 +29,12 @@ const projectStatusLabels: Record<ProjectStatus, string> = {
   intake: "需求受理",
   requirements_signed: "需求簽核",
   architecture_review: "架構審查",
-  architecture_signed: "架構簽核",
+  system_architecture_signed: "架構簽核",
   software_design_review: "設計審查",
   software_design_signed: "設計簽核",
   implementation: "實作開發",
   system_verification: "系統驗證",
+  system_verification_signed: "系統驗證簽核",
   delivery_review: "交付審查",
   on_hold: "暫停中",
   canceled: "已取消",
@@ -91,7 +92,10 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         type: "project.created",
         title: "需求已建立專案",
         message: `需求「${requirement?.title ?? requirementId}」已建立專案「${project.name}」。`,
-        link: `/workspace`,
+        link: `/workspace?project=${project.id}`,
+        linkByRole: {
+          customer: `/my/requirements/${requirementId}`,
+        },
       });
     } catch (error) {
       app.log.error(error);
@@ -149,7 +153,10 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
           type: "project.status.updated",
           title: "專案狀態已更新",
           message: `專案「${result.after.name}」狀態由「${beforeLabel}」變更為「${afterLabel}」。`,
-          link: "/workspace",
+          link: `/workspace?project=${result.after.id}`,
+          linkByRole: {
+            customer: `/my/requirements/${result.after.requirementId}`,
+          },
         });
       } catch (error) {
         app.log.error(error);
@@ -258,13 +265,19 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         ...roleRecipients,
         requirement?.ownerId ?? "",
       ].filter(Boolean);
+      const requirementId = requirement?.id ?? project?.requirementId ?? "";
       await notifyUsers({
         recipientIds: recipients,
         actorId: request.user?.sub ?? null,
         type: "project.document.created",
         title: "專案文件已更新",
         message: `專案「${project?.name ?? id}」新增 ${type} 文件版本 v${document.version}。`,
-        link: `/workspace`,
+        link: `/workspace?project=${id}`,
+        linkByRole: requirementId
+          ? {
+              customer: `/my/requirements/${requirementId}`,
+            }
+          : undefined,
       });
     } catch (error) {
       app.log.error(error);
@@ -279,6 +292,20 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
       const { id, docId } = request.params as { id: string; docId: string };
       const body = (request.body as { approved?: boolean; comment?: string }) ?? {};
       const comment = body.comment ? String(body.comment).trim() : null;
+
+      const project = await getProjectById(id);
+      if (!project) {
+        return reply.code(404).send({ message: "找不到專案。" });
+      }
+      const requirement = await getRequirementById(project.requirementId);
+      if (!requirement) {
+        return reply.code(404).send({ message: "找不到需求。" });
+      }
+      if (typeof body.approved === "boolean" && request.user.role !== "admin") {
+        if (requirement.ownerId !== request.user.sub) {
+          return reply.code(403).send({ message: "僅需求提出者可簽核專案文件。" });
+        }
+      }
 
       const updated = await reviewProjectDocument({
         projectId: id,
@@ -299,21 +326,60 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         after: { projectId: id, documentId: docId, status: updated.status },
       });
 
+      let autoTransitionTo: ProjectStatus | null = null;
+      if (body.approved === true) {
+        const autoTransitionByDocType: Record<string, { from: ProjectStatus; to: ProjectStatus }> = {
+          system: { from: "architecture_review", to: "system_architecture_signed" },
+          software: { from: "software_design_review", to: "software_design_signed" },
+          test: { from: "system_verification", to: "system_verification_signed" },
+          delivery: { from: "delivery_review", to: "closed" },
+        };
+        const target = autoTransitionByDocType[updated.type];
+        if (target) {
+          const currentProject = await getProjectById(id);
+          const matchesFrom =
+            currentProject &&
+            (currentProject.status === target.from ||
+              (currentProject.status === "on_hold" && currentProject.previousStatus === target.from));
+          if (matchesFrom) {
+            const result = await updateProjectStatus(id, target.to);
+            if (!("error" in result)) {
+              autoTransitionTo = result.after.status;
+              await addAuditLog({
+                actorId: request.user.sub,
+                targetUserId: null,
+                action: "PROJECT_STATUS_UPDATED",
+                before: { projectId: id, status: result.before.status },
+                after: { projectId: id, status: result.after.status },
+              });
+            }
+          }
+        }
+      }
+
       try {
-        const project = await getProjectById(id);
-        const requirement = project ? await getRequirementById(project.requirementId) : null;
         const roleRecipients = await listActiveUserIdsByRole(["developer", "admin"]);
         const recipients = [
           ...roleRecipients,
           requirement?.ownerId ?? "",
         ].filter(Boolean);
+        const autoNote = autoTransitionTo
+          ? `，專案狀態已自動更新為「${projectStatusLabels[autoTransitionTo] ?? autoTransitionTo}」`
+          : "";
+        const reviewMessage =
+          body.approved === false
+            ? `專案「${project?.name ?? id}」的文件已被退回，請依簽核意見調整。`
+            : `專案「${project?.name ?? id}」的文件已完成簽核${autoNote}。`;
         await notifyUsers({
           recipientIds: recipients,
           actorId: request.user.sub,
           type: "project.document.reviewed",
           title: body.approved === false ? "專案文件需調整" : "專案文件已簽核",
-          message: `專案「${project?.name ?? id}」的文件已完成簽核回覆。`,
-          link: `/workspace`,
+          message: reviewMessage,
+          link: `/workspace?project=${id}`,
+          linkByRole: {
+            customer: `/my/requirements/${project.requirementId}`,
+          },
         });
       } catch (error) {
         app.log.error(error);

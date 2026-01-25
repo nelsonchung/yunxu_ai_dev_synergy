@@ -171,8 +171,11 @@
 - 新版本產生後，舊版本標記為 `archived`
 
 ### 8.3 Project 狀態
-- `intake -> requirements_signed -> architecture_review -> architecture_signed -> software_design_review -> software_design_signed -> implementation -> system_verification -> delivery_review -> closed`
+- `intake -> requirements_signed -> architecture_review -> system_architecture_signed -> software_design_review -> software_design_signed -> implementation -> system_verification -> system_verification_signed -> delivery_review -> closed`
 - 任一進行中階段可轉為 `on_hold` 或 `canceled`
+- 簽核角色：需求提出者（customer）負責簽核需求/專案文件，developer 負責推進狀態
+- 客戶簽核會自動推進狀態（需求/system/software/test/delivery）
+- 管理者（admin）可介入並直接操作簽核與狀態推進
 
 ### 8.4 AIJob 狀態
 - `queued -> running -> succeeded | failed | canceled`

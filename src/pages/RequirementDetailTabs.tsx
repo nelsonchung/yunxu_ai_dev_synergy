@@ -51,6 +51,37 @@ const statusLabels: Record<string, string> = {
   draft: "草稿",
 };
 
+const projectStatusLabels: Record<string, string> = {
+  intake: "需求受理",
+  requirements_signed: "需求簽核",
+  architecture_review: "架構審查",
+  system_architecture_signed: "架構簽核",
+  software_design_review: "設計審查",
+  software_design_signed: "設計簽核",
+  implementation: "實作開發",
+  system_verification: "系統驗證",
+  system_verification_signed: "系統驗證簽核",
+  delivery_review: "交付審查",
+  on_hold: "暫停中",
+  canceled: "已取消",
+  closed: "已結案",
+};
+
+const documentStatusLabels: Record<string, string> = {
+  draft: "草稿",
+  pending_approval: "待簽核",
+  approved: "已核准",
+  archived: "已封存",
+};
+
+const docTypeLabels: Record<string, string> = {
+  requirement: "需求",
+  system: "系統架構",
+  software: "軟體設計",
+  test: "測試",
+  delivery: "交付",
+};
+
 export default function RequirementDetailTabs() {
   const [match, params] = useRoute("/my/requirements/:id");
   const requirementId = match ? params?.id ?? "" : "";
@@ -74,6 +105,16 @@ export default function RequirementDetailTabs() {
   const canReviewProjectDocs = permissions.includes("projects.documents.review");
 
   const latestRequirementDocId = requirementDocs[0]?.id ?? null;
+
+  const formatProjectStatus = (item: ProjectSummary | null) => {
+    if (!item) return "--";
+    const label = projectStatusLabels[item.status] ?? item.status;
+    if (item.status === "on_hold" && item.previousStatus) {
+      const previous = projectStatusLabels[item.previousStatus] ?? item.previousStatus;
+      return `${label}（原：${previous}）`;
+    }
+    return label;
+  };
 
   const loadData = async () => {
     if (!requirementId) return;
@@ -302,26 +343,34 @@ export default function RequirementDetailTabs() {
           </div>
 
           {activeTab === "project" ? (
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="rounded-2xl border bg-white/90 p-4">
-                <p className="text-xs text-muted-foreground">目前階段</p>
-                <p className="mt-2 text-lg font-semibold">{project?.status ?? "--"}</p>
+            <div className="space-y-3">
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="rounded-2xl border bg-white/90 p-4">
+                  <p className="text-xs text-muted-foreground">目前階段</p>
+                  <p className="mt-2 text-lg font-semibold">{formatProjectStatus(project)}</p>
+                </div>
+                <div className="rounded-2xl border bg-white/90 p-4">
+                  <p className="text-xs text-muted-foreground">專案編號</p>
+                  <p className="mt-2 text-lg font-semibold">{project?.id ?? "尚未建立"}</p>
+                </div>
+                <div className="rounded-2xl border bg-white/90 p-4">
+                  <p className="text-xs text-muted-foreground">需求狀態</p>
+                  <p className="mt-2 text-lg font-semibold">
+                    {statusLabels[requirement?.status ?? ""] ?? requirement?.status ?? "--"}
+                  </p>
+                </div>
               </div>
-              <div className="rounded-2xl border bg-white/90 p-4">
-                <p className="text-xs text-muted-foreground">專案編號</p>
-                <p className="mt-2 text-lg font-semibold">{project?.id ?? "尚未建立"}</p>
-              </div>
-              <div className="rounded-2xl border bg-white/90 p-4">
-                <p className="text-xs text-muted-foreground">需求狀態</p>
-                <p className="mt-2 text-lg font-semibold">
-                  {statusLabels[requirement?.status ?? ""] ?? requirement?.status ?? "--"}
-                </p>
-              </div>
+              <p className="text-xs text-muted-foreground">
+                文件簽核由你在此頁完成；簽核後請由開發者到「專案工作台」推進下一階段。
+              </p>
             </div>
           ) : null}
 
           {activeTab === "documents" ? (
             <div className="space-y-6">
+              <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 text-xs text-primary">
+                這裡是客戶簽核入口：請先簽核需求文件，再依序簽核系統架構、軟體設計、測試與交付文件。
+              </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-semibold">需求文件</p>
@@ -346,7 +395,7 @@ export default function RequirementDetailTabs() {
                           <p className="text-xs text-muted-foreground">更新：{doc.updatedAt}</p>
                         </div>
                         <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
-                          {doc.status}
+                          {documentStatusLabels[doc.status] ?? doc.status}
                         </span>
                       </div>
                       <textarea
@@ -403,12 +452,14 @@ export default function RequirementDetailTabs() {
                       <div key={doc.id} className="rounded-2xl border bg-white/90 p-4 space-y-3">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
-                            <p className="text-xs text-muted-foreground">{doc.type} · v{doc.version}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {docTypeLabels[doc.type] ?? doc.type} · v{doc.version}
+                            </p>
                             <p className="text-lg font-semibold">{doc.title}</p>
                             <p className="text-xs text-muted-foreground">更新：{doc.updatedAt}</p>
                           </div>
                           <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                            {doc.status}
+                            {documentStatusLabels[doc.status] ?? doc.status}
                           </span>
                         </div>
                         <textarea

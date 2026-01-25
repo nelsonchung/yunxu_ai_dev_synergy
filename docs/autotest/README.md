@@ -210,18 +210,24 @@
 
 ### `13_project_status_flow.sh`
 用途：
-- 建立需求與專案。
+- 以 customer 建立需求、以 developer 建立專案與文件。
 - 驗證 guard 條件未達成時會被拒絕（如：未簽核文件即推進狀態）。
-- 驗證 CMMI 狀態流程（intake -> requirements_signed -> architecture_review -> architecture_signed -> software_design_review -> software_design_signed -> implementation -> system_verification -> delivery_review -> closed）。
-- 清理建立的專案與需求。
+- 驗證 CMMI 狀態流程（intake -> requirements_signed -> architecture_review -> system_architecture_signed -> software_design_review -> software_design_signed -> implementation -> system_verification -> system_verification_signed -> delivery_review -> closed）。
+- （選擇性）以 admin 清理建立的專案與需求。
 
 設計重點：
-- 以管理者身份同時操作簽核與專案狀態 API。
+- 簽核動作由需求提出者（customer）執行，狀態推進由 developer 執行。
+- 管理者（admin）具覆蓋權限，可同時操作簽核與狀態推進 API。
+- 客戶簽核會自動推進狀態（需求/system/software/test/delivery）。
 - 檢查 API 回傳的 `project.status` 是否符合預期。
 
 環境變數：
-- `ADMIN_IDENTIFIER`（選填）：admin 帳號或 Email（未提供時使用腳本內 `DEFAULT_ADMIN_IDENTIFIER`）。
-- `ADMIN_PASSWORD`（選填）：admin 密碼（未提供時使用腳本內 `DEFAULT_ADMIN_PASSWORD`）。
+- `CUSTOMER_IDENTIFIER`（必填）：customer 帳號或 Email。
+- `CUSTOMER_PASSWORD`（必填）：customer 密碼。
+- `DEVELOPER_IDENTIFIER`（必填）：developer 帳號或 Email。
+- `DEVELOPER_PASSWORD`（必填）：developer 密碼。
+- `ADMIN_IDENTIFIER`（選填）：admin 帳號或 Email（用於清理資料）。
+- `ADMIN_PASSWORD`（選填）：admin 密碼（用於清理資料）。
 
 ## 執行範例
 ```bash
@@ -268,6 +274,10 @@ ADMIN_IDENTIFIER=admin@example.com \
 ADMIN_PASSWORD=your_password \
 ./docs/autotest/12_audit_logs.sh
 
+CUSTOMER_IDENTIFIER=customer@example.com \
+CUSTOMER_PASSWORD=your_password \
+DEVELOPER_IDENTIFIER=developer@example.com \
+DEVELOPER_PASSWORD=your_password \
 ADMIN_IDENTIFIER=admin@example.com \
 ADMIN_PASSWORD=your_password \
 ./docs/autotest/13_project_status_flow.sh

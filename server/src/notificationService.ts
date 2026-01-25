@@ -16,22 +16,31 @@ export const notifyUsers = async (payload: {
   title: string;
   message: string;
   link?: string | null;
+  linkByRole?: Partial<Record<UserRole, string>>;
 }) => {
   const uniqueRecipients = Array.from(new Set(payload.recipientIds)).filter(
     (id) => id && id !== payload.actorId
   );
   if (uniqueRecipients.length === 0) return [];
+  const roleLinkMap = payload.linkByRole ?? null;
+  let userRoleById: Map<string, UserRole> | null = null;
+  if (roleLinkMap) {
+    const users = await listUsers();
+    userRoleById = new Map(users.map((user) => [user.id, user.role]));
+  }
   const notifications = await Promise.all(
-    uniqueRecipients.map((recipientId) =>
-      createNotification({
+    uniqueRecipients.map((recipientId) => {
+      const role = userRoleById?.get(recipientId);
+      const roleLink = role && roleLinkMap ? roleLinkMap[role] : undefined;
+      return createNotification({
         recipientId,
         actorId: payload.actorId ?? null,
         type: payload.type,
         title: payload.title,
         message: payload.message,
-        link: payload.link ?? null,
-      })
-    )
+        link: roleLink ?? payload.link ?? null,
+      });
+    })
   );
   await Promise.all(notifications.map((item) => broadcastNewNotification(item)));
   return notifications;

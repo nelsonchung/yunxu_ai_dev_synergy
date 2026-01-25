@@ -11,11 +11,15 @@ import {
   listRequirementDocuments,
   listRequirements,
   listProjects,
+  updateProjectStatus,
 } from "../platformData.js";
 import { addAuditLog } from "../store.js";
 import { listActiveUserIdsByRole, notifyUsers } from "../notificationService.js";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const projectStatusLabels: Record<string, string> = {
+  requirements_signed: "需求簽核",
+};
 
 const normalizeAttachments = (value: unknown) => {
   if (Array.isArray(value)) {
@@ -204,6 +208,14 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
         return reply.code(400).send({ message: "請提供文件內容。" });
       }
 
+      const requirement = await getRequirementById(id);
+      if (!requirement) {
+        return reply.code(404).send({ message: "找不到需求。" });
+      }
+      if (request.user.role !== "admin" && requirement.ownerId !== request.user.sub) {
+        return reply.code(403).send({ message: "僅需求提出者可編修需求文件。" });
+      }
+
       const document = await createRequirementDocument({ requirementId: id, content });
       if (!document) {
         return reply.code(404).send({ message: "找不到需求。" });
@@ -231,6 +243,9 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
           title: "需求文件已更新",
           message: `需求「${requirement?.title ?? id}」已更新文件版本 v${document.version}。`,
           link: `/requirements/${id}`,
+          linkByRole: {
+            customer: `/my/requirements/${id}`,
+          },
         });
       } catch (error) {
         app.log.error(error);
@@ -250,6 +265,14 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
         return reply.code(400).send({ message: "請提供 approved 旗標。" });
       }
 
+      const requirement = await getRequirementById(id);
+      if (!requirement) {
+        return reply.code(404).send({ message: "找不到需求。" });
+      }
+      if (request.user.role !== "admin" && requirement.ownerId !== request.user.sub) {
+        return reply.code(403).send({ message: "僅需求提出者可簽核需求文件。" });
+      }
+
       const updated = await approveRequirement(id, body.approved, request.user.sub, body.comment);
       if (!updated) {
         return reply.code(404).send({ message: "找不到需求。" });
@@ -263,19 +286,50 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
         after: { requirementId: id, comment: body.comment ?? "" },
       });
 
+      let autoTransitioned = 0;
+      if (body.approved) {
+        const projects = (await listProjects()).filter((project) => project.requirementId === id);
+        const eligible = projects.filter(
+          (project) =>
+            project.status === "intake" ||
+            (project.status === "on_hold" && project.previousStatus === "intake")
+        );
+        for (const project of eligible) {
+          const result = await updateProjectStatus(project.id, "requirements_signed");
+          if ("error" in result) continue;
+          autoTransitioned += 1;
+          await addAuditLog({
+            actorId: request.user.sub,
+            targetUserId: null,
+            action: "PROJECT_STATUS_UPDATED",
+            before: { projectId: project.id, status: result.before.status },
+            after: { projectId: project.id, status: result.after.status },
+          });
+        }
+      }
+
       try {
         const roleRecipients = await listActiveUserIdsByRole(["developer", "admin"]);
         const recipients = [
           ...roleRecipients,
           updated.ownerId ?? "",
         ].filter(Boolean);
+        const autoNote =
+          autoTransitioned > 0
+            ? `，並已自動推進 ${autoTransitioned} 個專案至「${
+                projectStatusLabels.requirements_signed
+              }」`
+            : "";
         await notifyUsers({
           recipientIds: recipients,
           actorId: request.user.sub,
           type: "requirement.reviewed",
           title: body.approved ? "需求已核准" : "需求已退回",
-          message: `需求「${updated.title}」${body.approved ? "已核准" : "已退回"}。`,
+          message: `需求「${updated.title}」${body.approved ? "已核准" : "已退回"}${autoNote}。`,
           link: `/requirements/${id}`,
+          linkByRole: {
+            customer: `/my/requirements/${id}`,
+          },
         });
       } catch (error) {
         app.log.error(error);
@@ -327,6 +381,9 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
           title: "需求文件有新留言",
           message: `需求「${requirement?.title ?? id}」有新的留言或回覆。`,
           link: `/requirements/${id}`,
+          linkByRole: {
+            customer: `/my/requirements/${id}`,
+          },
         });
       } catch (error) {
         app.log.error(error);

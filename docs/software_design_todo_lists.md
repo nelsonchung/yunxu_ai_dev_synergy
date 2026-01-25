@@ -92,7 +92,7 @@
 ## 流程與狀態機
 - [x] Requirement 狀態機：draft -> submitted -> under_review -> approved -> matched -> converted
 - [x] Document 狀態機：draft -> pending_approval -> approved -> archived
-- [x] Project 狀態機：intake -> requirements_signed -> architecture_review -> architecture_signed -> software_design_review -> software_design_signed -> implementation -> system_verification -> delivery_review -> closed（可跨階段 on_hold / canceled）
+- [x] Project 狀態機：intake -> requirements_signed -> architecture_review -> system_architecture_signed -> software_design_review -> software_design_signed -> implementation -> system_verification -> system_verification_signed -> delivery_review -> closed（可跨階段 on_hold / canceled）
 - [ ] AIJob 狀態機：queued -> running -> succeeded | failed | canceled
 
 ## 文件與交付

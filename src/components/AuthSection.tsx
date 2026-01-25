@@ -219,10 +219,10 @@ export default function AuthSection() {
                   </div>
                   <div className="flex flex-wrap gap-3">
                     <Link
-                      href="/projects"
+                      href="/requirements"
                       className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition"
                     >
-                      前往專案管理
+                      前往需求中心
                     </Link>
                     <button
                       type="button"
