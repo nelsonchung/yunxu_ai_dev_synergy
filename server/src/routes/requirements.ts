@@ -10,9 +10,10 @@ import {
   getRequirementDocument,
   listRequirementDocuments,
   listRequirements,
+  listProjects,
 } from "../platformData.js";
 import { addAuditLog } from "../store.js";
-import { listProjects } from "../platformData.js";
+import { listActiveUserIdsByRole, notifyUsers } from "../notificationService.js";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -105,6 +106,20 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
       },
       ownerId,
     });
+
+    try {
+      const roleRecipients = await listActiveUserIdsByRole(["developer", "admin"]);
+      await notifyUsers({
+        recipientIds: roleRecipients,
+        actorId: request.user.sub,
+        type: "requirement.created",
+        title: "新需求已提交",
+        message: `需求「${result.requirement.title}」已提交，請評估是否接案。`,
+        link: `/requirements/${result.requirement.id}`,
+      });
+    } catch (error) {
+      app.log.error(error);
+    }
 
     return reply.code(201).send({
       id: result.requirement.id,
@@ -202,6 +217,25 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
         after: { requirementId: id, documentId: document.id, version: document.version },
       });
 
+      try {
+        const requirement = await getRequirementById(id);
+        const roleRecipients = await listActiveUserIdsByRole(["developer", "admin"]);
+        const recipients = [
+          ...roleRecipients,
+          requirement?.ownerId ?? "",
+        ].filter(Boolean);
+        await notifyUsers({
+          recipientIds: recipients,
+          actorId: request.user.sub,
+          type: "requirement.document.updated",
+          title: "需求文件已更新",
+          message: `需求「${requirement?.title ?? id}」已更新文件版本 v${document.version}。`,
+          link: `/requirements/${id}`,
+        });
+      } catch (error) {
+        app.log.error(error);
+      }
+
       return reply.code(201).send({ document_id: document.id, version: document.version });
     }
   );
@@ -228,6 +262,24 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
         before: null,
         after: { requirementId: id, comment: body.comment ?? "" },
       });
+
+      try {
+        const roleRecipients = await listActiveUserIdsByRole(["developer", "admin"]);
+        const recipients = [
+          ...roleRecipients,
+          updated.ownerId ?? "",
+        ].filter(Boolean);
+        await notifyUsers({
+          recipientIds: recipients,
+          actorId: request.user.sub,
+          type: "requirement.reviewed",
+          title: body.approved ? "需求已核准" : "需求已退回",
+          message: `需求「${updated.title}」${body.approved ? "已核准" : "已退回"}。`,
+          link: `/requirements/${id}`,
+        });
+      } catch (error) {
+        app.log.error(error);
+      }
 
       return { status: updated.status, approved_at: updated.updatedAt };
     }
@@ -260,6 +312,25 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
         before: null,
         after: { requirementId: id, documentId: docId },
       });
+
+      try {
+        const requirement = await getRequirementById(id);
+        const roleRecipients = await listActiveUserIdsByRole(["developer", "admin"]);
+        const recipients = [
+          ...roleRecipients,
+          requirement?.ownerId ?? "",
+        ].filter(Boolean);
+        await notifyUsers({
+          recipientIds: recipients,
+          actorId: request.user.sub,
+          type: "requirement.document.commented",
+          title: "需求文件有新留言",
+          message: `需求「${requirement?.title ?? id}」有新的留言或回覆。`,
+          link: `/requirements/${id}`,
+        });
+      } catch (error) {
+        app.log.error(error);
+      }
 
       return { ok: true };
     }

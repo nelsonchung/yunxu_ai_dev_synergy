@@ -13,9 +13,11 @@ import milestonesRoutes from "./routes/milestones.js";
 import qualityRoutes from "./routes/quality.js";
 import auditRoutes from "./routes/audit.js";
 import permissionsRoutes from "./routes/permissions.js";
+import notificationsRoutes from "./routes/notifications.js";
 import { initStore } from "./store.js";
 import { initPlatformStore } from "./platformStore.js";
 import { hasPermission, initPermissionsStore } from "./permissionsStore.js";
+import { initNotificationsStore } from "./notificationsStore.js";
 
 dotenv.config();
 
@@ -91,6 +93,7 @@ app.register(milestonesRoutes, { prefix: "/api" });
 app.register(qualityRoutes, { prefix: "/api" });
 app.register(auditRoutes, { prefix: "/api" });
 app.register(permissionsRoutes, { prefix: "/api" });
+app.register(notificationsRoutes, { prefix: "/api" });
 
 const start = async () => {
   try {
@@ -111,4 +114,5 @@ process.on("SIGTERM", shutdown);
 await initStore();
 await initPlatformStore();
 await initPermissionsStore();
+await initNotificationsStore();
 start();

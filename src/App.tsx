@@ -11,6 +11,7 @@ import MyRequirements from "@/pages/MyRequirements";
 import RequirementDetailTabs from "@/pages/RequirementDetailTabs";
 import RequirementDetail from "@/pages/RequirementDetail";
 import Documents from "@/pages/Documents";
+import Notifications from "@/pages/Notifications";
 import Matching from "@/pages/Matching";
 import Requirements from "@/pages/Requirements";
 import Collaboration from "@/pages/Collaboration";
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/" component={Home} />
           <Route path="/auth" component={Auth} />
           <Route path="/documents" component={Documents} />
+          <Route path="/notifications" component={Notifications} />
           <Route path="/matching" component={Matching} />
           <Route path="/collaboration" component={Collaboration} />
           <Route path="/quality" component={Quality} />

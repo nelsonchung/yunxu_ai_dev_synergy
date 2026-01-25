@@ -328,6 +328,11 @@ export const listProjects = async () => {
   return [...projects].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 };
 
+export const getProjectById = async (projectId: string) => {
+  const projects = await platformStores.projects.read();
+  return projects.find((project) => project.id === projectId) ?? null;
+};
+
 export const createProject = async (payload: { requirementId: string; name: string }) => {
   const projects = await platformStores.projects.read();
   const requirements = await platformStores.requirements.read();

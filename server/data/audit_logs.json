@@ -683,5 +683,56 @@
       "documentId": "23084e01-ce8b-4e2c-bd94-f14edee6d1c2",
       "status": "approved"
     }
+  },
+  {
+    "id": "bcbe1f02-7d29-4e23-8b13-a04256776cbf",
+    "createdAt": "2026-01-25T03:23:59.065Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_CREATED",
+    "before": null,
+    "after": {
+      "projectId": "7cd0c49d-140c-4ab3-a01d-004f32a54d78",
+      "documentId": "d893fc72-1ee2-4ee2-b4ad-13c62d8d2049",
+      "version": 3
+    }
+  },
+  {
+    "id": "212c1f96-d913-453e-81fb-619ebfc2de27",
+    "createdAt": "2026-01-25T03:26:38.419Z",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_REVIEWED",
+    "before": null,
+    "after": {
+      "projectId": "7cd0c49d-140c-4ab3-a01d-004f32a54d78",
+      "documentId": "d893fc72-1ee2-4ee2-b4ad-13c62d8d2049",
+      "status": "pending_approval"
+    }
+  },
+  {
+    "id": "0dc65536-5f5b-4687-9964-55774bbac6e1",
+    "createdAt": "2026-01-25T03:27:21.491Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_CREATED",
+    "before": null,
+    "after": {
+      "projectId": "7cd0c49d-140c-4ab3-a01d-004f32a54d78",
+      "documentId": "341ff45a-90b4-4516-9982-20642d51e326",
+      "version": 4
+    }
+  },
+  {
+    "id": "5769f6c0-4caa-46dc-8f74-7a6253e7862c",
+    "createdAt": "2026-01-25T03:28:03.154Z",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "targetUserId": null,
+    "action": "REQUIREMENT_APPROVED",
+    "before": null,
+    "after": {
+      "requirementId": "b87da452-8676-456e-9c92-a042f80f7414",
+      "comment": "review ok"
+    }
   }
 ]

@@ -4,13 +4,16 @@ import {
   createProjectDocument,
   deleteProject,
   deleteProjectDocument,
+  getProjectById,
   getProjectDocument,
+  getRequirementById,
   listProjectDocuments,
   listProjects,
   reviewProjectDocument,
 } from "../platformData.js";
 import { addAuditLog } from "../store.js";
 import { hasPermission } from "../permissionsStore.js";
+import { listActiveUserIdsByRole, notifyUsers } from "../notificationService.js";
 
 const projectDocumentPermissionMap: Record<string, string> = {
   requirement: "projects.documents.requirement",
@@ -54,6 +57,24 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         before: null,
         after: { projectId: project.id, requirementId },
       });
+    }
+    try {
+      const requirement = await getRequirementById(requirementId);
+      const roleRecipients = await listActiveUserIdsByRole(["admin"]);
+      const recipients = [
+        ...roleRecipients,
+        requirement?.ownerId ?? "",
+      ].filter(Boolean);
+      await notifyUsers({
+        recipientIds: recipients,
+        actorId: request.user?.sub ?? null,
+        type: "project.created",
+        title: "需求已建立專案",
+        message: `需求「${requirement?.title ?? requirementId}」已建立專案「${project.name}」。`,
+        link: `/workspace`,
+      });
+    } catch (error) {
+      app.log.error(error);
     }
     return reply.code(201).send({ project_id: project.id, status: project.status });
   });
@@ -149,6 +170,25 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         after: { projectId: id, documentId: document.id, version: document.version },
       });
     }
+    try {
+      const project = await getProjectById(id);
+      const requirement = project ? await getRequirementById(project.requirementId) : null;
+      const roleRecipients = await listActiveUserIdsByRole(["admin"]);
+      const recipients = [
+        ...roleRecipients,
+        requirement?.ownerId ?? "",
+      ].filter(Boolean);
+      await notifyUsers({
+        recipientIds: recipients,
+        actorId: request.user?.sub ?? null,
+        type: "project.document.created",
+        title: "專案文件已更新",
+        message: `專案「${project?.name ?? id}」新增 ${type} 文件版本 v${document.version}。`,
+        link: `/workspace`,
+      });
+    } catch (error) {
+      app.log.error(error);
+    }
     return reply.code(201).send({ document_id: document.id, version: document.version });
   });
 
@@ -178,6 +218,26 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         before: null,
         after: { projectId: id, documentId: docId, status: updated.status },
       });
+
+      try {
+        const project = await getProjectById(id);
+        const requirement = project ? await getRequirementById(project.requirementId) : null;
+        const roleRecipients = await listActiveUserIdsByRole(["developer", "admin"]);
+        const recipients = [
+          ...roleRecipients,
+          requirement?.ownerId ?? "",
+        ].filter(Boolean);
+        await notifyUsers({
+          recipientIds: recipients,
+          actorId: request.user.sub,
+          type: "project.document.reviewed",
+          title: body.approved === false ? "專案文件需調整" : "專案文件已簽核",
+          message: `專案「${project?.name ?? id}」的文件已完成簽核回覆。`,
+          link: `/workspace`,
+        });
+      } catch (error) {
+        app.log.error(error);
+      }
 
       return { status: updated.status };
     }

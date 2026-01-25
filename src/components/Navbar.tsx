@@ -2,6 +2,7 @@ import { Menu, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { getSession, logoutAccount, onSessionChange, type AuthUser } from "@/lib/authClient";
+import { getUnreadNotificationCount, onNotificationsChange } from "@/lib/notificationsClient";
 import { getMyPermissions } from "@/lib/permissionsClient";
 
 const anchorItems = [
@@ -14,16 +15,19 @@ const anchorItems = [
 
 const customerRoutes = [
   { label: "需求中心", href: "/requirements", type: "route" },
+  { label: "訊息中心", href: "/notifications", type: "route" },
   { label: "我的需求", href: "/my/requirements", type: "route" },
 ];
 
 const developerRoutes = [
   { label: "需求中心", href: "/requirements", type: "route" },
+  { label: "訊息中心", href: "/notifications", type: "route" },
   { label: "專案工作台", href: "/workspace", type: "route" },
 ];
 
 const adminRoutes = [
   { label: "需求中心", href: "/requirements", type: "route" },
+  { label: "訊息中心", href: "/notifications", type: "route" },
   { label: "媒合估工", href: "/matching", type: "route" },
   { label: "專案工作台", href: "/workspace", type: "route" },
   { label: "專案管理", href: "/projects", type: "route" },
@@ -36,16 +40,27 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [accountUser, setAccountUser] = useState<AuthUser | null>(null);
   const [canSubmitRequirement, setCanSubmitRequirement] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [, setLocation] = useLocation();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     let active = true;
+    const refreshUnread = async () => {
+      if (!active) return;
+      try {
+        const count = await getUnreadNotificationCount();
+        if (active) setUnreadCount(count);
+      } catch {
+        if (active) setUnreadCount(0);
+      }
+    };
     const syncSession = async () => {
       const session = await getSession();
       if (active) setAccountUser(session);
       if (!session) {
         if (active) setCanSubmitRequirement(false);
+        if (active) setUnreadCount(0);
         return;
       }
       try {
@@ -60,13 +75,16 @@ export default function Navbar() {
           setCanSubmitRequirement(session.role === "admin");
         }
       }
+      await refreshUnread();
     };
     const unsubscribe = onSessionChange(syncSession);
+    const unsubscribeNotifications = onNotificationsChange(refreshUnread);
     syncSession();
 
     return () => {
       active = false;
       unsubscribe();
+      unsubscribeNotifications();
     };
   }, []);
 
@@ -88,6 +106,21 @@ export default function Navbar() {
     return [...anchorItems, ...adminRoutes];
   }, [accountUser]);
 
+  const renderNavLabel = (label: string, href: string) => {
+    if (href !== "/notifications") return label;
+    const countLabel = unreadCount > 99 ? "99+" : String(unreadCount);
+    return (
+      <span className="inline-flex items-center gap-2">
+        {label}
+        {unreadCount > 0 ? (
+          <span className="rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-semibold text-white">
+            {countLabel}
+          </span>
+        ) : null}
+      </span>
+    );
+  };
+
   return (
     <nav className="sticky top-0 z-50 border-b bg-white/70 backdrop-blur">
       <div className="container flex h-16 items-center justify-between">
@@ -102,7 +135,7 @@ export default function Navbar() {
                 href={item.href}
                 className="text-muted-foreground hover:text-primary transition-colors"
               >
-                {item.label}
+                {renderNavLabel(item.label, item.href)}
               </Link>
             ) : (
               <a
@@ -167,16 +200,16 @@ export default function Navbar() {
         <div className="md:hidden border-t bg-white/90 backdrop-blur">
           <div className="container flex flex-col gap-4 py-6">
             {navItems.map((item) =>
-              item.type === "route" ? (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="text-base font-medium text-muted-foreground hover:text-primary"
-                  onClick={() => setOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              ) : (
+            item.type === "route" ? (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="text-base font-medium text-muted-foreground hover:text-primary"
+                onClick={() => setOpen(false)}
+              >
+                {renderNavLabel(item.label, item.href)}
+              </Link>
+            ) : (
                 <a
                   key={item.href}
                   href={item.href}
