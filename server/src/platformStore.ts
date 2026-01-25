@@ -10,7 +10,19 @@ export type RequirementStatus =
   | "converted";
 
 export type DocumentStatus = "draft" | "pending_approval" | "approved" | "archived";
-export type ProjectStatus = "planned" | "active" | "on_hold" | "closed";
+export type ProjectStatus =
+  | "intake"
+  | "requirements_signed"
+  | "architecture_review"
+  | "architecture_signed"
+  | "software_design_review"
+  | "software_design_signed"
+  | "implementation"
+  | "system_verification"
+  | "delivery_review"
+  | "on_hold"
+  | "canceled"
+  | "closed";
 export type AIJobStatus = "queued" | "running" | "succeeded" | "failed" | "canceled";
 export type TaskStatus = "todo" | "in_progress" | "review" | "done";
 export type MilestoneStatus = "planned" | "active" | "done";
@@ -56,6 +68,7 @@ export type Project = {
   requirementId: string;
   name: string;
   status: ProjectStatus;
+  previousStatus: ProjectStatus | null;
   startDate: string | null;
   endDate: string | null;
   createdAt: string;

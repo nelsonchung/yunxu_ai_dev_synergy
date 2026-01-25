@@ -19,9 +19,11 @@ import {
   listQualityReports,
   listTasks,
   updateMilestone,
+  updateProjectStatus,
   updateTask,
   type Milestone,
   type ProjectDocumentSummary,
+  type ProjectStatus,
   type ProjectSummary,
   type QualityReport,
   type Task,
@@ -49,6 +51,61 @@ const milestoneStatuses = [
   { value: "done", label: "完成" },
 ];
 
+const projectStatusLabels: Record<ProjectStatus, string> = {
+  intake: "需求受理",
+  requirements_signed: "需求簽核",
+  architecture_review: "架構審查",
+  architecture_signed: "架構簽核",
+  software_design_review: "設計審查",
+  software_design_signed: "設計簽核",
+  implementation: "實作開發",
+  system_verification: "系統驗證",
+  delivery_review: "交付審查",
+  on_hold: "暫停中",
+  canceled: "已取消",
+  closed: "已結案",
+};
+
+const baseProjectStatusTransitions: Record<ProjectStatus, ProjectStatus[]> = {
+  intake: ["requirements_signed"],
+  requirements_signed: ["architecture_review"],
+  architecture_review: ["architecture_signed"],
+  architecture_signed: ["software_design_review"],
+  software_design_review: ["software_design_signed"],
+  software_design_signed: ["implementation"],
+  implementation: ["system_verification"],
+  system_verification: ["delivery_review"],
+  delivery_review: ["closed"],
+  on_hold: [],
+  canceled: ["intake"],
+  closed: [],
+};
+
+const getEffectiveStatus = (project: ProjectSummary): ProjectStatus => {
+  if (project.status !== "on_hold") return project.status;
+  return project.previousStatus ?? "implementation";
+};
+
+const getAllowedStatusTransitions = (project: ProjectSummary): ProjectStatus[] => {
+  if (project.status === "closed") return [];
+  if (project.status === "canceled") return ["intake"];
+  if (project.status === "on_hold") {
+    const effective = getEffectiveStatus(project);
+    return [...new Set<ProjectStatus>([effective, ...baseProjectStatusTransitions[effective], "canceled"])];
+  }
+  const baseNext = baseProjectStatusTransitions[project.status] ?? [];
+  return [...new Set<ProjectStatus>([...baseNext, "on_hold", "canceled"])];
+};
+
+const formatProjectStatus = (project: ProjectSummary) => {
+  const label = projectStatusLabels[project.status] ?? project.status;
+  if (project.status === "on_hold" && project.previousStatus) {
+    const previous = projectStatusLabels[project.previousStatus] ?? project.previousStatus;
+    return `${label}（原：${previous}）`;
+  }
+  return label;
+};
+
 export default function ProjectWorkspace() {
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState("");
@@ -73,6 +130,8 @@ export default function ProjectWorkspace() {
     accountRole === "admin" || permissions.includes("projects.tasks.manage");
   const canManageMilestones =
     accountRole === "admin" || permissions.includes("projects.milestones.manage");
+  const canManageProjectStatus =
+    accountRole === "admin" || permissions.includes("projects.status.manage");
   const canCreateAnyProjectDoc =
     accountRole === "admin" || permissions.some((permission) => permission.startsWith("projects.documents."));
 
@@ -161,6 +220,30 @@ export default function ProjectWorkspace() {
     }
   };
 
+  const handleUpdateProjectStatus = async (nextStatus: ProjectStatus) => {
+    if (!selectedProjectId || !selectedProject) return;
+    if (!canManageProjectStatus) {
+      setError("目前角色無法更新專案狀態，請洽管理者調整權限。");
+      return;
+    }
+    const allowed = getAllowedStatusTransitions(selectedProject);
+    if (!allowed.includes(nextStatus)) {
+      setError("此狀態轉換不符合流程規則。");
+      return;
+    }
+    try {
+      setError("");
+      setStatus("正在更新專案狀態...");
+      const updated = await updateProjectStatus(selectedProjectId, nextStatus);
+      setProjects((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
+      setSelectedProject(updated);
+      setStatus(`專案狀態已更新為「${formatProjectStatus(updated)}」。`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "更新專案狀態失敗。");
+      setStatus("");
+    }
+  };
+
   const handleCreateTask = async () => {
     if (!canManageTasks) {
       setError("目前角色無法管理任務，請洽管理者調整權限。");
@@ -237,6 +320,8 @@ export default function ProjectWorkspace() {
     }, {});
   }, [tasks]);
 
+  const allowedStatusTransitions = selectedProject ? getAllowedStatusTransitions(selectedProject) : [];
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-secondary/30 to-background">
       <section className="container py-12 space-y-8">
@@ -295,7 +380,9 @@ export default function ProjectWorkspace() {
                       <p className="text-xs text-muted-foreground">#{item.id.slice(0, 8)}</p>
                       <p className="mt-1 font-semibold">{item.name}</p>
                       <p className="text-xs text-muted-foreground">需求：{item.requirementId.slice(0, 8)}</p>
-                      <p className="mt-2 text-xs text-muted-foreground">狀態：{item.status}</p>
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        狀態：{formatProjectStatus(item)}
+                      </p>
                     </button>
                   );
                 })
@@ -313,9 +400,31 @@ export default function ProjectWorkspace() {
                       專案編號 {selectedProject.id} · 需求 {selectedProject.requirementId}
                     </p>
                   </div>
-                  <span className="rounded-full border border-primary/20 bg-primary/10 px-4 py-1 text-xs font-semibold text-primary">
-                    {selectedProject.status}
-                  </span>
+                  <div className="flex flex-col items-end gap-2">
+                    <span className="rounded-full border border-primary/20 bg-primary/10 px-4 py-1 text-xs font-semibold text-primary">
+                      {formatProjectStatus(selectedProject)}
+                    </span>
+                    {canManageProjectStatus && allowedStatusTransitions.length > 0 ? (
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="text-muted-foreground">更新狀態</span>
+                        <select
+                          value=""
+                          onChange={(event) => {
+                            const value = event.target.value as ProjectStatus;
+                            if (value) void handleUpdateProjectStatus(value);
+                          }}
+                          className="rounded-full border border-border bg-white px-3 py-1 text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+                        >
+                          <option value="">選擇</option>
+                          {allowedStatusTransitions.map((statusOption) => (
+                            <option key={statusOption} value={statusOption}>
+                              {projectStatusLabels[statusOption] ?? statusOption}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
 
                 <div className="rounded-3xl border bg-white/80 p-4 shadow-sm">
@@ -348,7 +457,9 @@ export default function ProjectWorkspace() {
                     <div className="grid gap-4 md:grid-cols-3">
                       <div className="rounded-2xl border bg-white/90 p-4">
                         <p className="text-xs text-muted-foreground">專案狀態</p>
-                        <p className="mt-2 text-lg font-semibold">{selectedProject.status}</p>
+                        <p className="mt-2 text-lg font-semibold">
+                          {formatProjectStatus(selectedProject)}
+                        </p>
                       </div>
                       <div className="rounded-2xl border bg-white/90 p-4">
                         <p className="text-xs text-muted-foreground">需求編號</p>

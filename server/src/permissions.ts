@@ -33,6 +33,12 @@ export const permissionDefinitions = [
     category: "專案",
   },
   {
+    id: "projects.status.manage",
+    label: "更新專案狀態",
+    description: "依流程更新專案狀態",
+    category: "專案",
+  },
+  {
     id: "projects.documents.requirement",
     label: "撰寫需求文件",
     description: "建立/更新需求類型的專案文件",
@@ -105,6 +111,7 @@ export const defaultRolePermissions: RolePermissions = {
   ],
   developer: [
     "projects.create",
+    "projects.status.manage",
     "projects.documents.system",
     "projects.documents.software",
     "projects.documents.test",

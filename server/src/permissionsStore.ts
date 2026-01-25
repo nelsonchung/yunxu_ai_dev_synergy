@@ -4,6 +4,7 @@ import {
   isKnownRole,
   permissionDefinitions,
   permissionIdSet,
+  type PermissionId,
   type RolePermissions,
 } from "./permissions.js";
 import type { UserRole } from "./store.js";
@@ -13,6 +14,9 @@ const ROLE_PERMISSIONS_FILE = resolveDataPath(
 );
 
 const store = createJsonStore<RolePermissions>(ROLE_PERMISSIONS_FILE, defaultRolePermissions);
+
+const isPermissionId = (value: string): value is PermissionId =>
+  permissionIdSet.has(value as PermissionId);
 
 const normalizePermissions = (value: unknown): RolePermissions => {
   if (!value || typeof value !== "object") {
@@ -29,7 +33,7 @@ const normalizePermissions = (value: unknown): RolePermissions => {
       } else {
         acc[role] = rawList
           .map((item) => String(item))
-          .filter((item) => permissionIdSet.has(item));
+          .filter(isPermissionId);
       }
       return acc;
     },
@@ -65,7 +69,7 @@ export const getRolePermissionList = async (role: UserRole) => {
 export const hasPermission = async (role: UserRole, permissionId: string) => {
   if (role === "admin") return true;
   if (!isKnownRole(role)) return false;
+  if (!isPermissionId(permissionId)) return false;
   const data = await getRolePermissions();
   return data[role]?.includes(permissionId) ?? false;
 };
-

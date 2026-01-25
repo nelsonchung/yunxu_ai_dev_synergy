@@ -9,9 +9,11 @@ import {
   type MilestoneStatus,
   type Project,
   type ProjectDocument,
+  type ProjectStatus,
   type QualityReport,
   type Requirement,
   type RequirementDocument,
+  type RequirementStatus,
   type Task,
   type TaskStatus,
   type TestDocument,
@@ -193,7 +195,7 @@ export const createRequirementDocument = async (payload: {
     updatedAt: now,
   };
 
-  const updatedDocuments = documents.map((doc) =>
+  const updatedDocuments = documents.map<RequirementDocument>((doc) =>
     doc.requirementId === payload.requirementId && doc.status !== "archived"
       ? { ...doc, status: "archived", updatedAt: now }
       : doc
@@ -298,7 +300,7 @@ export const approveRequirement = async (
 
   const requirement = requirements[requirementIndex];
   const now = new Date().toISOString();
-  const status = approved ? "approved" : "rejected";
+  const status: RequirementStatus = approved ? "approved" : "rejected";
   const updatedRequirement = { ...requirement, status, updatedAt: now };
   requirements[requirementIndex] = updatedRequirement;
 
@@ -323,14 +325,271 @@ export const approveRequirement = async (
   return updatedRequirement;
 };
 
-export const listProjects = async () => {
+const legacyProjectStatusMap: Record<string, ProjectStatus> = {
+  planned: "intake",
+  active: "implementation",
+  on_hold: "on_hold",
+  closed: "closed",
+};
+
+const baseProjectTransitions: Record<ProjectStatus, ProjectStatus[]> = {
+  intake: ["requirements_signed"],
+  requirements_signed: ["architecture_review"],
+  architecture_review: ["architecture_signed"],
+  architecture_signed: ["software_design_review"],
+  software_design_review: ["software_design_signed"],
+  software_design_signed: ["implementation"],
+  implementation: ["system_verification"],
+  system_verification: ["delivery_review"],
+  delivery_review: ["closed"],
+  on_hold: [],
+  canceled: ["intake"],
+  closed: [],
+};
+
+const stageStatuses = new Set<ProjectStatus>([
+  "intake",
+  "requirements_signed",
+  "architecture_review",
+  "architecture_signed",
+  "software_design_review",
+  "software_design_signed",
+  "implementation",
+  "system_verification",
+  "delivery_review",
+]);
+
+const normalizeProjectStatus = (status: string): ProjectStatus =>
+  legacyProjectStatusMap[status] ?? (stageStatuses.has(status as ProjectStatus) ||
+  status === "on_hold" ||
+  status === "canceled" ||
+  status === "closed"
+    ? (status as ProjectStatus)
+    : "intake");
+
+const normalizeProjectRecord = (project: Project) => {
+  const normalizedStatus = normalizeProjectStatus(project.status);
+  const normalizedPrevious =
+    project.previousStatus && project.previousStatus !== "on_hold"
+      ? normalizeProjectStatus(project.previousStatus)
+      : null;
+
+  let previousStatus =
+    normalizedStatus === "on_hold"
+      ? normalizedPrevious ?? "implementation"
+      : null;
+
+  let startDate = project.startDate;
+  if (
+    !startDate &&
+    (normalizedStatus === "implementation" ||
+      normalizedStatus === "system_verification" ||
+      normalizedStatus === "delivery_review" ||
+      normalizedStatus === "closed")
+  ) {
+    startDate = project.createdAt;
+  }
+  let endDate = project.endDate;
+  if (!endDate && normalizedStatus === "closed") {
+    endDate = project.updatedAt ?? project.createdAt;
+  }
+
+  const changed =
+    normalizedStatus !== project.status ||
+    previousStatus !== (project.previousStatus ?? null) ||
+    startDate !== project.startDate ||
+    endDate !== project.endDate;
+
+  if (!changed) return { changed: false, project };
+  return {
+    changed: true,
+    project: {
+      ...project,
+      status: normalizedStatus,
+      previousStatus,
+      startDate,
+      endDate,
+    },
+  };
+};
+
+const normalizeProjects = async () => {
   const projects = await platformStores.projects.read();
+  let changed = false;
+  const normalized = projects.map((project) => {
+    const result = normalizeProjectRecord(project);
+    if (result.changed) changed = true;
+    return result.project;
+  });
+  if (changed) {
+    await platformStores.projects.write(normalized);
+  }
+  return normalized;
+};
+
+const getLatestRequirementDocument = (
+  requirementId: string,
+  documents: RequirementDocument[]
+) =>
+  documents
+    .filter((doc) => doc.requirementId === requirementId)
+    .sort((a, b) => b.version - a.version)[0] ?? null;
+
+const getLatestProjectDocumentByType = (
+  projectId: string,
+  docType: string,
+  documents: ProjectDocument[]
+) =>
+  documents
+    .filter((doc) => doc.projectId === projectId && doc.type === docType)
+    .sort((a, b) => b.version - a.version)[0] ?? null;
+
+const transitionGuards: Partial<Record<`${ProjectStatus}->${ProjectStatus}`, string>> = {
+  "intake->requirements_signed": "需求文件需為核准狀態",
+  "architecture_review->architecture_signed": "系統架構文件需為核准狀態",
+  "software_design_review->software_design_signed": "軟體設計文件需為核准狀態",
+  "implementation->system_verification": "測試文件需為核准狀態",
+  "system_verification->delivery_review": "交付文件需已建立",
+  "delivery_review->closed": "交付文件需為核准狀態",
+};
+
+const getEffectiveStatus = (project: Project): ProjectStatus => {
+  if (project.status !== "on_hold") return project.status;
+  return project.previousStatus ?? "implementation";
+};
+
+const getAllowedNextStatuses = (project: Project) => {
+  if (project.status === "closed") return [];
+  if (project.status === "canceled") return ["intake"];
+  if (project.status === "on_hold") {
+    const effective = getEffectiveStatus(project);
+    const allowed = new Set<ProjectStatus>([
+      effective,
+      ...baseProjectTransitions[effective],
+      "canceled",
+    ]);
+    return [...allowed];
+  }
+
+  const baseNext = baseProjectTransitions[project.status] ?? [];
+  return [...new Set<ProjectStatus>([...baseNext, "on_hold", "canceled"])];
+};
+
+const checkTransitionGuard = async (project: Project, nextStatus: ProjectStatus) => {
+  const fromStatus = project.status === "on_hold" ? getEffectiveStatus(project) : project.status;
+  const key = `${fromStatus}->${nextStatus}` as `${ProjectStatus}->${ProjectStatus}`;
+  if (!transitionGuards[key]) return { ok: true as const };
+
+  const requirementDocs = await platformStores.requirementDocuments.read();
+  const projectDocs = await platformStores.projectDocuments.read();
+
+  if (key === "intake->requirements_signed") {
+    const latest = getLatestRequirementDocument(project.requirementId, requirementDocs);
+    return latest?.status === "approved"
+      ? { ok: true as const }
+      : { ok: false as const, reason: transitionGuards[key] };
+  }
+
+  if (key === "architecture_review->architecture_signed") {
+    const latest = getLatestProjectDocumentByType(project.id, "system", projectDocs);
+    return latest?.status === "approved"
+      ? { ok: true as const }
+      : { ok: false as const, reason: transitionGuards[key] };
+  }
+
+  if (key === "software_design_review->software_design_signed") {
+    const latest = getLatestProjectDocumentByType(project.id, "software", projectDocs);
+    return latest?.status === "approved"
+      ? { ok: true as const }
+      : { ok: false as const, reason: transitionGuards[key] };
+  }
+
+  if (key === "implementation->system_verification") {
+    const latest = getLatestProjectDocumentByType(project.id, "test", projectDocs);
+    return latest?.status === "approved"
+      ? { ok: true as const }
+      : { ok: false as const, reason: transitionGuards[key] };
+  }
+
+  if (key === "system_verification->delivery_review") {
+    const latest = getLatestProjectDocumentByType(project.id, "delivery", projectDocs);
+    return latest
+      ? { ok: true as const }
+      : { ok: false as const, reason: transitionGuards[key] };
+  }
+
+  if (key === "delivery_review->closed") {
+    const latest = getLatestProjectDocumentByType(project.id, "delivery", projectDocs);
+    return latest?.status === "approved"
+      ? { ok: true as const }
+      : { ok: false as const, reason: transitionGuards[key] };
+  }
+
+  return { ok: true as const };
+};
+
+export const listProjects = async () => {
+  const projects = await normalizeProjects();
   return [...projects].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 };
 
 export const getProjectById = async (projectId: string) => {
-  const projects = await platformStores.projects.read();
+  const projects = await normalizeProjects();
   return projects.find((project) => project.id === projectId) ?? null;
+};
+
+export const updateProjectStatus = async (projectId: string, status: ProjectStatus) => {
+  const projects = await normalizeProjects();
+  const index = projects.findIndex((project) => project.id === projectId);
+  if (index === -1) return { error: "NOT_FOUND" as const };
+
+  const current = projects[index];
+  if (current.status === status) {
+    return { before: current, after: current };
+  }
+
+  const allowedNext = getAllowedNextStatuses(current);
+  if (!allowedNext.includes(status)) {
+    return { error: "INVALID_TRANSITION" as const, from: current.status, to: status };
+  }
+
+  const guard = await checkTransitionGuard(current, status);
+  if (!guard.ok) {
+    return {
+      error: "GUARD_FAILED" as const,
+      from: current.status,
+      to: status,
+      reason: guard.reason,
+    };
+  }
+
+  const now = new Date().toISOString();
+  const isEnteringImplementation =
+    status === "implementation" &&
+    current.status !== "implementation" &&
+    current.status !== "on_hold";
+  const nextStartDate =
+    isEnteringImplementation && !current.startDate ? now : current.startDate;
+  const nextEndDate = status === "closed" ? now : current.endDate;
+
+  const nextPreviousStatus =
+    status === "on_hold"
+      ? getEffectiveStatus(current)
+      : current.status === "on_hold"
+        ? null
+        : current.previousStatus ?? null;
+
+  const updated: Project = {
+    ...current,
+    status,
+    previousStatus: nextPreviousStatus,
+    startDate: nextStartDate,
+    endDate: nextEndDate,
+    updatedAt: now,
+  };
+  projects[index] = updated;
+  await platformStores.projects.write(projects);
+  return { before: current, after: updated };
 };
 
 export const createProject = async (payload: { requirementId: string; name: string }) => {
@@ -341,7 +600,8 @@ export const createProject = async (payload: { requirementId: string; name: stri
     id: randomUUID(),
     requirementId: payload.requirementId,
     name: payload.name,
-    status: "planned",
+    status: "intake",
+    previousStatus: null,
     startDate: null,
     endDate: null,
     createdAt: now,
@@ -485,7 +745,7 @@ export const createProjectDocument = async (payload: {
     updatedAt: now,
   };
 
-  const updatedDocuments = documents.map((doc) =>
+  const updatedDocuments = documents.map<ProjectDocument>((doc) =>
     doc.projectId === payload.projectId && doc.type === docType && doc.status !== "archived"
       ? { ...doc, status: "archived", updatedAt: now }
       : doc

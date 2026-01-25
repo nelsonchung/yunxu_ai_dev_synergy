@@ -58,11 +58,26 @@ export type RequirementPayload = {
   };
 };
 
+export type ProjectStatus =
+  | "intake"
+  | "requirements_signed"
+  | "architecture_review"
+  | "architecture_signed"
+  | "software_design_review"
+  | "software_design_signed"
+  | "implementation"
+  | "system_verification"
+  | "delivery_review"
+  | "on_hold"
+  | "canceled"
+  | "closed";
+
 export type ProjectSummary = {
   id: string;
   name: string;
   requirementId: string;
-  status: string;
+  status: ProjectStatus;
+  previousStatus: ProjectStatus | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -250,6 +265,14 @@ export const createProject = async (payload: { requirementId: string; name: stri
     body: JSON.stringify(payload),
   });
   return data;
+};
+
+export const updateProjectStatus = async (projectId: string, status: ProjectStatus) => {
+  const data = await apiRequest<{ project: ProjectSummary }>(`/api/projects/${projectId}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+  return data.project;
 };
 
 export const listProjectDocuments = async (projectId: string) => {

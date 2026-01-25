@@ -171,7 +171,8 @@
 - 新版本產生後，舊版本標記為 `archived`
 
 ### 8.3 Project 狀態
-- `planned -> active -> on_hold -> closed`
+- `intake -> requirements_signed -> architecture_review -> architecture_signed -> software_design_review -> software_design_signed -> implementation -> system_verification -> delivery_review -> closed`
+- 任一進行中階段可轉為 `on_hold` 或 `canceled`
 
 ### 8.4 AIJob 狀態
 - `queued -> running -> succeeded | failed | canceled`

@@ -10,10 +10,12 @@ import {
   listProjectDocuments,
   listProjects,
   reviewProjectDocument,
+  updateProjectStatus,
 } from "../platformData.js";
 import { addAuditLog } from "../store.js";
 import { hasPermission } from "../permissionsStore.js";
 import { listActiveUserIdsByRole, notifyUsers } from "../notificationService.js";
+import type { ProjectStatus } from "../platformStore.js";
 
 const projectDocumentPermissionMap: Record<string, string> = {
   requirement: "projects.documents.requirement",
@@ -23,6 +25,23 @@ const projectDocumentPermissionMap: Record<string, string> = {
   delivery: "projects.documents.delivery",
 };
 const allowedProjectDocumentTypes = new Set(Object.keys(projectDocumentPermissionMap));
+const projectStatusLabels: Record<ProjectStatus, string> = {
+  intake: "需求受理",
+  requirements_signed: "需求簽核",
+  architecture_review: "架構審查",
+  architecture_signed: "架構簽核",
+  software_design_review: "設計審查",
+  software_design_signed: "設計簽核",
+  implementation: "實作開發",
+  system_verification: "系統驗證",
+  delivery_review: "交付審查",
+  on_hold: "暫停中",
+  canceled: "已取消",
+  closed: "已結案",
+};
+const allowedProjectStatuses = new Set<ProjectStatus>(
+  Object.keys(projectStatusLabels) as ProjectStatus[]
+);
 
 const projectsRoutes: FastifyPluginAsync = async (app) => {
   app.get("/projects", async () => {
@@ -33,6 +52,7 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         name: project.name,
         requirementId: project.requirementId,
         status: project.status,
+        previousStatus: project.previousStatus,
         createdAt: project.createdAt,
         updatedAt: project.updatedAt,
       })),
@@ -78,6 +98,66 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
     }
     return reply.code(201).send({ project_id: project.id, status: project.status });
   });
+
+  app.patch(
+    "/projects/:id/status",
+    { preHandler: app.requirePermission("projects.status.manage") },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const body = (request.body as { status?: string }) ?? {};
+      const nextStatus = String(body.status ?? "").trim() as ProjectStatus;
+
+      if (!allowedProjectStatuses.has(nextStatus)) {
+        return reply.code(400).send({ message: "不支援的專案狀態。" });
+      }
+
+      const result = await updateProjectStatus(id, nextStatus);
+      if ("error" in result) {
+        if (result.error === "NOT_FOUND") {
+          return reply.code(404).send({ message: "找不到專案。" });
+        }
+        if (result.error === "GUARD_FAILED") {
+          return reply.code(409).send({
+            message: result.reason ?? "尚未滿足狀態轉換條件。",
+          });
+        }
+        return reply.code(409).send({
+          message: `狀態無法由 ${result.from} 轉換為 ${result.to}。`,
+        });
+      }
+
+      await addAuditLog({
+        actorId: request.user.sub,
+        targetUserId: null,
+        action: "PROJECT_STATUS_UPDATED",
+        before: { projectId: id, status: result.before.status },
+        after: { projectId: id, status: result.after.status },
+      });
+
+      try {
+        const requirement = await getRequirementById(result.after.requirementId);
+        const roleRecipients = await listActiveUserIdsByRole(["developer", "admin"]);
+        const recipients = [
+          ...roleRecipients,
+          requirement?.ownerId ?? "",
+        ].filter(Boolean);
+        const beforeLabel = projectStatusLabels[result.before.status] ?? result.before.status;
+        const afterLabel = projectStatusLabels[result.after.status] ?? result.after.status;
+        await notifyUsers({
+          recipientIds: recipients,
+          actorId: request.user.sub,
+          type: "project.status.updated",
+          title: "專案狀態已更新",
+          message: `專案「${result.after.name}」狀態由「${beforeLabel}」變更為「${afterLabel}」。`,
+          link: "/workspace",
+        });
+      } catch (error) {
+        app.log.error(error);
+      }
+
+      return { project: result.after };
+    }
+  );
 
   app.get("/projects/:id/documents", async (request, reply) => {
     const { id } = request.params as { id: string };
