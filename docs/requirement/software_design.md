@@ -118,6 +118,24 @@
 - Query: `actor_id`, `date_from`, `date_to`
 - Response: `logs[]`
 
+### 6.7 通知與即時更新 API
+`GET /api/notifications`
+- Response: `notifications[]`
+
+`GET /api/notifications/unread-count`
+- Response: `count`
+
+`POST /api/notifications/{id}/read`
+- Response: `ok`
+
+`POST /api/notifications/read-all`
+- Response: `updated`
+
+`GET /api/notifications/ws`（WebSocket upgrade）
+- 用途：推播「有新通知 / 未讀數量更新」事件，前端收到後再呼叫 REST API 重新抓取。
+- 實作備註：目前採用 Node.js `upgrade` + 最小 WebSocket frame 處理（無額外套件），原因是開發環境可能無法連線 npm registry。
+- 限制：此實作以通知推播為主，未涵蓋進階協定需求；未來若網路條件允許，建議改用 `@fastify/websocket` 或 `ws`。
+
 ## 7. 核心資料模型（詳細）
 ### 7.1 需求與文件
 - Requirement: `id (uuid)`, `title (varchar)`, `background (text)`, `status (enum)`, `owner_id (uuid)`, `created_at`, `updated_at`
