@@ -18,6 +18,8 @@ import {
   type TaskStatus,
   type TestDocument,
   type AIJob,
+  type QuotationReview,
+  type QuotationReviewItem,
 } from "./platformStore.js";
 import { resolveDataPath } from "./jsonStore.js";
 
@@ -647,6 +649,10 @@ export const deleteProjectDocument = async (projectId: string, docId: string) =>
   const [removed] = documents.splice(index, 1);
   await platformStores.projectDocuments.write(documents);
   await deleteDocumentFile(removed.contentUrl);
+  const quotationReviews = await platformStores.quotationReviews.read();
+  await platformStores.quotationReviews.write(
+    quotationReviews.filter((review) => review.documentId !== docId)
+  );
   return true;
 };
 
@@ -705,6 +711,11 @@ export const deleteProject = async (projectId: string) => {
 
   const aiJobs = await platformStores.aiJobs.read();
   await platformStores.aiJobs.write(aiJobs.filter((job) => job.targetId !== projectId));
+
+  const quotationReviews = await platformStores.quotationReviews.read();
+  await platformStores.quotationReviews.write(
+    quotationReviews.filter((review) => review.projectId !== projectId)
+  );
 
   const tasks = await platformStores.tasks.read();
   const milestones = await platformStores.milestones.read();
@@ -791,6 +802,109 @@ export const reviewProjectDocument = async (payload: {
   };
   documents[index] = updated;
   await platformStores.projectDocuments.write(documents);
+  return updated;
+};
+
+const sanitizeQuotationItems = (items: QuotationReviewItem[]) =>
+  items.map((item) => ({
+    key: String(item.key ?? "").trim(),
+    path: String(item.path ?? "").trim(),
+    h1: String(item.h1 ?? "").trim(),
+    h2: item.h2 ? String(item.h2).trim() : null,
+    h3: String(item.h3 ?? "").trim(),
+    price: typeof item.price === "number" && Number.isFinite(item.price) ? item.price : null,
+  }));
+
+const normalizeQuotationReview = (review: QuotationReview): QuotationReview => ({
+  ...review,
+  status: review.status ?? "draft",
+  submittedAt: review.submittedAt ?? null,
+  submittedBy: review.submittedBy ?? null,
+});
+
+export const getQuotationReview = async (projectId: string, documentId: string) => {
+  const reviews = await platformStores.quotationReviews.read();
+  const review =
+    reviews.find((review) => review.projectId === projectId && review.documentId === documentId) ?? null;
+  return review ? normalizeQuotationReview(review) : null;
+};
+
+export const upsertQuotationReview = async (payload: {
+  projectId: string;
+  documentId: string;
+  documentVersion: number;
+  currency?: string;
+  items: QuotationReviewItem[];
+  actorId: string | null;
+}) => {
+  const reviews = await platformStores.quotationReviews.read();
+  const index = reviews.findIndex(
+    (review) => review.projectId === payload.projectId && review.documentId === payload.documentId
+  );
+  const now = new Date().toISOString();
+  const items = sanitizeQuotationItems(payload.items);
+  const total = items.reduce((sum, item) => sum + (typeof item.price === "number" ? item.price : 0), 0);
+  const currency = payload.currency ? String(payload.currency).trim() : "TWD";
+
+  if (index === -1) {
+    const review: QuotationReview = {
+      id: randomUUID(),
+      projectId: payload.projectId,
+      documentId: payload.documentId,
+      documentVersion: payload.documentVersion,
+      currency,
+      status: "draft",
+      items,
+      total,
+      submittedAt: null,
+      submittedBy: null,
+      createdAt: now,
+      updatedAt: now,
+      createdBy: payload.actorId,
+      updatedBy: payload.actorId,
+    };
+    reviews.push(review);
+    await platformStores.quotationReviews.write(reviews);
+    return review;
+  }
+
+  const existing = normalizeQuotationReview(reviews[index]);
+  const updated: QuotationReview = {
+    ...existing,
+    documentVersion: payload.documentVersion,
+    currency,
+    items,
+    total,
+    updatedAt: now,
+    updatedBy: payload.actorId,
+  };
+  reviews[index] = updated;
+  await platformStores.quotationReviews.write(reviews);
+  return updated;
+};
+
+export const submitQuotationReview = async (payload: {
+  projectId: string;
+  documentId: string;
+  actorId: string | null;
+}) => {
+  const reviews = await platformStores.quotationReviews.read();
+  const index = reviews.findIndex(
+    (review) => review.projectId === payload.projectId && review.documentId === payload.documentId
+  );
+  if (index === -1) return null;
+  const now = new Date().toISOString();
+  const existing = normalizeQuotationReview(reviews[index]);
+  const updated: QuotationReview = {
+    ...existing,
+    status: "submitted",
+    submittedAt: now,
+    submittedBy: payload.actorId,
+    updatedAt: now,
+    updatedBy: payload.actorId,
+  };
+  reviews[index] = updated;
+  await platformStores.quotationReviews.write(reviews);
   return updated;
 };
 

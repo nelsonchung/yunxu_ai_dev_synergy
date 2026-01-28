@@ -6,10 +6,13 @@ import {
   deleteProjectDocument,
   getProjectById,
   getProjectDocument,
+  getQuotationReview,
   getRequirementById,
   listProjectDocuments,
   listProjects,
   reviewProjectDocument,
+  submitQuotationReview,
+  upsertQuotationReview,
   updateProjectStatus,
 } from "../platformData.js";
 import { addAuditLog } from "../store.js";
@@ -205,6 +208,125 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
       content: result.content,
     };
   });
+
+  app.get(
+    "/projects/:id/documents/:docId/quotation",
+    { preHandler: app.requirePermission("projects.documents.review") },
+    async (request) => {
+      const { id, docId } = request.params as { id: string; docId: string };
+      const review = await getQuotationReview(id, docId);
+      if (request.user.role === "customer" && review?.status !== "submitted") {
+        return { quotation: null };
+      }
+      return { quotation: review };
+    }
+  );
+
+  app.post(
+    "/projects/:id/documents/:docId/quotation",
+    { preHandler: app.requirePermission("projects.documents.review") },
+    async (request, reply) => {
+      const { id, docId } = request.params as { id: string; docId: string };
+      if (request.user.role === "customer") {
+        return reply.code(403).send({ message: "僅開發者或管理者可建立報價。" });
+      }
+      const body = (request.body as {
+        currency?: string;
+        items?: Array<{
+          key?: string;
+          path?: string;
+          h1?: string;
+          h2?: string | null;
+          h3?: string;
+          price?: number | null;
+        }>;
+      }) ?? {};
+
+      const documentResult = await getProjectDocument(id, docId);
+      if (!documentResult) {
+        return reply.code(404).send({ message: "找不到文件。" });
+      }
+      if (documentResult.document.type !== "software") {
+        return reply.code(400).send({ message: "僅軟體設計文件可建立審查報價。" });
+      }
+
+      const items = Array.isArray(body.items)
+        ? body.items.map((item) => ({
+            key: String(item.key ?? "").trim(),
+            path: String(item.path ?? "").trim(),
+            h1: String(item.h1 ?? "").trim(),
+            h2: item.h2 ? String(item.h2).trim() : null,
+            h3: String(item.h3 ?? "").trim(),
+            price:
+              typeof item.price === "number" && Number.isFinite(item.price) ? item.price : null,
+          }))
+        : [];
+
+      if (!items.length) {
+        return reply.code(400).send({ message: "請提供報價項目。" });
+      }
+
+      const review = await upsertQuotationReview({
+        projectId: id,
+        documentId: docId,
+        documentVersion: documentResult.document.version,
+        currency: body.currency,
+        items,
+        actorId: request.user?.sub ?? null,
+      });
+
+      if (request.user?.sub) {
+        await addAuditLog({
+          actorId: request.user.sub,
+          targetUserId: null,
+          action: "PROJECT_DOCUMENT_QUOTATION_UPDATED",
+          before: null,
+          after: { projectId: id, documentId: docId, total: review.total },
+        });
+      }
+
+      return { quotation: review };
+    }
+  );
+
+  app.post(
+    "/projects/:id/documents/:docId/quotation/submit",
+    { preHandler: app.requirePermission("projects.documents.review") },
+    async (request, reply) => {
+      const { id, docId } = request.params as { id: string; docId: string };
+      if (request.user.role === "customer") {
+        return reply.code(403).send({ message: "僅開發者或管理者可提交報價。" });
+      }
+      const documentResult = await getProjectDocument(id, docId);
+      if (!documentResult) {
+        return reply.code(404).send({ message: "找不到文件。" });
+      }
+      if (documentResult.document.type !== "software") {
+        return reply.code(400).send({ message: "僅軟體設計文件可提交報價。" });
+      }
+
+      const updated = await submitQuotationReview({
+        projectId: id,
+        documentId: docId,
+        actorId: request.user?.sub ?? null,
+      });
+      if (!updated) {
+        return reply.code(400).send({ message: "請先儲存報價內容。" });
+      }
+
+      if (request.user?.sub) {
+        await addAuditLog({
+          actorId: request.user.sub,
+          targetUserId: null,
+          action: "PROJECT_DOCUMENT_QUOTATION_SUBMITTED",
+          before: null,
+          after: { projectId: id, documentId: docId, total: updated.total },
+        });
+      }
+
+      return { quotation: updated };
+    }
+  );
 
   app.post("/projects/:id/documents", { preHandler: app.authenticate }, async (request, reply) => {
     const { id } = request.params as { id: string };

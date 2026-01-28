@@ -1328,5 +1328,139 @@
       "documentId": "e3a1f4b1-6e85-4b5b-a080-f962d0164c28",
       "version": 5
     }
+  },
+  {
+    "id": "235f2e89-3556-41a9-9b3a-c222f5fde2f3",
+    "createdAt": "2026-01-27T12:22:43.635Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_STATUS_UPDATED",
+    "before": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "status": "system_architecture_signed"
+    },
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "status": "software_design_review"
+    }
+  },
+  {
+    "id": "998dbcff-1447-4fc4-a587-08d5220e3482",
+    "createdAt": "2026-01-27T12:23:39.313Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_CREATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "597ad9bb-f506-464c-8292-0dd9984bcb19",
+      "version": 1
+    }
+  },
+  {
+    "id": "74bd2205-f70a-491e-8874-8b81f5a90e75",
+    "createdAt": "2026-01-27T14:06:57.305Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "597ad9bb-f506-464c-8292-0dd9984bcb19",
+      "total": 21500
+    }
+  },
+  {
+    "id": "23af0c16-8c77-40dd-a7a1-e5d99eb21c83",
+    "createdAt": "2026-01-27T14:07:19.015Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "597ad9bb-f506-464c-8292-0dd9984bcb19",
+      "total": 15500
+    }
+  },
+  {
+    "id": "2fdebf28-8e79-4698-9be5-98403810dcbc",
+    "createdAt": "2026-01-27T14:08:35.531Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "597ad9bb-f506-464c-8292-0dd9984bcb19",
+      "total": 27500
+    }
+  },
+  {
+    "id": "8c2a3d0c-763c-44a0-9e8e-66f7064fa0df",
+    "createdAt": "2026-01-27T14:08:40.124Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_CREATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+      "version": 2
+    }
+  },
+  {
+    "id": "7916478d-adfa-4ce8-86b1-1e3417821e37",
+    "createdAt": "2026-01-27T14:09:46.360Z",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_REVIEWED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "2cfdc911-86a6-4f86-b222-0a0314496cd6",
+    "createdAt": "2026-01-27T14:09:46.392Z",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "targetUserId": null,
+    "action": "PROJECT_STATUS_UPDATED",
+    "before": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "status": "software_design_review"
+    },
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "status": "software_design_signed"
+    }
+  },
+  {
+    "id": "d7a1b1a8-c8e0-4854-a0df-95702aa8e04c",
+    "createdAt": "2026-01-27T14:09:54.585Z",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_REVIEWED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e3a1f4b1-6e85-4b5b-a080-f962d0164c28",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "de7cabcb-733c-4ef3-a92a-8ad3aabe700e",
+    "createdAt": "2026-01-27T14:13:35.763Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+      "total": 30000
+    }
   }
 ]

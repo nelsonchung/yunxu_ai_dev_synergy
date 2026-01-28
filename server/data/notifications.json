@@ -1307,5 +1307,148 @@
     "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
     "createdAt": "2026-01-25T14:02:52.624Z",
     "readAt": "2026-01-25T14:02:57.484Z"
+  },
+  {
+    "id": "5eea62d1-13bb-4953-ac53-0ece0a84b76c",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "project.status.updated",
+    "title": "專案狀態已更新",
+    "message": "專案「軟體媒合系統設計」狀態由「架構簽核」變更為「設計審查」。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-27T12:22:43.653Z",
+    "readAt": null
+  },
+  {
+    "id": "5f280c17-b821-4a30-9197-1750ab32ada7",
+    "recipientId": "a9428c6b-15ba-47b0-84a6-f721048c3651",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "project.status.updated",
+    "title": "專案狀態已更新",
+    "message": "專案「軟體媒合系統設計」狀態由「架構簽核」變更為「設計審查」。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-27T12:22:43.659Z",
+    "readAt": null
+  },
+  {
+    "id": "8eee16f2-705d-436c-884d-06f6d04d7311",
+    "recipientId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "project.status.updated",
+    "title": "專案狀態已更新",
+    "message": "專案「軟體媒合系統設計」狀態由「架構簽核」變更為「設計審查」。",
+    "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
+    "createdAt": "2026-01-27T12:22:43.664Z",
+    "readAt": null
+  },
+  {
+    "id": "e920f4c0-e648-4688-8dbd-35afce209c71",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "project.document.created",
+    "title": "專案文件已更新",
+    "message": "專案「軟體媒合系統設計」新增 software 文件版本 v1。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-27T12:23:39.344Z",
+    "readAt": null
+  },
+  {
+    "id": "d6c53f19-af93-4192-a565-62642fa7817f",
+    "recipientId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "project.document.created",
+    "title": "專案文件已更新",
+    "message": "專案「軟體媒合系統設計」新增 software 文件版本 v1。",
+    "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
+    "createdAt": "2026-01-27T12:23:39.348Z",
+    "readAt": null
+  },
+  {
+    "id": "cbf819a0-75de-4a54-a396-a0441866915f",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "project.document.created",
+    "title": "專案文件已更新",
+    "message": "專案「軟體媒合系統設計」新增 software 文件版本 v2。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-27T14:08:40.139Z",
+    "readAt": null
+  },
+  {
+    "id": "3d618441-a1dc-4ac8-ac06-1d21710216cb",
+    "recipientId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "project.document.created",
+    "title": "專案文件已更新",
+    "message": "專案「軟體媒合系統設計」新增 software 文件版本 v2。",
+    "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
+    "createdAt": "2026-01-27T14:08:40.151Z",
+    "readAt": "2026-01-27T14:09:26.154Z"
+  },
+  {
+    "id": "ef6924ba-5c05-4428-9db6-700129262a58",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "專案文件已簽核",
+    "message": "專案「軟體媒合系統設計」的文件已完成簽核，專案狀態已自動更新為「設計簽核」。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-27T14:09:46.405Z",
+    "readAt": null
+  },
+  {
+    "id": "8e59b7eb-6b4d-45c6-b3f1-b111f45058d1",
+    "recipientId": "a9428c6b-15ba-47b0-84a6-f721048c3651",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "專案文件已簽核",
+    "message": "專案「軟體媒合系統設計」的文件已完成簽核，專案狀態已自動更新為「設計簽核」。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-27T14:09:46.413Z",
+    "readAt": null
+  },
+  {
+    "id": "da5def15-638a-4a3f-99e3-87bf96f675d1",
+    "recipientId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "專案文件已簽核",
+    "message": "專案「軟體媒合系統設計」的文件已完成簽核，專案狀態已自動更新為「設計簽核」。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-27T14:09:46.421Z",
+    "readAt": null
+  },
+  {
+    "id": "0308721e-b598-4577-b53e-1ef909070bc1",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "專案文件已簽核",
+    "message": "專案「軟體媒合系統設計」的文件已完成簽核。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-27T14:09:54.593Z",
+    "readAt": null
+  },
+  {
+    "id": "85cc394d-ec2d-44cd-888c-609531dba5c4",
+    "recipientId": "a9428c6b-15ba-47b0-84a6-f721048c3651",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "專案文件已簽核",
+    "message": "專案「軟體媒合系統設計」的文件已完成簽核。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-27T14:09:54.600Z",
+    "readAt": null
+  },
+  {
+    "id": "e53ce35b-acb3-4d12-9852-cb64cde3d11a",
+    "recipientId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "專案文件已簽核",
+    "message": "專案「軟體媒合系統設計」的文件已完成簽核。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-27T14:09:54.602Z",
+    "readAt": null
   }
 ]

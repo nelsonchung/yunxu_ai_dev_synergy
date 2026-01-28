@@ -99,6 +99,32 @@ export type ProjectDocumentDetail = ProjectDocumentSummary & {
   content: string;
 };
 
+export type QuotationReviewItem = {
+  key: string;
+  path: string;
+  h1: string;
+  h2: string | null;
+  h3: string;
+  price: number | null;
+};
+
+export type QuotationReview = {
+  id: string;
+  projectId: string;
+  documentId: string;
+  documentVersion: number;
+  currency: string;
+  status: "draft" | "submitted";
+  items: QuotationReviewItem[];
+  total: number;
+  submittedAt: string | null;
+  submittedBy: string | null;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string | null;
+  updatedBy: string | null;
+};
+
 export type MatchingResult = {
   id: string;
   requirementId: string;
@@ -196,6 +222,14 @@ export const listRequirementDocuments = async (requirementId: string) => {
     { method: "GET" }
   );
   return data.documents;
+};
+
+export const listRequirementProjects = async (requirementId: string) => {
+  const data = await apiRequest<{ projects: Array<ProjectSummary & { startDate?: string | null; endDate?: string | null }> }>(
+    `/api/requirements/${requirementId}/projects`,
+    { method: "GET" }
+  );
+  return data.projects;
 };
 
 export const getRequirementDocument = async (requirementId: string, docId: string) => {
@@ -332,6 +366,37 @@ export const reviewProjectDocument = async (
     }
   );
   return data.status;
+};
+
+export const getProjectDocumentQuotation = async (projectId: string, docId: string) => {
+  const data = await apiRequest<{ quotation: QuotationReview | null }>(
+    `/api/projects/${projectId}/documents/${docId}/quotation`,
+    { method: "GET" }
+  );
+  return data.quotation;
+};
+
+export const saveProjectDocumentQuotation = async (
+  projectId: string,
+  docId: string,
+  payload: { currency?: string; items: QuotationReviewItem[] }
+) => {
+  const data = await apiRequest<{ quotation: QuotationReview }>(
+    `/api/projects/${projectId}/documents/${docId}/quotation`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }
+  );
+  return data.quotation;
+};
+
+export const submitProjectDocumentQuotation = async (projectId: string, docId: string) => {
+  const data = await apiRequest<{ quotation: QuotationReview }>(
+    `/api/projects/${projectId}/documents/${docId}/quotation/submit`,
+    { method: "POST" }
+  );
+  return data.quotation;
 };
 
 export const listMatchingResults = async (requirementId?: string) => {

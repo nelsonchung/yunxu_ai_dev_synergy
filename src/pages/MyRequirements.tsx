@@ -2,7 +2,14 @@ import { useEffect, useState } from "react";
 import { ClipboardCheck, RefreshCcw } from "lucide-react";
 import { Link } from "wouter";
 import { getSession } from "@/lib/authClient";
-import { listMyRequirements, type RequirementSummary } from "@/lib/platformClient";
+import {
+  getProjectDocumentQuotation,
+  listMyRequirements,
+  listProjectDocuments,
+  listRequirementDocuments,
+  listRequirementProjects,
+  type RequirementSummary,
+} from "@/lib/platformClient";
 
 const statusLabels: Record<string, string> = {
   submitted: "已送出",
@@ -24,8 +31,37 @@ const statusTone: Record<string, string> = {
   draft: "border-slate-200 bg-slate-50 text-slate-700",
 };
 
+const docStatusLabels: Record<string, string> = {
+  draft: "草稿",
+  pending_approval: "待簽核",
+  approved: "已核准",
+  archived: "已封存",
+};
+
+const docStatusTone: Record<string, string> = {
+  draft: "border-slate-200 bg-slate-50 text-slate-700",
+  pending_approval: "border-amber-200 bg-amber-50 text-amber-700",
+  approved: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  archived: "border-slate-200 bg-slate-100 text-slate-600",
+};
+
+const formatPrice = (value: number) => new Intl.NumberFormat("zh-TW").format(value);
+
+type RequirementProgress = {
+  requirementDocStatus: string | null;
+  systemDocStatus: string | null;
+  softwareDocStatus: string | null;
+  quotationTotal: number | null;
+  quotationCurrency: string | null;
+  quotationStatus: "draft" | "submitted" | null;
+  projectName: string | null;
+  error?: string;
+};
+
 export default function MyRequirements() {
   const [requirements, setRequirements] = useState<RequirementSummary[]>([]);
+  const [progressMap, setProgressMap] = useState<Record<string, RequirementProgress>>({});
+  const [progressLoading, setProgressLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -53,6 +89,113 @@ export default function MyRequirements() {
     };
     syncSession();
   }, []);
+
+  useEffect(() => {
+    if (!requirements.length || !isLoggedIn) {
+      setProgressMap({});
+      return;
+    }
+
+    let active = true;
+
+    const loadProgress = async () => {
+      setProgressLoading(true);
+      const entries = await Promise.all(
+        requirements.map(async (requirement) => {
+          try {
+            const [requirementDocs, projects] = await Promise.all([
+              listRequirementDocuments(requirement.id),
+              listRequirementProjects(requirement.id),
+            ]);
+
+            const requirementDocStatus = requirementDocs[0]?.status ?? null;
+            const latestProject =
+              projects.length === 0
+                ? null
+                : projects.reduce((latest, current) =>
+                    latest && latest.updatedAt > current.updatedAt ? latest : current
+                  );
+
+            if (!latestProject) {
+              return [
+                requirement.id,
+                {
+                  requirementDocStatus,
+                  systemDocStatus: null,
+                  softwareDocStatus: null,
+                  quotationTotal: null,
+                  quotationCurrency: null,
+                  quotationStatus: null,
+                  projectName: null,
+                } satisfies RequirementProgress,
+              ] as const;
+            }
+
+            const projectDocs = await listProjectDocuments(latestProject.id);
+            const latestSystem = projectDocs
+              .filter((doc) => doc.type === "system")
+              .sort((a, b) => b.version - a.version)[0];
+            const latestSoftware = projectDocs
+              .filter((doc) => doc.type === "software")
+              .sort((a, b) => b.version - a.version)[0];
+
+            const quotation = latestSoftware
+              ? await getProjectDocumentQuotation(latestProject.id, latestSoftware.id)
+              : null;
+
+            return [
+              requirement.id,
+              {
+                requirementDocStatus,
+                systemDocStatus: latestSystem?.status ?? null,
+                softwareDocStatus: latestSoftware?.status ?? null,
+                quotationTotal: quotation?.status === "submitted" ? quotation.total : null,
+                quotationCurrency: quotation?.status === "submitted" ? quotation.currency : null,
+                quotationStatus: quotation?.status ?? null,
+                projectName: latestProject.name ?? null,
+              } satisfies RequirementProgress,
+            ] as const;
+          } catch (err) {
+            return [
+              requirement.id,
+              {
+                requirementDocStatus: null,
+                systemDocStatus: null,
+                softwareDocStatus: null,
+                quotationTotal: null,
+                quotationCurrency: null,
+                quotationStatus: null,
+                projectName: null,
+                error: err instanceof Error ? err.message : "無法載入專案狀況。",
+              } satisfies RequirementProgress,
+            ] as const;
+          }
+        })
+      );
+
+      if (!active) return;
+      setProgressMap(Object.fromEntries(entries));
+      setProgressLoading(false);
+    };
+
+    loadProgress();
+
+    return () => {
+      active = false;
+    };
+  }, [requirements, isLoggedIn]);
+
+  const renderDocStatus = (status: string | null) => {
+    const label = status ? docStatusLabels[status] ?? status : "尚未建立";
+    const tone = status
+      ? docStatusTone[status] ?? "border-slate-200 bg-slate-50 text-slate-700"
+      : "border-slate-200 bg-slate-50 text-slate-400";
+    return (
+      <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${tone}`}>
+        {label}
+      </span>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-secondary/30 to-background">
@@ -132,6 +275,48 @@ export default function MyRequirements() {
                     <span>建立：{item.createdAt}</span>
                     <span>更新：{item.updatedAt}</span>
                   </div>
+
+                  <div className="rounded-xl border bg-secondary/20 p-3 space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <p className="font-semibold text-foreground">專案狀況</p>
+                      {progressLoading && !progressMap[item.id] ? (
+                        <span className="text-muted-foreground">載入中...</span>
+                      ) : null}
+                    </div>
+
+                    {progressMap[item.id]?.error ? (
+                      <div className="text-xs text-rose-600">{progressMap[item.id]?.error}</div>
+                    ) : (
+                      <>
+                        <div className="text-xs text-muted-foreground">
+                          專案：{progressMap[item.id]?.projectName ?? "尚未建立"}
+                        </div>
+                        <div className="grid gap-2 sm:grid-cols-2">
+                          <div className="flex items-center justify-between rounded-lg border bg-white px-2 py-1 text-xs">
+                            <span className="text-muted-foreground">需求簽核</span>
+                            {renderDocStatus(progressMap[item.id]?.requirementDocStatus ?? null)}
+                          </div>
+                          <div className="flex items-center justify-between rounded-lg border bg-white px-2 py-1 text-xs">
+                            <span className="text-muted-foreground">系統架構簽核</span>
+                            {renderDocStatus(progressMap[item.id]?.systemDocStatus ?? null)}
+                          </div>
+                          <div className="flex items-center justify-between rounded-lg border bg-white px-2 py-1 text-xs">
+                            <span className="text-muted-foreground">軟體設計簽核</span>
+                            {renderDocStatus(progressMap[item.id]?.softwareDocStatus ?? null)}
+                          </div>
+                          <div className="flex items-center justify-between rounded-lg border bg-white px-2 py-1 text-xs">
+                            <span className="text-muted-foreground">報價</span>
+                            <span className="font-semibold text-foreground">
+                              {progressMap[item.id]?.quotationStatus !== "submitted"
+                                ? "評估中"
+                                : `NT$ ${formatPrice(progressMap[item.id]?.quotationTotal ?? 0)}`}
+                            </span>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
                   <div className="flex flex-wrap gap-2">
                     <Link
                       href={`/my/requirements/${item.id}`}

@@ -11,16 +11,19 @@ import {
   deleteProjectDocument,
   deleteRequirementDocument,
   getProjectDocument,
+  getProjectDocumentQuotation,
   getRequirementDocument,
   listProjectDocuments,
   listProjects,
   listRequirementDocuments,
   listRequirements,
+  type QuotationReview,
   type ProjectDocumentSummary,
   type ProjectSummary,
   type RequirementDocumentSummary,
   type RequirementSummary,
 } from "@/lib/platformClient";
+import { buildQuotationCsv, downloadCsv, printQuotation } from "@/lib/quotationExport";
 
 const documentStatusTone: Record<string, string> = {
   draft: "border-slate-200 bg-slate-50 text-slate-700",
@@ -28,6 +31,8 @@ const documentStatusTone: Record<string, string> = {
   approved: "border-emerald-200 bg-emerald-50 text-emerald-700",
   archived: "border-slate-200 bg-slate-100 text-slate-600",
 };
+
+const formatPrice = (value: number) => new Intl.NumberFormat("zh-TW").format(value);
 
 export default function Documents() {
   const [location] = useLocation();
@@ -46,6 +51,8 @@ export default function Documents() {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [selectedProjectDocId, setSelectedProjectDocId] = useState<string | null>(null);
   const [projectContent, setProjectContent] = useState("");
+  const [projectQuotation, setProjectQuotation] = useState<QuotationReview | null>(null);
+  const [projectQuotationError, setProjectQuotationError] = useState("");
 
   const [compareLeftId, setCompareLeftId] = useState("");
   const [compareRightId, setCompareRightId] = useState("");
@@ -75,6 +82,11 @@ export default function Documents() {
     isAdmin || permissions.includes(`projects.documents.${type}`);
   const canCreateAnyProjectDoc =
     isAdmin || permissions.some((permission) => permission.startsWith("projects.documents."));
+
+  const selectedProjectDoc = useMemo(
+    () => projectDocs.find((doc) => doc.id === selectedProjectDocId) ?? null,
+    [projectDocs, selectedProjectDocId]
+  );
 
   useEffect(() => {
     const syncSession = async () => {
@@ -215,6 +227,25 @@ export default function Documents() {
   }, [selectedProjectDocId, selectedProjectId]);
 
   useEffect(() => {
+    if (!selectedProjectId || !selectedProjectDocId || selectedProjectDoc?.type !== "software") {
+      setProjectQuotation(null);
+      setProjectQuotationError("");
+      return;
+    }
+    const loadQuotation = async () => {
+      try {
+        setProjectQuotationError("");
+        const data = await getProjectDocumentQuotation(selectedProjectId, selectedProjectDocId);
+        setProjectQuotation(data);
+      } catch (error) {
+        setProjectQuotation(null);
+        setProjectQuotationError(error instanceof Error ? error.message : "無法讀取報價內容。");
+      }
+    };
+    loadQuotation();
+  }, [selectedProjectId, selectedProjectDocId, selectedProjectDoc?.type]);
+
+  useEffect(() => {
     const loadCompare = async () => {
       if (!selectedProjectId || !compareLeftId || !compareRightId) return;
       try {
@@ -241,6 +272,26 @@ export default function Documents() {
     const removed = leftLines.filter((line) => !rightSet.has(line));
     return { added, removed };
   }, [compareLeftContent, compareRightContent]);
+
+  const handleExportQuotationCsv = () => {
+    if (!projectQuotation || !selectedProjectDocId) return;
+    const csv = buildQuotationCsv({
+      items: projectQuotation.items,
+      total: projectQuotation.total,
+      currencyLabel: projectQuotation.currency,
+    });
+    downloadCsv(`quotation_${selectedProjectDocId}.csv`, csv);
+  };
+
+  const handlePrintQuotation = () => {
+    if (!projectQuotation) return;
+    printQuotation({
+      title: selectedProjectDoc?.title ?? "審查報價",
+      items: projectQuotation.items,
+      total: projectQuotation.total,
+      currencyLabel: projectQuotation.currency,
+    });
+  };
 
   const handleApprove = async (approved: boolean) => {
     if (!selectedRequirementId) return;
@@ -774,6 +825,66 @@ export default function Documents() {
                     <pre className="mt-2 whitespace-pre-wrap text-xs text-muted-foreground">{projectContent || "尚未選擇版本。"}</pre>
                   </div>
                 </div>
+
+                {selectedProjectDoc?.type === "software" ? (
+                  <div className="rounded-2xl border bg-white/90 p-4 space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <p className="text-sm font-semibold">審查報價結果</p>
+                      {projectQuotation ? (
+                        <div className="text-sm text-muted-foreground">
+                          總計 NT$ {formatPrice(projectQuotation.total)}
+                        </div>
+                      ) : null}
+                    </div>
+                    {projectQuotationError ? (
+                      <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700">
+                        {projectQuotationError}
+                      </div>
+                    ) : null}
+                    {projectQuotation && projectQuotation.items.length ? (
+                      <>
+                        <div className="space-y-2">
+                          {projectQuotation.items.map((item) => (
+                            <div
+                              key={item.key}
+                              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-secondary/10 px-3 py-2 text-sm"
+                            >
+                              <div>
+                                <p className="text-xs text-muted-foreground">
+                                  {item.h1} / {item.h2 ?? "未分類"}
+                                </p>
+                                <p className="font-medium text-foreground">{item.h3}</p>
+                              </div>
+                              <div className="font-semibold text-foreground">
+                                {item.price === null ? "未填" : `NT$ ${formatPrice(item.price)}`}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex flex-wrap items-center justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={handleExportQuotationCsv}
+                            className="rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition"
+                          >
+                            匯出 CSV
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handlePrintQuotation}
+                            className="rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition"
+                          >
+                            列印
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="rounded-xl border border-dashed p-3 text-xs text-muted-foreground">
+                        尚未建立審查報價。
+                      </div>
+                    )}
+                  </div>
+                ) : null}
 
                 <div className="rounded-2xl border bg-white/90 p-4 space-y-3">
                   <p className="text-sm font-semibold">專案文件編輯</p>

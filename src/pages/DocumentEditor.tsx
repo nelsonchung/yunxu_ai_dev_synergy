@@ -11,6 +11,7 @@ import {
   listRequirementDocuments,
 } from "@/lib/platformClient";
 import MarkdownEditor from "@/components/MarkdownEditor";
+import QuotationReview from "@/components/QuotationReview";
 
 const projectDocTypes = [
   { value: "requirement", label: "需求文件" },
@@ -479,6 +480,14 @@ export default function DocumentEditor() {
                   : "請輸入文件內容，例如架構圖、模組分工、介面規格。"
               }
             />
+
+            {docKind === "project" && projectDocType === "software" ? (
+              <QuotationReview
+                markdown={content}
+                projectId={targetId}
+                documentId={docId}
+              />
+            ) : null}
           </div>
         )}
       </section>

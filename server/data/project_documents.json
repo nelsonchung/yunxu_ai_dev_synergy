@@ -62,11 +62,39 @@
     "title": "系統架構文件",
     "version": 5,
     "contentUrl": "projects/069c5c7f-2770-4a2c-b074-6094b874751f/system/v5.md",
-    "status": "pending_approval",
+    "status": "approved",
+    "versionNote": null,
+    "reviewComment": null,
+    "approvedBy": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "createdAt": "2026-01-25T14:02:52.595Z",
+    "updatedAt": "2026-01-27T14:09:54.568Z"
+  },
+  {
+    "id": "597ad9bb-f506-464c-8292-0dd9984bcb19",
+    "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+    "type": "software",
+    "title": "軟體設計文件",
+    "version": 1,
+    "contentUrl": "projects/069c5c7f-2770-4a2c-b074-6094b874751f/software/v1.md",
+    "status": "archived",
     "versionNote": null,
     "reviewComment": null,
     "approvedBy": null,
-    "createdAt": "2026-01-25T14:02:52.595Z",
-    "updatedAt": "2026-01-25T14:02:52.595Z"
+    "createdAt": "2026-01-27T12:23:39.302Z",
+    "updatedAt": "2026-01-27T14:08:40.103Z"
+  },
+  {
+    "id": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+    "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+    "type": "software",
+    "title": "軟體設計文件",
+    "version": 2,
+    "contentUrl": "projects/069c5c7f-2770-4a2c-b074-6094b874751f/software/v2.md",
+    "status": "approved",
+    "versionNote": null,
+    "reviewComment": null,
+    "approvedBy": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "createdAt": "2026-01-27T14:08:40.103Z",
+    "updatedAt": "2026-01-27T14:09:46.353Z"
   }
 ]
