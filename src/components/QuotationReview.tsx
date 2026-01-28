@@ -39,6 +39,11 @@ const quotationStatusLabels: Record<string, string> = {
   approved: "已核准",
   changes_requested: "需調整",
 };
+const quotationHistoryLabels: Record<string, string> = {
+  submitted: "提交報價",
+  approved: "客戶核准",
+  changes_requested: "客戶要求調整",
+};
 
 const buildUniqueKey = (base: string, counter: Map<string, number>) => {
   const current = counter.get(base) ?? 0;
@@ -402,6 +407,21 @@ export default function QuotationReview({
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
           <p className="font-semibold">客戶要求調整：</p>
           <p className="mt-1 whitespace-pre-wrap">{quotation.reviewComment}</p>
+        </div>
+      ) : null}
+
+      {quotation?.history?.length ? (
+        <div className="rounded-2xl border bg-white/90 p-4 space-y-2 text-xs text-muted-foreground">
+          <p className="text-sm font-semibold text-foreground">審核歷程</p>
+          {quotation.history.map((item) => (
+            <div key={item.id} className="rounded-xl border bg-secondary/10 px-3 py-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span>{quotationHistoryLabels[item.action] ?? item.action}</span>
+                <span>{item.createdAt}</span>
+              </div>
+              {item.comment ? <p className="mt-1 text-amber-700">{item.comment}</p> : null}
+            </div>
+          ))}
         </div>
       ) : null}
 

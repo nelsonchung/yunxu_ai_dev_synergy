@@ -3,11 +3,14 @@ import { ClipboardCheck, RefreshCcw } from "lucide-react";
 import { Link } from "wouter";
 import { getSession } from "@/lib/authClient";
 import {
+  approveRequirement,
   getProjectDocumentQuotation,
   listMyRequirements,
   listProjectDocuments,
   listRequirementDocuments,
   listRequirementProjects,
+  reviewProjectDocument,
+  reviewProjectDocumentQuotation,
   type RequirementSummary,
 } from "@/lib/platformClient";
 
@@ -48,12 +51,17 @@ const docStatusTone: Record<string, string> = {
 const formatPrice = (value: number) => new Intl.NumberFormat("zh-TW").format(value);
 
 type RequirementProgress = {
+  projectId: string | null;
+  requirementDocId: string | null;
   requirementDocStatus: string | null;
+  systemDocId: string | null;
   systemDocStatus: string | null;
+  softwareDocId: string | null;
   softwareDocStatus: string | null;
+  quotationDocId: string | null;
   quotationTotal: number | null;
   quotationCurrency: string | null;
-  quotationStatus: "draft" | "submitted" | null;
+  quotationStatus: "draft" | "submitted" | "approved" | "changes_requested" | null;
   projectName: string | null;
   error?: string;
 };
@@ -62,6 +70,7 @@ export default function MyRequirements() {
   const [requirements, setRequirements] = useState<RequirementSummary[]>([]);
   const [progressMap, setProgressMap] = useState<Record<string, RequirementProgress>>({});
   const [progressLoading, setProgressLoading] = useState(false);
+  const [isQuickAction, setIsQuickAction] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -120,9 +129,14 @@ export default function MyRequirements() {
               return [
                 requirement.id,
                 {
+                  projectId: null,
+                  requirementDocId: requirementDocs[0]?.id ?? null,
                   requirementDocStatus,
+                  systemDocId: null,
                   systemDocStatus: null,
+                  softwareDocId: null,
                   softwareDocStatus: null,
+                  quotationDocId: null,
                   quotationTotal: null,
                   quotationCurrency: null,
                   quotationStatus: null,
@@ -146,9 +160,14 @@ export default function MyRequirements() {
             return [
               requirement.id,
               {
+                projectId: latestProject.id,
+                requirementDocId: requirementDocs[0]?.id ?? null,
                 requirementDocStatus,
+                systemDocId: latestSystem?.id ?? null,
                 systemDocStatus: latestSystem?.status ?? null,
+                softwareDocId: latestSoftware?.id ?? null,
                 softwareDocStatus: latestSoftware?.status ?? null,
+                quotationDocId: latestSoftware?.id ?? null,
                 quotationTotal: quotation && quotation.status !== "draft" ? quotation.total : null,
                 quotationCurrency: quotation && quotation.status !== "draft" ? quotation.currency : null,
                 quotationStatus: quotation?.status ?? null,
@@ -159,9 +178,14 @@ export default function MyRequirements() {
             return [
               requirement.id,
               {
+                projectId: null,
+                requirementDocId: null,
                 requirementDocStatus: null,
+                systemDocId: null,
                 systemDocStatus: null,
+                softwareDocId: null,
                 softwareDocStatus: null,
+                quotationDocId: null,
                 quotationTotal: null,
                 quotationCurrency: null,
                 quotationStatus: null,
@@ -195,6 +219,42 @@ export default function MyRequirements() {
         {label}
       </span>
     );
+  };
+
+  const handleQuickApproveRequirement = async (requirementId: string) => {
+    try {
+      setIsQuickAction(true);
+      await approveRequirement(requirementId, true, "");
+      await loadRequirements();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "需求簽核失敗。");
+    } finally {
+      setIsQuickAction(false);
+    }
+  };
+
+  const handleQuickApproveProjectDoc = async (projectId: string, docId: string) => {
+    try {
+      setIsQuickAction(true);
+      await reviewProjectDocument(projectId, docId, { approved: true });
+      await loadRequirements();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "專案文件簽核失敗。");
+    } finally {
+      setIsQuickAction(false);
+    }
+  };
+
+  const handleQuickApproveQuotation = async (projectId: string, docId: string) => {
+    try {
+      setIsQuickAction(true);
+      await reviewProjectDocumentQuotation(projectId, docId, { approved: true });
+      await loadRequirements();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "報價簽核失敗。");
+    } finally {
+      setIsQuickAction(false);
+    }
   };
 
   return (
@@ -250,7 +310,24 @@ export default function MyRequirements() {
             </div>
           ) : (
             <div className="grid gap-4 lg:grid-cols-2">
-              {requirements.map((item) => (
+              {requirements.map((item) => {
+                const progress = progressMap[item.id];
+                const canApproveRequirement =
+                  progress?.requirementDocId && progress.requirementDocStatus === "pending_approval";
+                const canApproveSystem =
+                  progress?.projectId &&
+                  progress.systemDocId &&
+                  progress.systemDocStatus === "pending_approval";
+                const canApproveSoftware =
+                  progress?.projectId &&
+                  progress.softwareDocId &&
+                  progress.softwareDocStatus === "pending_approval";
+                const canApproveQuotation =
+                  progress?.projectId &&
+                  progress.quotationDocId &&
+                  progress.quotationStatus === "submitted";
+
+                return (
                 <div key={item.id} className="rounded-2xl border bg-white/90 p-4 space-y-3">
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -279,36 +356,36 @@ export default function MyRequirements() {
                   <div className="rounded-xl border bg-secondary/20 p-3 space-y-2">
                     <div className="flex items-center justify-between text-xs">
                       <p className="font-semibold text-foreground">專案狀況</p>
-                      {progressLoading && !progressMap[item.id] ? (
+                      {progressLoading && !progress ? (
                         <span className="text-muted-foreground">載入中...</span>
                       ) : null}
                     </div>
 
-                    {progressMap[item.id]?.error ? (
-                      <div className="text-xs text-rose-600">{progressMap[item.id]?.error}</div>
+                    {progress?.error ? (
+                      <div className="text-xs text-rose-600">{progress?.error}</div>
                     ) : (
                       <>
                         <div className="text-xs text-muted-foreground">
-                          專案：{progressMap[item.id]?.projectName ?? "尚未建立"}
+                          專案：{progress?.projectName ?? "尚未建立"}
                         </div>
                         <div className="grid gap-2 sm:grid-cols-2">
                           <div className="flex items-center justify-between rounded-lg border bg-white px-2 py-1 text-xs">
                             <span className="text-muted-foreground">需求簽核</span>
-                            {renderDocStatus(progressMap[item.id]?.requirementDocStatus ?? null)}
+                            {renderDocStatus(progress?.requirementDocStatus ?? null)}
                           </div>
                           <div className="flex items-center justify-between rounded-lg border bg-white px-2 py-1 text-xs">
                             <span className="text-muted-foreground">系統架構簽核</span>
-                            {renderDocStatus(progressMap[item.id]?.systemDocStatus ?? null)}
+                            {renderDocStatus(progress?.systemDocStatus ?? null)}
                           </div>
                           <div className="flex items-center justify-between rounded-lg border bg-white px-2 py-1 text-xs">
                             <span className="text-muted-foreground">軟體設計簽核</span>
-                            {renderDocStatus(progressMap[item.id]?.softwareDocStatus ?? null)}
+                            {renderDocStatus(progress?.softwareDocStatus ?? null)}
                           </div>
                           <div className="flex items-center justify-between rounded-lg border bg-white px-2 py-1 text-xs">
                             <span className="text-muted-foreground">報價</span>
                             <span className="font-semibold text-foreground">
-                              {progressMap[item.id]?.quotationStatus && progressMap[item.id]?.quotationStatus !== "draft"
-                                ? `NT$ ${formatPrice(progressMap[item.id]?.quotationTotal ?? 0)}`
+                              {progress?.quotationStatus && progress?.quotationStatus !== "draft"
+                                ? `NT$ ${formatPrice(progress?.quotationTotal ?? 0)}`
                                 : "評估中"}
                             </span>
                           </div>
@@ -317,16 +394,70 @@ export default function MyRequirements() {
                     )}
                   </div>
 
+                  <div className="rounded-xl border border-dashed p-3 space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground">快速簽核</p>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleQuickApproveRequirement(item.id)}
+                        disabled={!canApproveRequirement || isQuickAction}
+                        className="rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        簽核需求
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          progress?.projectId && progress.systemDocId
+                            ? handleQuickApproveProjectDoc(progress.projectId, progress.systemDocId)
+                            : undefined
+                        }
+                        disabled={!canApproveSystem || isQuickAction}
+                        className="rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        簽核系統架構
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          progress?.projectId && progress.softwareDocId
+                            ? handleQuickApproveProjectDoc(progress.projectId, progress.softwareDocId)
+                            : undefined
+                        }
+                        disabled={!canApproveSoftware || isQuickAction}
+                        className="rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        簽核軟體設計
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          progress?.projectId && progress.quotationDocId
+                            ? handleQuickApproveQuotation(progress.projectId, progress.quotationDocId)
+                            : undefined
+                        }
+                        disabled={!canApproveQuotation || isQuickAction}
+                        className="rounded-full border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 transition disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        簽核報價
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      需要提出修改時請進入詳情頁。
+                    </p>
+                  </div>
+
                   <div className="flex flex-wrap gap-2">
                     <Link
-                      href={`/my/requirements/${item.id}`}
+                      href={`/my/requirements/${item.id}?tab=documents`}
                       className="inline-flex items-center justify-center rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition"
                     >
                       查看詳情
                     </Link>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

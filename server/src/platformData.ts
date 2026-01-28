@@ -20,6 +20,7 @@ import {
   type AIJob,
   type QuotationReview,
   type QuotationReviewItem,
+  type QuotationReviewHistory,
   type DevelopmentChecklist,
   type DevelopmentChecklistItem,
 } from "./platformStore.js";
@@ -840,6 +841,27 @@ const sanitizeQuotationItems = (items: QuotationReviewItem[]) =>
     price: typeof item.price === "number" && Number.isFinite(item.price) ? item.price : null,
   }));
 
+const normalizeQuotationHistory = (
+  history: QuotationReviewHistory[] | undefined
+): QuotationReviewHistory[] =>
+  Array.isArray(history)
+    ? history.map((item) => {
+        const action =
+          item.action === "submitted" ||
+          item.action === "approved" ||
+          item.action === "changes_requested"
+            ? item.action
+            : "submitted";
+        return {
+          id: String(item.id ?? ""),
+          action,
+          comment: item.comment ?? null,
+          actorId: item.actorId ?? null,
+          createdAt: item.createdAt ?? "",
+        };
+      })
+    : [];
+
 const normalizeQuotationReview = (review: QuotationReview): QuotationReview => ({
   ...review,
   status: review.status ?? "draft",
@@ -848,6 +870,7 @@ const normalizeQuotationReview = (review: QuotationReview): QuotationReview => (
   reviewComment: review.reviewComment ?? null,
   reviewedAt: review.reviewedAt ?? null,
   reviewedBy: review.reviewedBy ?? null,
+  history: normalizeQuotationHistory(review.history),
 });
 
 export const getQuotationReview = async (projectId: string, documentId: string) => {
@@ -885,6 +908,7 @@ export const upsertQuotationReview = async (payload: {
       reviewComment: null,
       reviewedAt: null,
       reviewedBy: null,
+      history: [],
       items,
       total,
       submittedAt: null,
@@ -912,6 +936,7 @@ export const upsertQuotationReview = async (payload: {
     reviewComment: null,
     reviewedAt: null,
     reviewedBy: null,
+    history: existing.history ?? [],
     updatedAt: now,
     updatedBy: payload.actorId,
   };
@@ -940,6 +965,16 @@ export const submitQuotationReview = async (payload: {
     reviewComment: null,
     reviewedAt: null,
     reviewedBy: null,
+    history: [
+      ...(existing.history ?? []),
+      {
+        id: randomUUID(),
+        action: "submitted",
+        comment: null,
+        actorId: payload.actorId,
+        createdAt: now,
+      },
+    ],
     updatedAt: now,
     updatedBy: payload.actorId,
   };
@@ -968,6 +1003,16 @@ export const reviewQuotationReview = async (payload: {
     reviewComment: payload.comment ?? null,
     reviewedAt: now,
     reviewedBy: payload.actorId,
+    history: [
+      ...(existing.history ?? []),
+      {
+        id: randomUUID(),
+        action: payload.approved ? "approved" : "changes_requested",
+        comment: payload.comment ?? null,
+        actorId: payload.actorId,
+        createdAt: now,
+      },
+    ],
     updatedAt: now,
     updatedBy: payload.actorId,
   };

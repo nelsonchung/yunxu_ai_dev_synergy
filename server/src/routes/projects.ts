@@ -328,6 +328,24 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         });
       }
 
+      try {
+        const project = await getProjectById(id);
+        const requirement = project ? await getRequirementById(project.requirementId) : null;
+        const recipients = requirement?.ownerId ? [requirement.ownerId] : [];
+        if (recipients.length) {
+          await notifyUsers({
+            recipientIds: recipients,
+            actorId: request.user?.sub ?? null,
+            type: "quotation.submitted",
+            title: "報價已提交",
+            message: `專案「${project?.name ?? id}」已提交報價，請前往簽核。`,
+            link: `/my/requirements/${project?.requirementId ?? ""}?tab=documents`,
+          });
+        }
+      } catch (error) {
+        app.log.error(error);
+      }
+
       return { quotation: updated };
     }
   );
@@ -406,6 +424,24 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
             status: updated.status,
           },
         });
+      }
+
+      try {
+        const roleRecipients = await listActiveUserIdsByRole(["developer", "admin"]);
+        const recipients = roleRecipients.filter(Boolean);
+        if (recipients.length) {
+          const actionLabel = updated.status === "approved" ? "已核准" : "需調整";
+          await notifyUsers({
+            recipientIds: recipients,
+            actorId: request.user?.sub ?? null,
+            type: "quotation.reviewed",
+            title: `報價${actionLabel}`,
+            message: `專案「${project?.name ?? id}」報價${actionLabel}，請查看處理。`,
+            link: `/workspace?project=${id}`,
+          });
+        }
+      } catch (error) {
+        app.log.error(error);
       }
 
       return { quotation: updated };

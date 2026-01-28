@@ -108,6 +108,14 @@ export type QuotationReviewItem = {
   price: number | null;
 };
 
+export type QuotationReviewHistory = {
+  id: string;
+  action: "submitted" | "approved" | "changes_requested";
+  comment: string | null;
+  actorId: string | null;
+  createdAt: string;
+};
+
 export type QuotationReview = {
   id: string;
   projectId: string;
@@ -118,6 +126,7 @@ export type QuotationReview = {
   reviewComment: string | null;
   reviewedAt: string | null;
   reviewedBy: string | null;
+  history: QuotationReviewHistory[];
   items: QuotationReviewItem[];
   total: number;
   submittedAt: string | null;

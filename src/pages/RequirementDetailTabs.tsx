@@ -16,6 +16,7 @@ import {
   approveRequirement,
   commentRequirementDocument,
   getProjectDocumentQuotation,
+  getProjectChecklist,
   listMilestones,
   listMyRequirements,
   listProjectDocuments,
@@ -29,6 +30,7 @@ import {
   type ProjectDocumentSummary,
   type ProjectSummary,
   type QualityReport,
+  type DevelopmentChecklist,
   type QuotationReview,
   type RequirementDocumentSummary,
   type RequirementSummary,
@@ -92,6 +94,12 @@ const quotationStatusLabels: Record<string, string> = {
   changes_requested: "已要求調整",
 };
 
+const quotationHistoryLabels: Record<string, string> = {
+  submitted: "提交報價",
+  approved: "你已核准",
+  changes_requested: "你要求調整",
+};
+
 const formatPrice = (value: number) => new Intl.NumberFormat("zh-TW").format(value);
 
 export default function RequirementDetailTabs() {
@@ -106,6 +114,8 @@ export default function RequirementDetailTabs() {
   const [quotation, setQuotation] = useState<QuotationReview | null>(null);
   const [quotationDoc, setQuotationDoc] = useState<ProjectDocumentSummary | null>(null);
   const [quotationComment, setQuotationComment] = useState("");
+  const [expandedDocGroups, setExpandedDocGroups] = useState<Record<string, boolean>>({});
+  const [checklist, setChecklist] = useState<DevelopmentChecklist | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [qualityReports, setQualityReports] = useState<QualityReport[]>([]);
@@ -172,16 +182,18 @@ export default function RequirementDetailTabs() {
       setProject(matchedProject);
 
       if (matchedProject) {
-        const [projectDocsData, taskData, milestoneData, qualityData] = await Promise.all([
+        const [projectDocsData, taskData, milestoneData, qualityData, checklistData] = await Promise.all([
           listProjectDocuments(matchedProject.id),
           listTasks(matchedProject.id),
           listMilestones(matchedProject.id),
           listQualityReports(matchedProject.id),
+          getProjectChecklist(matchedProject.id),
         ]);
         setProjectDocs(projectDocsData);
         setTasks(taskData);
         setMilestones(milestoneData);
         setQualityReports(qualityData);
+        setChecklist(checklistData);
 
         const latestSoftware = projectDocsData
           .filter((doc) => doc.type === "software")
@@ -204,6 +216,7 @@ export default function RequirementDetailTabs() {
         setQualityReports([]);
         setQuotation(null);
         setQuotationDoc(null);
+        setChecklist(null);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "無法載入需求詳情。");
@@ -212,6 +225,15 @@ export default function RequirementDetailTabs() {
 
   useEffect(() => {
     loadData();
+  }, [requirementId]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get("tab") as TabId | null;
+    if (tab && tabs.some((item) => item.id === tab)) {
+      setActiveTab(tab);
+    }
   }, [requirementId]);
 
   const handleApproveRequirement = async (docId: string) => {
@@ -311,9 +333,99 @@ export default function RequirementDetailTabs() {
     setCommentDrafts((prev) => ({ ...prev, [docId]: value }));
   };
 
+  const projectDocGroups = useMemo(() => {
+    const groups: Record<string, ProjectDocumentSummary[]> = {};
+    projectDocs.forEach((doc) => {
+      if (!groups[doc.type]) groups[doc.type] = [];
+      groups[doc.type].push(doc);
+    });
+    Object.values(groups).forEach((list) => list.sort((a, b) => b.version - a.version));
+    return {
+      system: groups.system ?? [],
+      software: groups.software ?? [],
+      other: Object.entries(groups)
+        .filter(([type]) => type !== "system" && type !== "software")
+        .flatMap(([, list]) => list)
+        .sort((a, b) => b.version - a.version),
+    };
+  }, [projectDocs]);
+
+  const toggleDocGroup = (key: string) => {
+    setExpandedDocGroups((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const renderProjectDocCard = (doc: ProjectDocumentSummary, isLatest: boolean) => (
+    <div key={doc.id} className="rounded-2xl border bg-white/90 p-4 space-y-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs text-muted-foreground">
+            {docTypeLabels[doc.type] ?? doc.type} · v{doc.version}
+          </p>
+          <p className="text-lg font-semibold">{doc.title}</p>
+          <p className="text-xs text-muted-foreground">更新：{doc.updatedAt}</p>
+        </div>
+        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+          {documentStatusLabels[doc.status] ?? doc.status}
+        </span>
+      </div>
+      {doc.reviewComment ? (
+        <p className="text-xs text-muted-foreground">最新留言：{doc.reviewComment}</p>
+      ) : null}
+      {isLatest ? (
+        <>
+          <textarea
+            value={commentDrafts[doc.id] ?? ""}
+            onChange={(event) => updateCommentDraft(doc.id, event.target.value)}
+            placeholder="留下簽核或修改意見"
+            rows={2}
+            disabled={!canReviewProjectDocs}
+            className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+          />
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href={`/editor?kind=project&project=${project?.id ?? ""}&doc=${doc.id}`}
+              className="inline-flex items-center justify-center rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition"
+            >
+              開啟編輯器
+            </Link>
+            <button
+              type="button"
+              onClick={() => handleReviewProjectDoc(doc.id, true)}
+              disabled={!canReviewProjectDocs || isSaving}
+              className="inline-flex items-center justify-center rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              簽核同意
+            </button>
+            <button
+              type="button"
+              onClick={() => handleReviewProjectDoc(doc.id, false)}
+              disabled={!canReviewProjectDocs || isSaving}
+              className="inline-flex items-center justify-center rounded-full border border-amber-300 px-3 py-1 text-xs font-semibold text-amber-700 hover:bg-amber-50 transition disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              提出修改
+            </button>
+          </div>
+        </>
+      ) : (
+        <Link
+          href={`/editor?kind=project&project=${project?.id ?? ""}&doc=${doc.id}`}
+          className="inline-flex items-center justify-center rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition"
+        >
+          開啟編輯器
+        </Link>
+      )}
+    </div>
+  );
+
   const activeLabel = useMemo(() => {
     return tabs.find((tab) => tab.id === activeTab)?.label ?? "";
   }, [activeTab]);
+
+  const checklistStats = useMemo(() => {
+    if (!checklist?.items?.length) return { total: 0, done: 0 };
+    const done = checklist.items.filter((item) => item.done).length;
+    return { total: checklist.items.length, done };
+  }, [checklist]);
 
   if (!match) {
     return (
@@ -497,72 +609,83 @@ export default function RequirementDetailTabs() {
                 )}
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-semibold">專案文件</p>
                 </div>
-                {project ? (
-                  projectDocs.length === 0 ? (
-                    <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
-                      尚無專案文件。
-                    </div>
-                  ) : (
-                    projectDocs.map((doc) => (
-                      <div key={doc.id} className="rounded-2xl border bg-white/90 p-4 space-y-3">
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                          <div>
-                            <p className="text-xs text-muted-foreground">
-                              {docTypeLabels[doc.type] ?? doc.type} · v{doc.version}
-                            </p>
-                            <p className="text-lg font-semibold">{doc.title}</p>
-                            <p className="text-xs text-muted-foreground">更新：{doc.updatedAt}</p>
-                          </div>
-                          <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                            {documentStatusLabels[doc.status] ?? doc.status}
-                          </span>
-                        </div>
-                        <textarea
-                          value={commentDrafts[doc.id] ?? ""}
-                          onChange={(event) => updateCommentDraft(doc.id, event.target.value)}
-                          placeholder="留下簽核或修改意見"
-                          rows={2}
-                          disabled={!canReviewProjectDocs}
-                          className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-                        />
-                        <div className="flex flex-wrap gap-2">
-                          <Link
-                            href={`/editor?kind=project&project=${project.id}&doc=${doc.id}`}
-                            className="inline-flex items-center justify-center rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition"
-                          >
-                            開啟編輯器
-                          </Link>
-                          <button
-                            type="button"
-                            onClick={() => handleReviewProjectDoc(doc.id, true)}
-                            disabled={!canReviewProjectDocs || isSaving}
-                            className="inline-flex items-center justify-center rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition disabled:cursor-not-allowed disabled:opacity-70"
-                          >
-                            簽核同意
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleReviewProjectDoc(doc.id, false)}
-                            disabled={!canReviewProjectDocs || isSaving}
-                            className="inline-flex items-center justify-center rounded-full border border-amber-300 px-3 py-1 text-xs font-semibold text-amber-700 hover:bg-amber-50 transition disabled:cursor-not-allowed disabled:opacity-70"
-                          >
-                            提出修改
-                          </button>
-                        </div>
-                        {doc.reviewComment ? (
-                          <p className="text-xs text-muted-foreground">最新留言：{doc.reviewComment}</p>
-                        ) : null}
-                      </div>
-                    ))
-                  )
-                ) : (
+                {!project ? (
                   <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
                     專案尚未建立，待媒合後將提供文件。
                   </div>
+                ) : projectDocs.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
+                    尚無專案文件。
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-semibold">系統架構文件</p>
+                        {projectDocGroups.system.length > 1 ? (
+                          <button
+                            type="button"
+                            onClick={() => toggleDocGroup("system")}
+                            className="text-xs font-semibold text-primary hover:text-primary/80"
+                          >
+                            {expandedDocGroups.system ? "收合舊版本" : "展開舊版本"}
+                          </button>
+                        ) : null}
+                      </div>
+                      {projectDocGroups.system.length === 0 ? (
+                        <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
+                          尚無系統架構文件。
+                        </div>
+                      ) : (
+                        <>
+                          {renderProjectDocCard(projectDocGroups.system[0], true)}
+                          {expandedDocGroups.system
+                            ? projectDocGroups.system.slice(1).map((doc) => renderProjectDocCard(doc, false))
+                            : null}
+                        </>
+                      )}
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-semibold">軟體設計文件</p>
+                        {projectDocGroups.software.length > 1 ? (
+                          <button
+                            type="button"
+                            onClick={() => toggleDocGroup("software")}
+                            className="text-xs font-semibold text-primary hover:text-primary/80"
+                          >
+                            {expandedDocGroups.software ? "收合舊版本" : "展開舊版本"}
+                          </button>
+                        ) : null}
+                      </div>
+                      {projectDocGroups.software.length === 0 ? (
+                        <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
+                          尚無軟體設計文件。
+                        </div>
+                      ) : (
+                        <>
+                          {renderProjectDocCard(projectDocGroups.software[0], true)}
+                          {expandedDocGroups.software
+                            ? projectDocGroups.software.slice(1).map((doc) => renderProjectDocCard(doc, false))
+                            : null}
+                        </>
+                      )}
+                    </div>
+
+                    {projectDocGroups.other.length ? (
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-semibold">其他專案文件</p>
+                        </div>
+                        {projectDocGroups.other.map((doc) => renderProjectDocCard(doc, false))}
+                      </div>
+                    ) : null}
+                  </>
                 )}
               </div>
 
@@ -613,6 +736,23 @@ export default function RequirementDetailTabs() {
                       ))}
                     </div>
 
+                    {quotation.history?.length ? (
+                      <div className="rounded-xl border bg-white/80 p-3 space-y-2 text-xs text-muted-foreground">
+                        <p className="font-semibold text-foreground">審核歷程</p>
+                        {quotation.history.map((entry) => (
+                          <div key={entry.id} className="rounded-lg border bg-secondary/10 px-2 py-1">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <span>{quotationHistoryLabels[entry.action] ?? entry.action}</span>
+                              <span>{entry.createdAt}</span>
+                            </div>
+                            {entry.comment ? (
+                              <p className="mt-1 text-amber-700">{entry.comment}</p>
+                            ) : null}
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
+
                     {quotation.status === "submitted" ? (
                       <>
                         <textarea
@@ -658,32 +798,61 @@ export default function RequirementDetailTabs() {
           ) : null}
 
           {activeTab === "collaboration" ? (
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className="space-y-4">
               <div className="rounded-2xl border bg-white/90 p-4 space-y-3">
-                <p className="text-sm font-semibold">任務列表</p>
-                {tasks.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">尚無任務紀錄。</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold">開發清單</p>
+                  <span className="text-xs text-muted-foreground">
+                    {checklistStats.total
+                      ? `完成 ${checklistStats.done}/${checklistStats.total}`
+                      : "尚未生成"}
+                  </span>
+                </div>
+                {!checklist || checklist.items.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">報價核准後才會產生開發清單。</p>
                 ) : (
-                  tasks.map((task) => (
-                    <div key={task.id} className="flex items-center justify-between text-sm">
-                      <span>{task.title}</span>
-                      <span className="text-xs text-muted-foreground">{task.status}</span>
-                    </div>
-                  ))
+                  <div className="space-y-2">
+                    {checklist.items.map((item) => (
+                      <div key={item.id} className="rounded-xl border bg-secondary/10 px-3 py-2 text-xs">
+                        <p className="text-muted-foreground">
+                          {item.h1} / {item.h2 ?? "未分類"}
+                        </p>
+                        <p className={item.done ? "line-through text-muted-foreground" : "text-foreground"}>
+                          {item.h3}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
-              <div className="rounded-2xl border bg-white/90 p-4 space-y-3">
-                <p className="text-sm font-semibold">里程碑</p>
-                {milestones.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">尚無里程碑。</p>
-                ) : (
-                  milestones.map((milestone) => (
-                    <div key={milestone.id} className="flex items-center justify-between text-sm">
-                      <span>{milestone.title}</span>
-                      <span className="text-xs text-muted-foreground">{milestone.dueDate ?? "--"}</span>
-                    </div>
-                  ))
-                )}
+
+              <div className="grid gap-4 lg:grid-cols-2">
+                <div className="rounded-2xl border bg-white/90 p-4 space-y-3">
+                  <p className="text-sm font-semibold">任務列表</p>
+                  {tasks.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">尚無任務紀錄。</p>
+                  ) : (
+                    tasks.map((task) => (
+                      <div key={task.id} className="flex items-center justify-between text-sm">
+                        <span>{task.title}</span>
+                        <span className="text-xs text-muted-foreground">{task.status}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+                <div className="rounded-2xl border bg-white/90 p-4 space-y-3">
+                  <p className="text-sm font-semibold">里程碑</p>
+                  {milestones.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">尚無里程碑。</p>
+                  ) : (
+                    milestones.map((milestone) => (
+                      <div key={milestone.id} className="flex items-center justify-between text-sm">
+                        <span>{milestone.title}</span>
+                        <span className="text-xs text-muted-foreground">{milestone.dueDate ?? "--"}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
             </div>
           ) : null}

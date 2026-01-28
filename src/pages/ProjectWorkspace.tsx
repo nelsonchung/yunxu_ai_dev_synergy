@@ -70,6 +70,14 @@ const projectStatusLabels: Record<ProjectStatus, string> = {
   closed: "已結案",
 };
 
+const projectDocTypeLabels: Record<string, string> = {
+  requirement: "需求",
+  system: "系統架構",
+  software: "軟體設計",
+  test: "測試",
+  delivery: "交付",
+};
+
 const baseProjectStatusTransitions: Record<ProjectStatus, ProjectStatus[]> = {
   intake: ["requirements_signed"],
   requirements_signed: ["architecture_review"],
@@ -121,6 +129,7 @@ export default function ProjectWorkspace() {
   const [qualityReports, setQualityReports] = useState<QualityReport[]>([]);
   const [checklist, setChecklist] = useState<DevelopmentChecklist | null>(null);
   const [checklistStatus, setChecklistStatus] = useState("");
+  const [expandedDocGroups, setExpandedDocGroups] = useState<Record<string, boolean>>({});
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
@@ -351,6 +360,58 @@ export default function ProjectWorkspace() {
     return { total: checklist.items.length, done };
   }, [checklist]);
 
+  const projectDocGroups = useMemo(() => {
+    const groups: Record<string, ProjectDocumentSummary[]> = {};
+    projectDocs.forEach((doc) => {
+      if (!groups[doc.type]) groups[doc.type] = [];
+      groups[doc.type].push(doc);
+    });
+    Object.values(groups).forEach((list) => list.sort((a, b) => b.version - a.version));
+    return {
+      system: groups.system ?? [],
+      software: groups.software ?? [],
+      other: Object.entries(groups)
+        .filter(([type]) => type !== "system" && type !== "software")
+        .flatMap(([, list]) => list)
+        .sort((a, b) => b.version - a.version),
+    };
+  }, [projectDocs]);
+
+  const toggleDocGroup = (key: string) => {
+    setExpandedDocGroups((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const renderProjectDocCard = (doc: ProjectDocumentSummary, isLatest: boolean) => (
+    <div key={doc.id} className="rounded-2xl border bg-white/90 p-4 space-y-2">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs text-muted-foreground">
+            {projectDocTypeLabels[doc.type] ?? doc.type} · v{doc.version}
+          </p>
+          <p className="text-lg font-semibold">{doc.title}</p>
+          <p className="text-xs text-muted-foreground">更新：{doc.updatedAt}</p>
+        </div>
+        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+          {doc.status}
+        </span>
+      </div>
+      {doc.reviewComment ? (
+        <p className="text-xs text-muted-foreground">最新回饋：{doc.reviewComment}</p>
+      ) : null}
+      <div className="flex flex-wrap gap-2">
+        <Link
+          href={`/editor?kind=project&project=${selectedProject?.id ?? ""}&doc=${doc.id}`}
+          className="inline-flex items-center justify-center rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition"
+        >
+          開啟編輯器
+        </Link>
+        {isLatest ? null : (
+          <span className="text-xs text-muted-foreground">舊版本</span>
+        )}
+      </div>
+    </div>
+  );
+
   const allowedStatusTransitions = selectedProject ? getAllowedStatusTransitions(selectedProject) : [];
 
   return (
@@ -521,31 +582,64 @@ export default function ProjectWorkspace() {
                           尚無專案文件。
                         </div>
                       ) : (
-                        projectDocs.map((doc) => (
-                          <div key={doc.id} className="rounded-2xl border bg-white/90 p-4 space-y-2">
-                            <div className="flex items-start justify-between gap-3">
-                              <div>
-                                <p className="text-xs text-muted-foreground">
-                                  {doc.type} · v{doc.version}
-                                </p>
-                                <p className="text-lg font-semibold">{doc.title}</p>
-                                <p className="text-xs text-muted-foreground">更新：{doc.updatedAt}</p>
-                              </div>
-                              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                                {doc.status}
-                              </span>
-                            </div>
-                            {doc.reviewComment ? (
-                              <p className="text-xs text-muted-foreground">最新回饋：{doc.reviewComment}</p>
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-semibold">系統架構文件</p>
+                            {projectDocGroups.system.length > 1 ? (
+                              <button
+                                type="button"
+                                onClick={() => toggleDocGroup("system")}
+                                className="text-xs font-semibold text-primary hover:text-primary/80"
+                              >
+                                {expandedDocGroups.system ? "收合舊版本" : "展開舊版本"}
+                              </button>
                             ) : null}
-                            <Link
-                              href={`/editor?kind=project&project=${selectedProject.id}&doc=${doc.id}`}
-                              className="inline-flex items-center justify-center rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition"
-                            >
-                              開啟編輯器
-                            </Link>
                           </div>
-                        ))
+                          {projectDocGroups.system.length === 0 ? (
+                            <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
+                              尚無系統架構文件。
+                            </div>
+                          ) : (
+                            <>
+                              {renderProjectDocCard(projectDocGroups.system[0], true)}
+                              {expandedDocGroups.system
+                                ? projectDocGroups.system.slice(1).map((doc) => renderProjectDocCard(doc, false))
+                                : null}
+                            </>
+                          )}
+
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-semibold">軟體設計文件</p>
+                            {projectDocGroups.software.length > 1 ? (
+                              <button
+                                type="button"
+                                onClick={() => toggleDocGroup("software")}
+                                className="text-xs font-semibold text-primary hover:text-primary/80"
+                              >
+                                {expandedDocGroups.software ? "收合舊版本" : "展開舊版本"}
+                              </button>
+                            ) : null}
+                          </div>
+                          {projectDocGroups.software.length === 0 ? (
+                            <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
+                              尚無軟體設計文件。
+                            </div>
+                          ) : (
+                            <>
+                              {renderProjectDocCard(projectDocGroups.software[0], true)}
+                              {expandedDocGroups.software
+                                ? projectDocGroups.software.slice(1).map((doc) => renderProjectDocCard(doc, false))
+                                : null}
+                            </>
+                          )}
+
+                          {projectDocGroups.other.length ? (
+                            <div className="space-y-2">
+                              <p className="text-sm font-semibold">其他文件</p>
+                              {projectDocGroups.other.map((doc) => renderProjectDocCard(doc, false))}
+                            </div>
+                          ) : null}
+                        </div>
                       )}
                     </div>
                   ) : null}
