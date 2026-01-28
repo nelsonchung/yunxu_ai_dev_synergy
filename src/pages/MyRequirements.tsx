@@ -5,6 +5,7 @@ import { getSession } from "@/lib/authClient";
 import {
   approveRequirement,
   getProjectDocumentQuotation,
+  getProjectChecklist,
   listMyRequirements,
   listProjectDocuments,
   listRequirementDocuments,
@@ -84,6 +85,8 @@ type RequirementProgress = {
   projectId: string | null;
   projectStatus: string | null;
   projectPreviousStatus: string | null;
+  checklistTotal: number;
+  checklistDone: number;
   requirementDocId: string | null;
   requirementDocStatus: string | null;
   systemDocId: string | null;
@@ -164,6 +167,8 @@ export default function MyRequirements() {
                   projectId: null,
                   projectStatus: null,
                   projectPreviousStatus: null,
+                  checklistTotal: 0,
+                  checklistDone: 0,
                   requirementDocId: requirementDocs[0]?.id ?? null,
                   requirementDocStatus,
                   systemDocId: null,
@@ -187,9 +192,14 @@ export default function MyRequirements() {
               .filter((doc) => doc.type === "software")
               .sort((a, b) => b.version - a.version)[0];
 
-            const quotation = latestSoftware
-              ? await getProjectDocumentQuotation(latestProject.id, latestSoftware.id)
-              : null;
+            const [quotation, checklist] = await Promise.all([
+              latestSoftware
+                ? getProjectDocumentQuotation(latestProject.id, latestSoftware.id)
+                : Promise.resolve(null),
+              getProjectChecklist(latestProject.id),
+            ]);
+            const checklistTotal = checklist?.items?.length ?? 0;
+            const checklistDone = checklist?.items?.filter((item) => item.done).length ?? 0;
 
             return [
               requirement.id,
@@ -197,6 +207,8 @@ export default function MyRequirements() {
                 projectId: latestProject.id,
                 projectStatus: latestProject.status ?? null,
                 projectPreviousStatus: latestProject.previousStatus ?? null,
+                checklistTotal,
+                checklistDone,
                 requirementDocId: requirementDocs[0]?.id ?? null,
                 requirementDocStatus,
                 systemDocId: latestSystem?.id ?? null,
@@ -217,6 +229,8 @@ export default function MyRequirements() {
                 projectId: null,
                 projectStatus: null,
                 projectPreviousStatus: null,
+                checklistTotal: 0,
+                checklistDone: 0,
                 requirementDocId: null,
                 requirementDocStatus: null,
                 systemDocId: null,
@@ -266,6 +280,11 @@ export default function MyRequirements() {
     const index = projectStatusOrder.indexOf(effective as (typeof projectStatusOrder)[number]);
     if (index < 0) return 0;
     return Math.round(((index + 1) / projectStatusOrder.length) * 100);
+  };
+
+  const getChecklistProgress = (done: number, total: number) => {
+    if (!total) return 0;
+    return Math.round((done / total) * 100);
   };
 
   const handleQuickApproveRequirement = async (requirementId: string) => {
@@ -374,10 +393,10 @@ export default function MyRequirements() {
                   progress.quotationDocId &&
                   progress.quotationStatus === "submitted";
 
-                  const progressPercent = getProjectProgress(
-                    progress?.projectStatus ?? null,
-                    progress?.projectPreviousStatus ?? null
-                  );
+                  const hasChecklist = Boolean(progress?.checklistTotal);
+                  const progressPercent = hasChecklist
+                    ? getChecklistProgress(progress?.checklistDone ?? 0, progress?.checklistTotal ?? 0)
+                    : getProjectProgress(progress?.projectStatus ?? null, progress?.projectPreviousStatus ?? null);
 
                 return (
                 <div key={item.id} className="rounded-2xl border bg-white/90 p-4 space-y-3">
@@ -420,10 +439,15 @@ export default function MyRequirements() {
                         <div className="text-xs text-muted-foreground">
                           專案：{progress?.projectName ?? "尚未建立"}
                         </div>
-                        {progress?.projectStatus ? (
+                        {progress?.projectStatus || progress?.checklistTotal ? (
                           <div className="space-y-1">
                             <div className="flex items-center justify-between text-xs text-muted-foreground">
-                              <span>進度：{projectStatusLabels[progress.projectStatus] ?? progress.projectStatus}</span>
+                              <span>
+                                進度：
+                                {hasChecklist
+                                  ? `完成 ${progress?.checklistDone ?? 0}/${progress?.checklistTotal ?? 0}`
+                                  : projectStatusLabels[progress.projectStatus ?? ""] ?? progress?.projectStatus ?? "--"}
+                              </span>
                               <span>{progressPercent}%</span>
                             </div>
                             <div className="h-2 w-full rounded-full bg-slate-100">

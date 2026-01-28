@@ -1839,5 +1839,57 @@
       "itemId": "2f5e9b3c-69fc-46c5-8dfd-b07de42a96fc",
       "done": true
     }
+  },
+  {
+    "id": "a0b2e70f-7f97-45d4-97b7-6f303c5b5dd5",
+    "createdAt": "2026-01-28T15:19:23.333Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "itemId": "221e5848-ba0b-4f6a-bd4b-187fccb3885c",
+      "done": false
+    }
+  },
+  {
+    "id": "be7f2f05-ea8c-4949-a2ae-e75874264bf7",
+    "createdAt": "2026-01-28T15:19:32.538Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "itemId": "0cf2ddac-c198-43ba-895b-62e350936b30",
+      "done": true
+    }
+  },
+  {
+    "id": "55d6b5de-ecd3-43c0-927a-8ecb39917611",
+    "createdAt": "2026-01-28T15:19:34.530Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "itemId": "fec89e77-7ef0-49c8-9f80-2090cb630009",
+      "done": true
+    }
+  },
+  {
+    "id": "0e414528-ea9d-432f-81db-4fe323ae3098",
+    "createdAt": "2026-01-28T15:19:35.268Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "itemId": "b5ca59ff-d49a-4e41-9a78-e68dd5d2156e",
+      "done": true
+    }
   }
 ]

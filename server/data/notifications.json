@@ -1736,5 +1736,49 @@
     "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=collaboration",
     "createdAt": "2026-01-28T15:12:55.662Z",
     "readAt": null
+  },
+  {
+    "id": "36e2dfe0-0ed1-4781-bd56-a5f58fa1c918",
+    "recipientId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "collaboration.checklist.updated",
+    "title": "開發清單已更新",
+    "message": "項目「4.1 Web Frontend」已標記為未完成。",
+    "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=collaboration",
+    "createdAt": "2026-01-28T15:19:23.346Z",
+    "readAt": null
+  },
+  {
+    "id": "ebf367e3-d64e-497b-bdf6-27aba77e66f2",
+    "recipientId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "collaboration.checklist.updated",
+    "title": "開發清單已更新",
+    "message": "項目「6.4 專案與文件 API」已完成。",
+    "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=collaboration",
+    "createdAt": "2026-01-28T15:19:32.546Z",
+    "readAt": null
+  },
+  {
+    "id": "3b3ceb8b-d40d-47a7-88e1-a447ddf9da3c",
+    "recipientId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "collaboration.checklist.updated",
+    "title": "開發清單已更新",
+    "message": "項目「6.5 品質與測試 API」已完成。",
+    "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=collaboration",
+    "createdAt": "2026-01-28T15:19:34.535Z",
+    "readAt": null
+  },
+  {
+    "id": "aa8a8d8f-8ea3-4c69-88bb-ec6bd7daee03",
+    "recipientId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "collaboration.checklist.updated",
+    "title": "開發清單已更新",
+    "message": "項目「6.6 管理與稽核 API」已完成。",
+    "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=collaboration",
+    "createdAt": "2026-01-28T15:19:35.280Z",
+    "readAt": null
   }
 ]

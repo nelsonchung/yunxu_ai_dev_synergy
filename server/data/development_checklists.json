@@ -12,8 +12,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "4. 系統分層與模組責任",
         "h3": "4.1 Web Frontend",
-        "done": true,
-        "updatedAt": "2026-01-28T15:12:52.834Z"
+        "done": false,
+        "updatedAt": "2026-01-28T15:19:23.306Z"
       },
       {
         "id": "30254d01-627c-4b39-ae74-0026c7993108",
@@ -122,8 +122,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "6. API 設計（詳細）",
         "h3": "6.4 專案與文件 API",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-28T15:19:32.534Z"
       },
       {
         "id": "fec89e77-7ef0-49c8-9f80-2090cb630009",
@@ -132,8 +132,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "6. API 設計（詳細）",
         "h3": "6.5 品質與測試 API",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-28T15:19:34.527Z"
       },
       {
         "id": "b5ca59ff-d49a-4e41-9a78-e68dd5d2156e",
@@ -142,8 +142,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "6. API 設計（詳細）",
         "h3": "6.6 管理與稽核 API",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-28T15:19:35.259Z"
       },
       {
         "id": "d7bbce03-278a-44c2-8680-88aac93a8f3c",
@@ -497,7 +497,7 @@
       }
     ],
     "createdAt": "2026-01-28T14:48:57.009Z",
-    "updatedAt": "2026-01-28T15:12:55.634Z",
+    "updatedAt": "2026-01-28T15:19:35.259Z",
     "createdBy": "e38600d9-8f72-42d4-94b1-51928890e9b1",
     "updatedBy": "eb107b1e-1b0a-482d-b1b8-303fdd692528"
   }
