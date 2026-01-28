@@ -13,14 +13,17 @@ import { getMyPermissions } from "@/lib/permissionsClient";
 import {
   createMilestone,
   createTask,
+  getProjectChecklist,
   listMilestones,
   listProjectDocuments,
   listProjects,
   listQualityReports,
   listTasks,
+  updateProjectChecklistItem,
   updateMilestone,
   updateProjectStatus,
   updateTask,
+  type DevelopmentChecklist,
   type Milestone,
   type ProjectDocumentSummary,
   type ProjectStatus,
@@ -116,6 +119,8 @@ export default function ProjectWorkspace() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [qualityReports, setQualityReports] = useState<QualityReport[]>([]);
+  const [checklist, setChecklist] = useState<DevelopmentChecklist | null>(null);
+  const [checklistStatus, setChecklistStatus] = useState("");
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
@@ -165,6 +170,14 @@ export default function ProjectWorkspace() {
       setTasks(taskData);
       setMilestones(milestoneData);
       setQualityReports(reportData);
+      try {
+        const checklistData = await getProjectChecklist(projectId);
+        setChecklist(checklistData);
+        setChecklistStatus("");
+      } catch (err) {
+        setChecklist(null);
+        setChecklistStatus(err instanceof Error ? err.message : "無法載入開發清單。");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "無法載入專案內容。");
     } finally {
@@ -278,6 +291,16 @@ export default function ProjectWorkspace() {
     }
   };
 
+  const handleToggleChecklistItem = async (itemId: string, done: boolean) => {
+    if (!selectedProjectId || !canManageTasks) return;
+    try {
+      const updated = await updateProjectChecklistItem(selectedProjectId, { itemId, done });
+      setChecklist(updated);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "更新開發清單失敗。");
+    }
+  };
+
   const handleCreateMilestone = async () => {
     if (!canManageMilestones) {
       setError("目前角色無法管理里程碑，請洽管理者調整權限。");
@@ -321,6 +344,12 @@ export default function ProjectWorkspace() {
       return acc;
     }, {});
   }, [tasks]);
+
+  const checklistStats = useMemo(() => {
+    if (!checklist?.items?.length) return { total: 0, done: 0 };
+    const done = checklist.items.filter((item) => item.done).length;
+    return { total: checklist.items.length, done };
+  }, [checklist]);
 
   const allowedStatusTransitions = selectedProject ? getAllowedStatusTransitions(selectedProject) : [];
 
@@ -522,143 +551,191 @@ export default function ProjectWorkspace() {
                   ) : null}
 
                   {activeTab === "collaboration" ? (
-                    <div className="grid gap-4 lg:grid-cols-2">
+                    <div className="space-y-4">
                       <div className="rounded-2xl border bg-white/90 p-4 space-y-3">
-                        <p className="text-sm font-semibold">任務列表</p>
-                        <div className="grid gap-3 md:grid-cols-2">
-                          {taskColumns.map((column) => (
-                            <div key={column.key} className="rounded-xl border border-border/60 p-3">
-                              <p className="text-xs font-semibold text-muted-foreground">{column.label}</p>
-                              <div className="mt-2 space-y-2">
-                                {groupedTasks[column.key]?.length ? (
-                                  groupedTasks[column.key].map((task) => (
-                                    <div key={task.id} className="rounded-lg border bg-white/80 px-3 py-2 text-xs">
-                                      <p className="font-semibold text-foreground">{task.title}</p>
-                                      {canManageTasks ? (
-                                        <select
-                                          value={task.status}
-                                          onChange={(event) => handleUpdateTask(task, event.target.value)}
-                                          className="mt-2 w-full rounded-md border border-border bg-white px-2 py-1 text-xs"
-                                        >
-                                          {taskColumns.map((item) => (
-                                            <option key={item.key} value={item.key}>
-                                              {item.label}
-                                            </option>
-                                          ))}
-                                        </select>
-                                      ) : (
-                                        <p className="text-[11px] text-muted-foreground">{task.status}</p>
-                                      )}
-                                    </div>
-                                  ))
-                                ) : (
-                                  <p className="text-xs text-muted-foreground">暫無任務</p>
-                                )}
-                              </div>
-                            </div>
-                          ))}
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <p className="text-sm font-semibold">開發清單</p>
+                          <span className="text-xs text-muted-foreground">
+                            {checklistStats.total
+                              ? `完成 ${checklistStats.done}/${checklistStats.total}`
+                              : "尚未生成"}
+                          </span>
                         </div>
-                        {canManageTasks ? (
-                          <div className="rounded-xl border border-dashed p-3 space-y-2 text-xs">
-                            <p className="font-semibold">新增任務</p>
-                            <input
-                              type="text"
-                              value={newTaskTitle}
-                              onChange={(event) => setNewTaskTitle(event.target.value)}
-                              placeholder="任務標題"
-                              className="w-full rounded-md border border-border bg-white px-2 py-1 text-xs"
-                            />
-                            <select
-                              value={newTaskStatus}
-                              onChange={(event) => setNewTaskStatus(event.target.value)}
-                              className="w-full rounded-md border border-border bg-white px-2 py-1 text-xs"
-                            >
-                              {taskColumns.map((item) => (
-                                <option key={item.key} value={item.key}>
-                                  {item.label}
-                                </option>
-                              ))}
-                            </select>
-                            <button
-                              type="button"
-                              onClick={handleCreateTask}
-                              className="inline-flex items-center justify-center rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition"
-                            >
-                              建立任務
-                            </button>
+                        {checklistStatus ? (
+                          <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700">
+                            {checklistStatus}
                           </div>
                         ) : null}
+                        {!checklist || checklist.items.length === 0 ? (
+                          <div className="rounded-xl border border-dashed p-3 text-xs text-muted-foreground">
+                            尚未產生清單，需先完成報價簽核。
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            {checklist.items.map((item) => (
+                              <label
+                                key={item.id}
+                                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-secondary/10 px-3 py-2 text-xs"
+                              >
+                                <div>
+                                  <p className="text-muted-foreground">
+                                    {item.h1} / {item.h2 ?? "未分類"}
+                                  </p>
+                                  <p className={`font-medium ${item.done ? "line-through text-muted-foreground" : "text-foreground"}`}>
+                                    {item.h3}
+                                  </p>
+                                </div>
+                                <input
+                                  type="checkbox"
+                                  checked={item.done}
+                                  disabled={!canManageTasks}
+                                  onChange={(event) => handleToggleChecklistItem(item.id, event.target.checked)}
+                                  className="h-4 w-4 rounded border-border text-primary focus:ring-primary/40"
+                                />
+                              </label>
+                            ))}
+                          </div>
+                        )}
                       </div>
 
-                      <div className="rounded-2xl border bg-white/90 p-4 space-y-3">
-                        <p className="text-sm font-semibold">里程碑</p>
-                        <div className="space-y-2">
-                          {milestones.length === 0 ? (
-                            <p className="text-xs text-muted-foreground">尚無里程碑。</p>
-                          ) : (
-                            milestones.map((milestone) => (
-                              <div key={milestone.id} className="rounded-xl border bg-white/80 px-3 py-2 text-xs">
-                                <div className="flex items-center justify-between">
-                                  <span className="font-semibold text-foreground">{milestone.title}</span>
-                                  <span className="text-[11px] text-muted-foreground">
-                                    {milestone.dueDate ?? "--"}
-                                  </span>
+                      <div className="grid gap-4 lg:grid-cols-2">
+                        <div className="rounded-2xl border bg-white/90 p-4 space-y-3">
+                          <p className="text-sm font-semibold">任務列表</p>
+                          <div className="grid gap-3 md:grid-cols-2">
+                            {taskColumns.map((column) => (
+                              <div key={column.key} className="rounded-xl border border-border/60 p-3">
+                                <p className="text-xs font-semibold text-muted-foreground">{column.label}</p>
+                                <div className="mt-2 space-y-2">
+                                  {groupedTasks[column.key]?.length ? (
+                                    groupedTasks[column.key].map((task) => (
+                                      <div key={task.id} className="rounded-lg border bg-white/80 px-3 py-2 text-xs">
+                                        <p className="font-semibold text-foreground">{task.title}</p>
+                                        {canManageTasks ? (
+                                          <select
+                                            value={task.status}
+                                            onChange={(event) => handleUpdateTask(task, event.target.value)}
+                                            className="mt-2 w-full rounded-md border border-border bg-white px-2 py-1 text-xs"
+                                          >
+                                            {taskColumns.map((item) => (
+                                              <option key={item.key} value={item.key}>
+                                                {item.label}
+                                              </option>
+                                            ))}
+                                          </select>
+                                        ) : (
+                                          <p className="text-[11px] text-muted-foreground">{task.status}</p>
+                                        )}
+                                      </div>
+                                    ))
+                                  ) : (
+                                    <p className="text-xs text-muted-foreground">暫無任務</p>
+                                  )}
                                 </div>
-                                {canManageMilestones ? (
-                                  <select
-                                    value={milestone.status}
-                                    onChange={(event) => handleUpdateMilestone(milestone, event.target.value)}
-                                    className="mt-2 w-full rounded-md border border-border bg-white px-2 py-1 text-xs"
-                                  >
-                                    {milestoneStatuses.map((item) => (
-                                      <option key={item.value} value={item.value}>
-                                        {item.label}
-                                      </option>
-                                    ))}
-                                  </select>
-                                ) : (
-                                  <p className="text-[11px] text-muted-foreground">{milestone.status}</p>
-                                )}
                               </div>
-                            ))
-                          )}
-                        </div>
-                        {canManageMilestones ? (
-                          <div className="rounded-xl border border-dashed p-3 space-y-2 text-xs">
-                            <p className="font-semibold">新增里程碑</p>
-                            <input
-                              type="text"
-                              value={newMilestoneTitle}
-                              onChange={(event) => setNewMilestoneTitle(event.target.value)}
-                              placeholder="里程碑標題"
-                              className="w-full rounded-md border border-border bg-white px-2 py-1 text-xs"
-                            />
-                            <input
-                              type="date"
-                              value={newMilestoneDue}
-                              onChange={(event) => setNewMilestoneDue(event.target.value)}
-                              className="w-full rounded-md border border-border bg-white px-2 py-1 text-xs"
-                            />
-                            <select
-                              value={newMilestoneStatus}
-                              onChange={(event) => setNewMilestoneStatus(event.target.value)}
-                              className="w-full rounded-md border border-border bg-white px-2 py-1 text-xs"
-                            >
-                              {milestoneStatuses.map((item) => (
-                                <option key={item.value} value={item.value}>
-                                  {item.label}
-                                </option>
-                              ))}
-                            </select>
-                            <button
-                              type="button"
-                              onClick={handleCreateMilestone}
-                              className="inline-flex items-center justify-center rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition"
-                            >
-                              建立里程碑
-                            </button>
+                            ))}
                           </div>
-                        ) : null}
+                          {canManageTasks ? (
+                            <div className="rounded-xl border border-dashed p-3 space-y-2 text-xs">
+                              <p className="font-semibold">新增任務</p>
+                              <input
+                                type="text"
+                                value={newTaskTitle}
+                                onChange={(event) => setNewTaskTitle(event.target.value)}
+                                placeholder="任務標題"
+                                className="w-full rounded-md border border-border bg-white px-2 py-1 text-xs"
+                              />
+                              <select
+                                value={newTaskStatus}
+                                onChange={(event) => setNewTaskStatus(event.target.value)}
+                                className="w-full rounded-md border border-border bg-white px-2 py-1 text-xs"
+                              >
+                                {taskColumns.map((item) => (
+                                  <option key={item.key} value={item.key}>
+                                    {item.label}
+                                  </option>
+                                ))}
+                              </select>
+                              <button
+                                type="button"
+                                onClick={handleCreateTask}
+                                className="inline-flex items-center justify-center rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition"
+                              >
+                                建立任務
+                              </button>
+                            </div>
+                          ) : null}
+                        </div>
+
+                        <div className="rounded-2xl border bg-white/90 p-4 space-y-3">
+                          <p className="text-sm font-semibold">里程碑</p>
+                          <div className="space-y-2">
+                            {milestones.length === 0 ? (
+                              <p className="text-xs text-muted-foreground">尚無里程碑。</p>
+                            ) : (
+                              milestones.map((milestone) => (
+                                <div key={milestone.id} className="rounded-xl border bg-white/80 px-3 py-2 text-xs">
+                                  <div className="flex items-center justify-between">
+                                    <span className="font-semibold text-foreground">{milestone.title}</span>
+                                    <span className="text-[11px] text-muted-foreground">
+                                      {milestone.dueDate ?? "--"}
+                                    </span>
+                                  </div>
+                                  {canManageMilestones ? (
+                                    <select
+                                      value={milestone.status}
+                                      onChange={(event) => handleUpdateMilestone(milestone, event.target.value)}
+                                      className="mt-2 w-full rounded-md border border-border bg-white px-2 py-1 text-xs"
+                                    >
+                                      {milestoneStatuses.map((item) => (
+                                        <option key={item.value} value={item.value}>
+                                          {item.label}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  ) : (
+                                    <p className="text-[11px] text-muted-foreground">{milestone.status}</p>
+                                  )}
+                                </div>
+                              ))
+                            )}
+                          </div>
+                          {canManageMilestones ? (
+                            <div className="rounded-xl border border-dashed p-3 space-y-2 text-xs">
+                              <p className="font-semibold">新增里程碑</p>
+                              <input
+                                type="text"
+                                value={newMilestoneTitle}
+                                onChange={(event) => setNewMilestoneTitle(event.target.value)}
+                                placeholder="里程碑標題"
+                                className="w-full rounded-md border border-border bg-white px-2 py-1 text-xs"
+                              />
+                              <input
+                                type="date"
+                                value={newMilestoneDue}
+                                onChange={(event) => setNewMilestoneDue(event.target.value)}
+                                className="w-full rounded-md border border-border bg-white px-2 py-1 text-xs"
+                              />
+                              <select
+                                value={newMilestoneStatus}
+                                onChange={(event) => setNewMilestoneStatus(event.target.value)}
+                                className="w-full rounded-md border border-border bg-white px-2 py-1 text-xs"
+                              >
+                                {milestoneStatuses.map((item) => (
+                                  <option key={item.value} value={item.value}>
+                                    {item.label}
+                                  </option>
+                                ))}
+                              </select>
+                              <button
+                                type="button"
+                                onClick={handleCreateMilestone}
+                                className="inline-flex items-center justify-center rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition"
+                              >
+                                建立里程碑
+                              </button>
+                            </div>
+                          ) : null}
+                        </div>
                       </div>
                     </div>
                   ) : null}

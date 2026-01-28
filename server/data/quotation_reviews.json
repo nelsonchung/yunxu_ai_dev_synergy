@@ -807,8 +807,14 @@
     ],
     "total": 30000,
     "createdAt": "2026-01-27T14:13:35.747Z",
-    "updatedAt": "2026-01-27T14:13:35.747Z",
+    "updatedAt": "2026-01-28T13:09:30.930Z",
     "createdBy": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
-    "updatedBy": "eb107b1e-1b0a-482d-b1b8-303fdd692528"
+    "updatedBy": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "status": "submitted",
+    "submittedAt": "2026-01-28T13:09:30.930Z",
+    "submittedBy": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "reviewComment": null,
+    "reviewedAt": null,
+    "reviewedBy": null
   }
 ]

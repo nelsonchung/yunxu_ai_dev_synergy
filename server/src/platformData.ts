@@ -20,6 +20,8 @@ import {
   type AIJob,
   type QuotationReview,
   type QuotationReviewItem,
+  type DevelopmentChecklist,
+  type DevelopmentChecklistItem,
 } from "./platformStore.js";
 import { resolveDataPath } from "./jsonStore.js";
 
@@ -454,6 +456,7 @@ const transitionGuards: Partial<Record<`${ProjectStatus}->${ProjectStatus}`, str
   "intake->requirements_signed": "需求文件需為核准狀態",
   "architecture_review->system_architecture_signed": "系統架構文件需為核准狀態",
   "software_design_review->software_design_signed": "軟體設計文件需為核准狀態",
+  "software_design_signed->implementation": "報價需完成簽核",
   "system_verification->system_verification_signed": "測試文件需為核准狀態",
   "system_verification_signed->delivery_review": "交付文件需已建立",
   "delivery_review->closed": "交付文件需為核准狀態",
@@ -506,6 +509,20 @@ const checkTransitionGuard = async (project: Project, nextStatus: ProjectStatus)
   if (key === "software_design_review->software_design_signed") {
     const latest = getLatestProjectDocumentByType(project.id, "software", projectDocs);
     return latest?.status === "approved"
+      ? { ok: true as const }
+      : { ok: false as const, reason: transitionGuards[key] };
+  }
+
+  if (key === "software_design_signed->implementation") {
+    const latest = getLatestProjectDocumentByType(project.id, "software", projectDocs);
+    if (!latest) {
+      return { ok: false as const, reason: transitionGuards[key] };
+    }
+    const reviews = await platformStores.quotationReviews.read();
+    const review =
+      reviews.find((item) => item.projectId === project.id && item.documentId === latest.id) ?? null;
+    const normalized = review ? normalizeQuotationReview(review) : null;
+    return normalized?.status === "approved"
       ? { ok: true as const }
       : { ok: false as const, reason: transitionGuards[key] };
   }
@@ -653,6 +670,10 @@ export const deleteProjectDocument = async (projectId: string, docId: string) =>
   await platformStores.quotationReviews.write(
     quotationReviews.filter((review) => review.documentId !== docId)
   );
+  const checklists = await platformStores.developmentChecklists.read();
+  await platformStores.developmentChecklists.write(
+    checklists.filter((checklist) => checklist.documentId !== docId)
+  );
   return true;
 };
 
@@ -715,6 +736,10 @@ export const deleteProject = async (projectId: string) => {
   const quotationReviews = await platformStores.quotationReviews.read();
   await platformStores.quotationReviews.write(
     quotationReviews.filter((review) => review.projectId !== projectId)
+  );
+  const checklists = await platformStores.developmentChecklists.read();
+  await platformStores.developmentChecklists.write(
+    checklists.filter((checklist) => checklist.projectId !== projectId)
   );
 
   const tasks = await platformStores.tasks.read();
@@ -820,6 +845,9 @@ const normalizeQuotationReview = (review: QuotationReview): QuotationReview => (
   status: review.status ?? "draft",
   submittedAt: review.submittedAt ?? null,
   submittedBy: review.submittedBy ?? null,
+  reviewComment: review.reviewComment ?? null,
+  reviewedAt: review.reviewedAt ?? null,
+  reviewedBy: review.reviewedBy ?? null,
 });
 
 export const getQuotationReview = async (projectId: string, documentId: string) => {
@@ -854,6 +882,9 @@ export const upsertQuotationReview = async (payload: {
       documentVersion: payload.documentVersion,
       currency,
       status: "draft",
+      reviewComment: null,
+      reviewedAt: null,
+      reviewedBy: null,
       items,
       total,
       submittedAt: null,
@@ -875,6 +906,12 @@ export const upsertQuotationReview = async (payload: {
     currency,
     items,
     total,
+    status: "draft",
+    submittedAt: null,
+    submittedBy: null,
+    reviewComment: null,
+    reviewedAt: null,
+    reviewedBy: null,
     updatedAt: now,
     updatedBy: payload.actorId,
   };
@@ -900,11 +937,166 @@ export const submitQuotationReview = async (payload: {
     status: "submitted",
     submittedAt: now,
     submittedBy: payload.actorId,
+    reviewComment: null,
+    reviewedAt: null,
+    reviewedBy: null,
     updatedAt: now,
     updatedBy: payload.actorId,
   };
   reviews[index] = updated;
   await platformStores.quotationReviews.write(reviews);
+  return updated;
+};
+
+export const reviewQuotationReview = async (payload: {
+  projectId: string;
+  documentId: string;
+  approved: boolean;
+  comment?: string | null;
+  actorId: string | null;
+}) => {
+  const reviews = await platformStores.quotationReviews.read();
+  const index = reviews.findIndex(
+    (review) => review.projectId === payload.projectId && review.documentId === payload.documentId
+  );
+  if (index === -1) return null;
+  const now = new Date().toISOString();
+  const existing = normalizeQuotationReview(reviews[index]);
+  const updated: QuotationReview = {
+    ...existing,
+    status: payload.approved ? "approved" : "changes_requested",
+    reviewComment: payload.comment ?? null,
+    reviewedAt: now,
+    reviewedBy: payload.actorId,
+    updatedAt: now,
+    updatedBy: payload.actorId,
+  };
+  reviews[index] = updated;
+  await platformStores.quotationReviews.write(reviews);
+  return updated;
+};
+
+const buildUniqueKey = (base: string, counter: Map<string, number>) => {
+  const current = counter.get(base) ?? 0;
+  counter.set(base, current + 1);
+  return current === 0 ? base : `${base}::${current + 1}`;
+};
+
+const parseDevelopmentChecklist = (markdown: string): DevelopmentChecklistItem[] => {
+  const lines = markdown.split(/\r?\n/);
+  let currentH1 = "未分類";
+  let currentH2: string | null = null;
+  const items: DevelopmentChecklistItem[] = [];
+  const counter = new Map<string, number>();
+
+  lines.forEach((line) => {
+    const trimmed = line.trim();
+    if (!trimmed) return;
+
+    const h1Match = trimmed.match(/^#\s+(.+)/);
+    if (h1Match) {
+      currentH1 = h1Match[1].trim() || "未分類";
+      currentH2 = null;
+      return;
+    }
+
+    const h2Match = trimmed.match(/^##\s+(.+)/);
+    if (h2Match) {
+      currentH2 = h2Match[1].trim() || "未分類";
+      return;
+    }
+
+    const h3Match = trimmed.match(/^###\s+(.+)/);
+    if (h3Match) {
+      const h3 = h3Match[1].trim();
+      if (!h3) return;
+      const path = `${currentH1} / ${currentH2 ?? "未分類"} / ${h3}`;
+      const key = buildUniqueKey(path, counter);
+      items.push({
+        id: randomUUID(),
+        key,
+        path,
+        h1: currentH1,
+        h2: currentH2,
+        h3,
+        done: false,
+        updatedAt: null,
+      });
+    }
+  });
+
+  return items;
+};
+
+export const getDevelopmentChecklist = async (projectId: string) => {
+  const checklists = await platformStores.developmentChecklists.read();
+  return checklists.find((checklist) => checklist.projectId === projectId) ?? null;
+};
+
+export const upsertDevelopmentChecklist = async (payload: {
+  projectId: string;
+  documentId: string;
+  documentVersion: number;
+  content: string;
+  actorId: string | null;
+}) => {
+  const checklists = await platformStores.developmentChecklists.read();
+  const index = checklists.findIndex((checklist) => checklist.projectId === payload.projectId);
+  const now = new Date().toISOString();
+
+  if (index !== -1) {
+    const existing = checklists[index];
+    if (
+      existing.documentId === payload.documentId &&
+      existing.documentVersion === payload.documentVersion
+    ) {
+      return existing;
+    }
+  }
+
+  const checklist: DevelopmentChecklist = {
+    id: randomUUID(),
+    projectId: payload.projectId,
+    documentId: payload.documentId,
+    documentVersion: payload.documentVersion,
+    items: parseDevelopmentChecklist(payload.content),
+    createdAt: now,
+    updatedAt: now,
+    createdBy: payload.actorId,
+    updatedBy: payload.actorId,
+  };
+
+  if (index === -1) {
+    checklists.push(checklist);
+  } else {
+    checklists[index] = checklist;
+  }
+  await platformStores.developmentChecklists.write(checklists);
+  return checklist;
+};
+
+export const updateDevelopmentChecklistItem = async (payload: {
+  projectId: string;
+  itemId: string;
+  done: boolean;
+  actorId: string | null;
+}) => {
+  const checklists = await platformStores.developmentChecklists.read();
+  const index = checklists.findIndex((checklist) => checklist.projectId === payload.projectId);
+  if (index === -1) return null;
+  const now = new Date().toISOString();
+  const checklist = checklists[index];
+  const items = checklist.items.map((item) =>
+    item.id === payload.itemId ? { ...item, done: payload.done, updatedAt: now } : item
+  );
+  const updated: DevelopmentChecklist = {
+    ...checklist,
+    items,
+    updatedAt: now,
+    updatedBy: payload.actorId,
+  };
+  checklists[index] = updated;
+  await platformStores.developmentChecklists.write(checklists);
   return updated;
 };
 

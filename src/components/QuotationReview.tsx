@@ -33,6 +33,12 @@ type OutlineSection = {
 };
 
 const formatPrice = (value: number) => new Intl.NumberFormat("zh-TW").format(value);
+const quotationStatusLabels: Record<string, string> = {
+  draft: "草稿",
+  submitted: "已提交",
+  approved: "已核准",
+  changes_requested: "需調整",
+};
 
 const buildUniqueKey = (base: string, counter: Map<string, number>) => {
   const current = counter.get(base) ?? 0;
@@ -369,7 +375,7 @@ export default function QuotationReview({
             已填寫 {totals.filledCount}/{totals.itemCount} 項
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            狀態：{quotation?.status === "submitted" ? "已提交" : "草稿"}
+            狀態：{quotation ? quotationStatusLabels[quotation.status] ?? quotation.status : "草稿"}
           </p>
         </div>
       </div>
@@ -391,6 +397,13 @@ export default function QuotationReview({
           {error || (isLoading ? "載入報價資料..." : status)}
         </div>
       )}
+
+      {quotation?.status === "changes_requested" && quotation.reviewComment ? (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+          <p className="font-semibold">客戶要求調整：</p>
+          <p className="mt-1 whitespace-pre-wrap">{quotation.reviewComment}</p>
+        </div>
+      ) : null}
 
       {outline.sections.length === 0 ? (
         <div className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">
@@ -576,7 +589,8 @@ export default function QuotationReview({
                   isLoading ||
                   isSubmitting ||
                   outline.items.length === 0 ||
-                  quotation?.status === "submitted"
+                  quotation?.status === "submitted" ||
+                  quotation?.status === "approved"
                 }
                 className="inline-flex items-center gap-2 rounded-full border border-emerald-200 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 transition disabled:cursor-not-allowed disabled:opacity-70"
               >

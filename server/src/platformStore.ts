@@ -159,11 +159,37 @@ export type QuotationReview = {
   documentId: string;
   documentVersion: number;
   currency: string;
-  status: "draft" | "submitted";
+  status: "draft" | "submitted" | "approved" | "changes_requested";
+  reviewComment: string | null;
+  reviewedAt: string | null;
+  reviewedBy: string | null;
   items: QuotationReviewItem[];
   total: number;
   submittedAt: string | null;
   submittedBy: string | null;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string | null;
+  updatedBy: string | null;
+};
+
+export type DevelopmentChecklistItem = {
+  id: string;
+  key: string;
+  path: string;
+  h1: string;
+  h2: string | null;
+  h3: string;
+  done: boolean;
+  updatedAt: string | null;
+};
+
+export type DevelopmentChecklist = {
+  id: string;
+  projectId: string;
+  documentId: string;
+  documentVersion: number;
+  items: DevelopmentChecklistItem[];
   createdAt: string;
   updatedAt: string;
   createdBy: string | null;
@@ -205,6 +231,9 @@ const AI_JOBS_FILE = resolveDataPath(process.env.DATA_AI_JOBS_FILE ?? "./data/ai
 const QUOTATION_REVIEWS_FILE = resolveDataPath(
   process.env.DATA_QUOTATION_REVIEWS_FILE ?? "./data/quotation_reviews.json"
 );
+const DEVELOPMENT_CHECKLISTS_FILE = resolveDataPath(
+  process.env.DATA_DEVELOPMENT_CHECKLISTS_FILE ?? "./data/development_checklists.json"
+);
 
 export const platformStores = {
   requirements: createJsonStore<Requirement[]>(REQUIREMENTS_FILE, []),
@@ -218,6 +247,7 @@ export const platformStores = {
   projectDocuments: createJsonStore<ProjectDocument[]>(PROJECT_DOCUMENTS_FILE, []),
   aiJobs: createJsonStore<AIJob[]>(AI_JOBS_FILE, []),
   quotationReviews: createJsonStore<QuotationReview[]>(QUOTATION_REVIEWS_FILE, []),
+  developmentChecklists: createJsonStore<DevelopmentChecklist[]>(DEVELOPMENT_CHECKLISTS_FILE, []),
 };
 
 export const initPlatformStore = async () => {

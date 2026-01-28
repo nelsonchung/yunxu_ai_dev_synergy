@@ -149,8 +149,8 @@ export default function MyRequirements() {
                 requirementDocStatus,
                 systemDocStatus: latestSystem?.status ?? null,
                 softwareDocStatus: latestSoftware?.status ?? null,
-                quotationTotal: quotation?.status === "submitted" ? quotation.total : null,
-                quotationCurrency: quotation?.status === "submitted" ? quotation.currency : null,
+                quotationTotal: quotation && quotation.status !== "draft" ? quotation.total : null,
+                quotationCurrency: quotation && quotation.status !== "draft" ? quotation.currency : null,
                 quotationStatus: quotation?.status ?? null,
                 projectName: latestProject.name ?? null,
               } satisfies RequirementProgress,
@@ -307,9 +307,9 @@ export default function MyRequirements() {
                           <div className="flex items-center justify-between rounded-lg border bg-white px-2 py-1 text-xs">
                             <span className="text-muted-foreground">報價</span>
                             <span className="font-semibold text-foreground">
-                              {progressMap[item.id]?.quotationStatus !== "submitted"
-                                ? "評估中"
-                                : `NT$ ${formatPrice(progressMap[item.id]?.quotationTotal ?? 0)}`}
+                              {progressMap[item.id]?.quotationStatus && progressMap[item.id]?.quotationStatus !== "draft"
+                                ? `NT$ ${formatPrice(progressMap[item.id]?.quotationTotal ?? 0)}`
+                                : "評估中"}
                             </span>
                           </div>
                         </div>

@@ -114,11 +114,37 @@ export type QuotationReview = {
   documentId: string;
   documentVersion: number;
   currency: string;
-  status: "draft" | "submitted";
+  status: "draft" | "submitted" | "approved" | "changes_requested";
+  reviewComment: string | null;
+  reviewedAt: string | null;
+  reviewedBy: string | null;
   items: QuotationReviewItem[];
   total: number;
   submittedAt: string | null;
   submittedBy: string | null;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string | null;
+  updatedBy: string | null;
+};
+
+export type DevelopmentChecklistItem = {
+  id: string;
+  key: string;
+  path: string;
+  h1: string;
+  h2: string | null;
+  h3: string;
+  done: boolean;
+  updatedAt: string | null;
+};
+
+export type DevelopmentChecklist = {
+  id: string;
+  projectId: string;
+  documentId: string;
+  documentVersion: number;
+  items: DevelopmentChecklistItem[];
   createdAt: string;
   updatedAt: string;
   createdBy: string | null;
@@ -397,6 +423,43 @@ export const submitProjectDocumentQuotation = async (projectId: string, docId: s
     { method: "POST" }
   );
   return data.quotation;
+};
+
+export const reviewProjectDocumentQuotation = async (
+  projectId: string,
+  docId: string,
+  payload: { approved: boolean; comment?: string }
+) => {
+  const data = await apiRequest<{ quotation: QuotationReview }>(
+    `/api/projects/${projectId}/documents/${docId}/quotation/review`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }
+  );
+  return data.quotation;
+};
+
+export const getProjectChecklist = async (projectId: string) => {
+  const data = await apiRequest<{ checklist: DevelopmentChecklist | null }>(
+    `/api/projects/${projectId}/checklist`,
+    { method: "GET" }
+  );
+  return data.checklist;
+};
+
+export const updateProjectChecklistItem = async (
+  projectId: string,
+  payload: { itemId: string; done: boolean }
+) => {
+  const data = await apiRequest<{ checklist: DevelopmentChecklist }>(
+    `/api/projects/${projectId}/checklist`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ item_id: payload.itemId, done: payload.done }),
+    }
+  );
+  return data.checklist;
 };
 
 export const listMatchingResults = async (requirementId?: string) => {

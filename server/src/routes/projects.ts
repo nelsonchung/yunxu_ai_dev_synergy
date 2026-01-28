@@ -4,6 +4,7 @@ import {
   createProjectDocument,
   deleteProject,
   deleteProjectDocument,
+  getDevelopmentChecklist,
   getProjectById,
   getProjectDocument,
   getQuotationReview,
@@ -11,7 +12,10 @@ import {
   listProjectDocuments,
   listProjects,
   reviewProjectDocument,
+  reviewQuotationReview,
   submitQuotationReview,
+  updateDevelopmentChecklistItem,
+  upsertDevelopmentChecklist,
   upsertQuotationReview,
   updateProjectStatus,
 } from "../platformData.js";
@@ -215,7 +219,7 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
     async (request) => {
       const { id, docId } = request.params as { id: string; docId: string };
       const review = await getQuotationReview(id, docId);
-      if (request.user.role === "customer" && review?.status !== "submitted") {
+      if (request.user.role === "customer" && review?.status === "draft") {
         return { quotation: null };
       }
       return { quotation: review };
@@ -325,6 +329,118 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
       }
 
       return { quotation: updated };
+    }
+  );
+
+  app.post(
+    "/projects/:id/documents/:docId/quotation/review",
+    { preHandler: app.requirePermission("projects.documents.review") },
+    async (request, reply) => {
+      const { id, docId } = request.params as { id: string; docId: string };
+      const body = (request.body as { approved?: boolean; comment?: string }) ?? {};
+      if (request.user.role !== "customer" && request.user.role !== "admin") {
+        return reply.code(403).send({ message: "僅客戶或管理者可審核報價。" });
+      }
+      if (typeof body.approved !== "boolean") {
+        return reply.code(400).send({ message: "請提供 approved。" });
+      }
+
+      const project = await getProjectById(id);
+      if (!project) {
+        return reply.code(404).send({ message: "找不到專案。" });
+      }
+      const requirement = await getRequirementById(project.requirementId);
+      if (!requirement) {
+        return reply.code(404).send({ message: "找不到需求。" });
+      }
+      if (request.user.role === "customer" && requirement.ownerId !== request.user.sub) {
+        return reply.code(403).send({ message: "僅需求提出者可審核報價。" });
+      }
+      if (!body.approved && !String(body.comment ?? "").trim()) {
+        return reply.code(400).send({ message: "請提供修改建議。" });
+      }
+
+      const review = await getQuotationReview(id, docId);
+      if (!review || review.status !== "submitted") {
+        return reply.code(400).send({ message: "報價尚未提交。" });
+      }
+
+      const docResult = await getProjectDocument(id, docId);
+      if (!docResult) {
+        return reply.code(404).send({ message: "找不到文件。" });
+      }
+      if (docResult.document.type !== "software") {
+        return reply.code(400).send({ message: "僅軟體設計文件可審核報價。" });
+      }
+
+      const updated = await reviewQuotationReview({
+        projectId: id,
+        documentId: docId,
+        approved: body.approved,
+        comment: body.comment ? String(body.comment).trim() : null,
+        actorId: request.user?.sub ?? null,
+      });
+      if (!updated) {
+        return reply.code(404).send({ message: "找不到報價。" });
+      }
+
+      if (body.approved) {
+        await upsertDevelopmentChecklist({
+          projectId: id,
+          documentId: docId,
+          documentVersion: docResult.document.version,
+          content: docResult.content,
+          actorId: request.user?.sub ?? null,
+        });
+      }
+
+      if (request.user?.sub) {
+        await addAuditLog({
+          actorId: request.user.sub,
+          targetUserId: null,
+          action: "PROJECT_DOCUMENT_QUOTATION_REVIEWED",
+          before: null,
+          after: {
+            projectId: id,
+            documentId: docId,
+            status: updated.status,
+          },
+        });
+      }
+
+      return { quotation: updated };
+    }
+  );
+
+  app.get(
+    "/projects/:id/checklist",
+    { preHandler: app.requirePermission("projects.documents.review") },
+    async (request) => {
+      const { id } = request.params as { id: string };
+      const checklist = await getDevelopmentChecklist(id);
+      return { checklist };
+    }
+  );
+
+  app.patch(
+    "/projects/:id/checklist",
+    { preHandler: app.requirePermission("projects.tasks.manage") },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const body = (request.body as { item_id?: string; done?: boolean }) ?? {};
+      if (!body.item_id || typeof body.done !== "boolean") {
+        return reply.code(400).send({ message: "請提供 item_id 與 done。" });
+      }
+      const updated = await updateDevelopmentChecklistItem({
+        projectId: id,
+        itemId: String(body.item_id),
+        done: body.done,
+        actorId: request.user?.sub ?? null,
+      });
+      if (!updated) {
+        return reply.code(404).send({ message: "找不到 checklist。" });
+      }
+      return { checklist: updated };
     }
   );
 

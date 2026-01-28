@@ -15,6 +15,7 @@ import { getMyPermissions } from "@/lib/permissionsClient";
 import {
   approveRequirement,
   commentRequirementDocument,
+  getProjectDocumentQuotation,
   listMilestones,
   listMyRequirements,
   listProjectDocuments,
@@ -22,11 +23,13 @@ import {
   listQualityReports,
   listRequirementDocuments,
   listTasks,
+  reviewProjectDocumentQuotation,
   reviewProjectDocument,
   type Milestone,
   type ProjectDocumentSummary,
   type ProjectSummary,
   type QualityReport,
+  type QuotationReview,
   type RequirementDocumentSummary,
   type RequirementSummary,
   type Task,
@@ -82,6 +85,15 @@ const docTypeLabels: Record<string, string> = {
   delivery: "交付",
 };
 
+const quotationStatusLabels: Record<string, string> = {
+  draft: "評估中",
+  submitted: "待你審核",
+  approved: "已核准",
+  changes_requested: "已要求調整",
+};
+
+const formatPrice = (value: number) => new Intl.NumberFormat("zh-TW").format(value);
+
 export default function RequirementDetailTabs() {
   const [match, params] = useRoute("/my/requirements/:id");
   const requirementId = match ? params?.id ?? "" : "";
@@ -91,6 +103,9 @@ export default function RequirementDetailTabs() {
   const [requirementDocs, setRequirementDocs] = useState<RequirementDocumentSummary[]>([]);
   const [project, setProject] = useState<ProjectSummary | null>(null);
   const [projectDocs, setProjectDocs] = useState<ProjectDocumentSummary[]>([]);
+  const [quotation, setQuotation] = useState<QuotationReview | null>(null);
+  const [quotationDoc, setQuotationDoc] = useState<ProjectDocumentSummary | null>(null);
+  const [quotationComment, setQuotationComment] = useState("");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [qualityReports, setQualityReports] = useState<QualityReport[]>([]);
@@ -100,6 +115,7 @@ export default function RequirementDetailTabs() {
   const [error, setError] = useState("");
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [isReviewingQuotation, setIsReviewingQuotation] = useState(false);
 
   const canReviewRequirementDocs = permissions.includes("requirements.documents.review");
   const canReviewProjectDocs = permissions.includes("projects.documents.review");
@@ -166,11 +182,28 @@ export default function RequirementDetailTabs() {
         setTasks(taskData);
         setMilestones(milestoneData);
         setQualityReports(qualityData);
+
+        const latestSoftware = projectDocsData
+          .filter((doc) => doc.type === "software")
+          .sort((a, b) => b.version - a.version)[0];
+        setQuotationDoc(latestSoftware ?? null);
+        if (latestSoftware) {
+          try {
+            const quote = await getProjectDocumentQuotation(matchedProject.id, latestSoftware.id);
+            setQuotation(quote);
+          } catch (err) {
+            setQuotation(null);
+          }
+        } else {
+          setQuotation(null);
+        }
       } else {
         setProjectDocs([]);
         setTasks([]);
         setMilestones([]);
         setQualityReports([]);
+        setQuotation(null);
+        setQuotationDoc(null);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "無法載入需求詳情。");
@@ -245,6 +278,32 @@ export default function RequirementDetailTabs() {
       setError(err instanceof Error ? err.message : "簽核失敗。");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleReviewQuotation = async (approved: boolean) => {
+    if (!project || !quotationDoc) return;
+    if (!canReviewProjectDocs) {
+      setError("目前角色無法審核報價。");
+      return;
+    }
+    if (!approved && !quotationComment.trim()) {
+      setError("請輸入修改建議。");
+      return;
+    }
+    try {
+      setIsReviewingQuotation(true);
+      await reviewProjectDocumentQuotation(project.id, quotationDoc.id, {
+        approved,
+        comment: quotationComment.trim() || undefined,
+      });
+      setStatus(approved ? "報價已簽核。" : "已送出修改建議。");
+      setQuotationComment("");
+      await loadData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "審核報價失敗。");
+    } finally {
+      setIsReviewingQuotation(false);
     }
   };
 
@@ -503,6 +562,91 @@ export default function RequirementDetailTabs() {
                 ) : (
                   <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
                     專案尚未建立，待媒合後將提供文件。
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold">報價審核</p>
+                  {quotationDoc ? (
+                    <span className="text-xs text-muted-foreground">
+                      來源：{quotationDoc.title} v{quotationDoc.version}
+                    </span>
+                  ) : null}
+                </div>
+                {!quotationDoc ? (
+                  <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
+                    尚無軟體設計文件，報價尚未建立。
+                  </div>
+                ) : quotation && quotation.status !== "draft" ? (
+                  <div className="rounded-2xl border bg-white/90 p-4 space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+                      <span className="font-semibold text-foreground">
+                        狀態：{quotationStatusLabels[quotation.status] ?? quotation.status}
+                      </span>
+                      <span className="text-muted-foreground">
+                        總計 NT$ {formatPrice(quotation.total)}
+                      </span>
+                    </div>
+                    {quotation.reviewComment ? (
+                      <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700">
+                        最新留言：{quotation.reviewComment}
+                      </div>
+                    ) : null}
+                    <div className="space-y-2">
+                      {quotation.items.map((item) => (
+                        <div
+                          key={item.key}
+                          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-secondary/10 px-3 py-2 text-xs"
+                        >
+                          <div>
+                            <p className="text-muted-foreground">
+                              {item.h1} / {item.h2 ?? "未分類"}
+                            </p>
+                            <p className="font-medium text-foreground">{item.h3}</p>
+                          </div>
+                          <div className="font-semibold text-foreground">
+                            {item.price === null ? "未填" : `NT$ ${formatPrice(item.price)}`}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {quotation.status === "submitted" ? (
+                      <>
+                        <textarea
+                          value={quotationComment}
+                          onChange={(event) => setQuotationComment(event.target.value)}
+                          placeholder="提出修改建議（若需調整）"
+                          rows={2}
+                          disabled={!canReviewProjectDocs}
+                          className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                        />
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleReviewQuotation(true)}
+                            disabled={!canReviewProjectDocs || isReviewingQuotation}
+                            className="inline-flex items-center justify-center rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition disabled:cursor-not-allowed disabled:opacity-70"
+                          >
+                            簽核同意
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleReviewQuotation(false)}
+                            disabled={!canReviewProjectDocs || isReviewingQuotation}
+                            className="inline-flex items-center justify-center rounded-full border border-amber-300 px-3 py-1 text-xs font-semibold text-amber-700 hover:bg-amber-50 transition disabled:cursor-not-allowed disabled:opacity-70"
+                          >
+                            提出修改
+                          </button>
+                        </div>
+                      </>
+                    ) : null}
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
+                    報價評估中，請等待開發者提交。
                   </div>
                 )}
               </div>
