@@ -1488,5 +1488,356 @@
       "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
       "total": 30000
     }
+  },
+  {
+    "id": "7f8045ed-85f0-4558-9635-303234665315",
+    "createdAt": "2026-01-28T14:48:57.021Z",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_REVIEWED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "0e0ae986-5da1-4fb5-8bce-49e725ea9d5d",
+    "createdAt": "2026-01-28T14:49:42.410Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+      "total": 30500
+    }
+  },
+  {
+    "id": "f16fb267-1c05-4a1a-af9b-e6c5ebbb90dd",
+    "createdAt": "2026-01-28T14:49:43.239Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+      "total": 30500
+    }
+  },
+  {
+    "id": "67810428-dce4-4752-a8de-48d7dbd6421a",
+    "createdAt": "2026-01-28T14:49:43.268Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_SUBMITTED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+      "total": 30500
+    }
+  },
+  {
+    "id": "891031e5-4847-45ee-8b3c-54aca4615849",
+    "createdAt": "2026-01-28T14:50:03.988Z",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_REVIEWED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "12759389-a2fe-4550-a251-6da0b5d3fc18",
+    "createdAt": "2026-01-28T14:50:32.632Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+      "total": 29500
+    }
+  },
+  {
+    "id": "6ead53af-15ca-4edc-a936-c046c2b946e5",
+    "createdAt": "2026-01-28T14:50:34.084Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+      "total": 29500
+    }
+  },
+  {
+    "id": "1ed4ed41-fcd2-47d9-aef0-9afe941cfe60",
+    "createdAt": "2026-01-28T14:50:34.113Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_SUBMITTED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+      "total": 29500
+    }
+  },
+  {
+    "id": "8dedccc2-0b20-4c09-a31a-4041deddf5ac",
+    "createdAt": "2026-01-28T14:51:16.862Z",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_REVIEWED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+      "status": "changes_requested"
+    }
+  },
+  {
+    "id": "15a4fe4b-5032-4a1b-a4dc-3e31075d1ea9",
+    "createdAt": "2026-01-28T14:51:33.900Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+      "total": 29000
+    }
+  },
+  {
+    "id": "c20b51e4-dd70-4fd2-b866-15e4cb7bf331",
+    "createdAt": "2026-01-28T14:51:33.912Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_SUBMITTED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+      "total": 29000
+    }
+  },
+  {
+    "id": "8d8870e4-8e1c-4c19-811a-ed90a3ab7cf8",
+    "createdAt": "2026-01-28T14:51:38.557Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+      "total": 29000
+    }
+  },
+  {
+    "id": "9b727b5f-7a3c-49a9-bc84-b11616b7bfed",
+    "createdAt": "2026-01-28T14:51:40.345Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+      "total": 29000
+    }
+  },
+  {
+    "id": "66431791-0775-4e75-886b-9f4b923b3aca",
+    "createdAt": "2026-01-28T14:51:40.403Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_SUBMITTED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+      "total": 29000
+    }
+  },
+  {
+    "id": "c10b4ba1-fa68-44c0-a20a-da6faeb3dc0c",
+    "createdAt": "2026-01-28T14:51:42.296Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+      "total": 29000
+    }
+  },
+  {
+    "id": "f3e7514e-acd1-490e-a88f-931d2195ea19",
+    "createdAt": "2026-01-28T14:51:43.755Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+      "total": 29000
+    }
+  },
+  {
+    "id": "1f20f96c-6192-4232-9318-483eb3e18193",
+    "createdAt": "2026-01-28T14:51:43.779Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_SUBMITTED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+      "total": 29000
+    }
+  },
+  {
+    "id": "e3a466da-523f-4055-b26b-edb97cee904f",
+    "createdAt": "2026-01-28T14:51:58.352Z",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_REVIEWED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "e5393ac4-336e-48f6-ac64-d9e8d9334a17",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "85912fd5-b27b-472a-a82f-e699881cf83d",
+    "createdAt": "2026-01-28T15:12:11.463Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "itemId": "b0c19dec-cad3-4537-80c1-7a68c4dbca69",
+      "done": true
+    }
+  },
+  {
+    "id": "fcbeb2f4-bd50-461c-8975-ef4f38e4774c",
+    "createdAt": "2026-01-28T15:12:20.936Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "itemId": "3d14637f-4b36-4e59-b12d-aa87038d62f4",
+      "done": true
+    }
+  },
+  {
+    "id": "684bd0fe-f008-4c47-b9e3-c8d4d9637cda",
+    "createdAt": "2026-01-28T15:12:23.120Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "itemId": "e0c76dda-5c79-49b0-9330-9f32083eecf0",
+      "done": true
+    }
+  },
+  {
+    "id": "61e43c2a-8bf8-464d-a3ae-e2f1cc7a02b3",
+    "createdAt": "2026-01-28T15:12:40.626Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "itemId": "d01e7216-160b-4660-8617-66b9cb34a0dc",
+      "done": true
+    }
+  },
+  {
+    "id": "d64986f9-52f0-4498-8a6c-eb93bc59ce9b",
+    "createdAt": "2026-01-28T15:12:42.157Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "itemId": "cd095ed5-25d7-4a7f-8b18-0788430839a5",
+      "done": true
+    }
+  },
+  {
+    "id": "b7fe420c-c3e5-4c06-af17-59bbb26aa06c",
+    "createdAt": "2026-01-28T15:12:44.097Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "itemId": "c6aa497e-de3d-4f8d-8030-23863913dd7e",
+      "done": true
+    }
+  },
+  {
+    "id": "3170ff34-6fa8-4ddf-b6f8-4b6a413a98fa",
+    "createdAt": "2026-01-28T15:12:52.839Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "itemId": "221e5848-ba0b-4f6a-bd4b-187fccb3885c",
+      "done": true
+    }
+  },
+  {
+    "id": "26ce37fb-c39d-45ff-b782-cf2235450b8c",
+    "createdAt": "2026-01-28T15:12:54.613Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "itemId": "5c4e12eb-ceca-431d-bd7d-20a9ce96668a",
+      "done": true
+    }
+  },
+  {
+    "id": "53e21eca-a610-464b-bfec-28338ad200f2",
+    "createdAt": "2026-01-28T15:12:55.643Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "itemId": "2f5e9b3c-69fc-46c5-8dfd-b07de42a96fc",
+      "done": true
+    }
   }
 ]

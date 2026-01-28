@@ -50,8 +50,40 @@ const docStatusTone: Record<string, string> = {
 
 const formatPrice = (value: number) => new Intl.NumberFormat("zh-TW").format(value);
 
+const projectStatusOrder = [
+  "intake",
+  "requirements_signed",
+  "architecture_review",
+  "system_architecture_signed",
+  "software_design_review",
+  "software_design_signed",
+  "implementation",
+  "system_verification",
+  "system_verification_signed",
+  "delivery_review",
+  "closed",
+] as const;
+
+const projectStatusLabels: Record<string, string> = {
+  intake: "需求受理",
+  requirements_signed: "需求簽核",
+  architecture_review: "架構審查",
+  system_architecture_signed: "架構簽核",
+  software_design_review: "設計審查",
+  software_design_signed: "設計簽核",
+  implementation: "實作開發",
+  system_verification: "系統驗證",
+  system_verification_signed: "系統驗證簽核",
+  delivery_review: "交付審查",
+  on_hold: "暫停中",
+  canceled: "已取消",
+  closed: "已結案",
+};
+
 type RequirementProgress = {
   projectId: string | null;
+  projectStatus: string | null;
+  projectPreviousStatus: string | null;
   requirementDocId: string | null;
   requirementDocStatus: string | null;
   systemDocId: string | null;
@@ -130,6 +162,8 @@ export default function MyRequirements() {
                 requirement.id,
                 {
                   projectId: null,
+                  projectStatus: null,
+                  projectPreviousStatus: null,
                   requirementDocId: requirementDocs[0]?.id ?? null,
                   requirementDocStatus,
                   systemDocId: null,
@@ -161,6 +195,8 @@ export default function MyRequirements() {
               requirement.id,
               {
                 projectId: latestProject.id,
+                projectStatus: latestProject.status ?? null,
+                projectPreviousStatus: latestProject.previousStatus ?? null,
                 requirementDocId: requirementDocs[0]?.id ?? null,
                 requirementDocStatus,
                 systemDocId: latestSystem?.id ?? null,
@@ -179,6 +215,8 @@ export default function MyRequirements() {
               requirement.id,
               {
                 projectId: null,
+                projectStatus: null,
+                projectPreviousStatus: null,
                 requirementDocId: null,
                 requirementDocStatus: null,
                 systemDocId: null,
@@ -219,6 +257,15 @@ export default function MyRequirements() {
         {label}
       </span>
     );
+  };
+
+  const getProjectProgress = (status: string | null, previousStatus: string | null) => {
+    if (!status) return 0;
+    if (status === "canceled") return 0;
+    const effective = status === "on_hold" ? previousStatus ?? status : status;
+    const index = projectStatusOrder.indexOf(effective as (typeof projectStatusOrder)[number]);
+    if (index < 0) return 0;
+    return Math.round(((index + 1) / projectStatusOrder.length) * 100);
   };
 
   const handleQuickApproveRequirement = async (requirementId: string) => {
@@ -312,8 +359,8 @@ export default function MyRequirements() {
             <div className="grid gap-4 lg:grid-cols-2">
               {requirements.map((item) => {
                 const progress = progressMap[item.id];
-                const canApproveRequirement =
-                  progress?.requirementDocId && progress.requirementDocStatus === "pending_approval";
+                  const canApproveRequirement =
+                    progress?.requirementDocId && progress.requirementDocStatus === "pending_approval";
                 const canApproveSystem =
                   progress?.projectId &&
                   progress.systemDocId &&
@@ -326,6 +373,11 @@ export default function MyRequirements() {
                   progress?.projectId &&
                   progress.quotationDocId &&
                   progress.quotationStatus === "submitted";
+
+                  const progressPercent = getProjectProgress(
+                    progress?.projectStatus ?? null,
+                    progress?.projectPreviousStatus ?? null
+                  );
 
                 return (
                 <div key={item.id} className="rounded-2xl border bg-white/90 p-4 space-y-3">
@@ -368,6 +420,20 @@ export default function MyRequirements() {
                         <div className="text-xs text-muted-foreground">
                           專案：{progress?.projectName ?? "尚未建立"}
                         </div>
+                        {progress?.projectStatus ? (
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                              <span>進度：{projectStatusLabels[progress.projectStatus] ?? progress.projectStatus}</span>
+                              <span>{progressPercent}%</span>
+                            </div>
+                            <div className="h-2 w-full rounded-full bg-slate-100">
+                              <div
+                                className="h-2 rounded-full bg-primary transition-all"
+                                style={{ width: `${progressPercent}%` }}
+                              />
+                            </div>
+                          </div>
+                        ) : null}
                         <div className="grid gap-2 sm:grid-cols-2">
                           <div className="flex items-center justify-between rounded-lg border bg-white px-2 py-1 text-xs">
                             <span className="text-muted-foreground">需求簽核</span>

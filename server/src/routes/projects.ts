@@ -476,6 +476,41 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
       if (!updated) {
         return reply.code(404).send({ message: "找不到 checklist。" });
       }
+
+      const updatedItem = updated.items.find((item) => item.id === body.item_id);
+      if (request.user?.sub) {
+        await addAuditLog({
+          actorId: request.user.sub,
+          targetUserId: null,
+          action: "PROJECT_CHECKLIST_ITEM_UPDATED",
+          before: null,
+          after: {
+            projectId: id,
+            itemId: body.item_id,
+            done: body.done,
+          },
+        });
+      }
+
+      try {
+        const project = await getProjectById(id);
+        const requirement = project ? await getRequirementById(project.requirementId) : null;
+        const recipientId = requirement?.ownerId ?? null;
+        if (recipientId && updatedItem) {
+          const statusLabel = body.done ? "已完成" : "已標記為未完成";
+          await notifyUsers({
+            recipientIds: [recipientId],
+            actorId: request.user?.sub ?? null,
+            type: "collaboration.checklist.updated",
+            title: "開發清單已更新",
+            message: `項目「${updatedItem.h3}」${statusLabel}。`,
+            link: `/my/requirements/${project?.requirementId ?? ""}?tab=collaboration`,
+          });
+        }
+      } catch (error) {
+        app.log.error(error);
+      }
+
       return { checklist: updated };
     }
   );

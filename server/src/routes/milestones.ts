@@ -1,6 +1,7 @@
 import type { FastifyPluginAsync } from "fastify";
-import { createMilestone, listMilestones, updateMilestone } from "../platformData.js";
+import { createMilestone, getProjectById, getRequirementById, listMilestones, updateMilestone } from "../platformData.js";
 import { addAuditLog } from "../store.js";
+import { notifyUsers } from "../notificationService.js";
 
 const milestonesRoutes: FastifyPluginAsync = async (app) => {
   app.get("/projects/:id/milestones", { preHandler: app.authenticate }, async (request) => {
@@ -38,6 +39,23 @@ const milestonesRoutes: FastifyPluginAsync = async (app) => {
       before: null,
       after: { milestoneId: milestone.id, projectId: id, status: milestone.status },
     });
+
+    try {
+      const project = await getProjectById(id);
+      const requirement = project ? await getRequirementById(project.requirementId) : null;
+      if (requirement?.ownerId) {
+        await notifyUsers({
+          recipientIds: [requirement.ownerId],
+          actorId: request.user?.sub ?? null,
+          type: "collaboration.milestone.created",
+          title: "新增里程碑",
+          message: `新增里程碑：「${milestone.title}」。`,
+          link: `/my/requirements/${project?.requirementId ?? ""}?tab=collaboration`,
+        });
+      }
+    } catch (error) {
+      request.log.error(error);
+    }
     return reply.code(201).send({ milestone });
   });
 
@@ -69,6 +87,23 @@ const milestonesRoutes: FastifyPluginAsync = async (app) => {
         before: null,
         after: { milestoneId, projectId: id, status: updated.status },
       });
+
+      try {
+        const project = await getProjectById(id);
+        const requirement = project ? await getRequirementById(project.requirementId) : null;
+        if (requirement?.ownerId) {
+          await notifyUsers({
+            recipientIds: [requirement.ownerId],
+            actorId: request.user?.sub ?? null,
+            type: "collaboration.milestone.updated",
+            title: "里程碑已更新",
+            message: `里程碑「${updated.title}」狀態更新為 ${updated.status}。`,
+            link: `/my/requirements/${project?.requirementId ?? ""}?tab=collaboration`,
+          });
+        }
+      } catch (error) {
+        request.log.error(error);
+      }
       return reply.send({ milestone: updated });
     }
   );

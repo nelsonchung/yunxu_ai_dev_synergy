@@ -1,6 +1,7 @@
 import type { FastifyPluginAsync } from "fastify";
-import { createTask, listTasks, updateTask } from "../platformData.js";
+import { createTask, getProjectById, getRequirementById, listTasks, updateTask } from "../platformData.js";
 import { addAuditLog } from "../store.js";
+import { notifyUsers } from "../notificationService.js";
 
 const tasksRoutes: FastifyPluginAsync = async (app) => {
   app.get("/projects/:id/tasks", { preHandler: app.authenticate }, async (request) => {
@@ -40,6 +41,23 @@ const tasksRoutes: FastifyPluginAsync = async (app) => {
       before: null,
       after: { taskId: task.id, projectId: id, status: task.status },
     });
+
+    try {
+      const project = await getProjectById(id);
+      const requirement = project ? await getRequirementById(project.requirementId) : null;
+      if (requirement?.ownerId) {
+        await notifyUsers({
+          recipientIds: [requirement.ownerId],
+          actorId: request.user?.sub ?? null,
+          type: "collaboration.task.created",
+          title: "新增任務",
+          message: `專案新增任務：「${task.title}」。`,
+          link: `/my/requirements/${project?.requirementId ?? ""}?tab=collaboration`,
+        });
+      }
+    } catch (error) {
+      request.log.error(error);
+    }
     return reply.code(201).send({ task });
   });
 
@@ -73,6 +91,23 @@ const tasksRoutes: FastifyPluginAsync = async (app) => {
       before: null,
       after: { taskId, projectId: id, status: updated.status },
     });
+
+    try {
+      const project = await getProjectById(id);
+      const requirement = project ? await getRequirementById(project.requirementId) : null;
+      if (requirement?.ownerId) {
+        await notifyUsers({
+          recipientIds: [requirement.ownerId],
+          actorId: request.user?.sub ?? null,
+          type: "collaboration.task.updated",
+          title: "任務已更新",
+          message: `任務「${updated.title}」狀態更新為 ${updated.status}。`,
+          link: `/my/requirements/${project?.requirementId ?? ""}?tab=collaboration`,
+        });
+      }
+    } catch (error) {
+      request.log.error(error);
+    }
     return reply.send({ task: updated });
   });
 };

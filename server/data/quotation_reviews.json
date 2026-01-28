@@ -482,7 +482,7 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "6. API 設計（詳細）",
         "h3": "6.1 通用規範",
-        "price": 2000
+        "price": 1500
       },
       {
         "key": "軟體設計文件（Software Design） / 6. API 設計（詳細） / 6.2 需求管理 API",
@@ -538,7 +538,7 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "7. 核心資料模型（詳細）",
         "h3": "7.1 需求與文件",
-        "price": 3000
+        "price": 2000
       },
       {
         "key": "軟體設計文件（Software Design） / 7. 核心資料模型（詳細） / 7.2 專案與任務",
@@ -778,7 +778,7 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "14. 觀測與維運",
         "h3": "14.1 Log 分類與保存策略",
-        "price": 500
+        "price": 1000
       },
       {
         "key": "軟體設計文件（Software Design） / 14. 觀測與維運 / 14.2 Monitor 指標與健康檢查",
@@ -805,16 +805,81 @@
         "price": 500
       }
     ],
-    "total": 30000,
+    "total": 29000,
     "createdAt": "2026-01-27T14:13:35.747Z",
-    "updatedAt": "2026-01-28T13:09:30.930Z",
+    "updatedAt": "2026-01-28T14:51:58.347Z",
     "createdBy": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
-    "updatedBy": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
-    "status": "submitted",
-    "submittedAt": "2026-01-28T13:09:30.930Z",
+    "updatedBy": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "status": "approved",
+    "submittedAt": "2026-01-28T14:51:43.772Z",
     "submittedBy": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
     "reviewComment": null,
-    "reviewedAt": null,
-    "reviewedBy": null
+    "reviewedAt": "2026-01-28T14:51:58.347Z",
+    "reviewedBy": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "history": [
+      {
+        "id": "a6c8f68b-d0f7-443d-be2f-1284a9310764",
+        "action": "approved",
+        "comment": null,
+        "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+        "createdAt": "2026-01-28T14:48:56.994Z"
+      },
+      {
+        "id": "d8968dc8-67aa-4122-9373-2cdc1b8755fa",
+        "action": "submitted",
+        "comment": null,
+        "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+        "createdAt": "2026-01-28T14:49:43.260Z"
+      },
+      {
+        "id": "463509d2-857c-4147-af87-7b3f9a2856ae",
+        "action": "approved",
+        "comment": "是否可以再便宜些",
+        "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+        "createdAt": "2026-01-28T14:50:03.975Z"
+      },
+      {
+        "id": "6803316b-1cde-4020-ad74-6887c523621d",
+        "action": "submitted",
+        "comment": null,
+        "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+        "createdAt": "2026-01-28T14:50:34.100Z"
+      },
+      {
+        "id": "fd816761-e2ef-40e0-b789-144cbef7111f",
+        "action": "changes_requested",
+        "comment": "真的有比較優惠，非常感謝。請問還有其他項目可以在優化嗎",
+        "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+        "createdAt": "2026-01-28T14:51:16.858Z"
+      },
+      {
+        "id": "8a3c0462-29d0-4a7b-b7a7-1c93324eb15a",
+        "action": "submitted",
+        "comment": null,
+        "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+        "createdAt": "2026-01-28T14:51:33.910Z"
+      },
+      {
+        "id": "08b4865a-6ecb-44d6-bbc5-0ec4f0f9ef84",
+        "action": "submitted",
+        "comment": null,
+        "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+        "createdAt": "2026-01-28T14:51:40.398Z"
+      },
+      {
+        "id": "0445a9a5-04c4-4f50-ace8-62c6d0ea5db5",
+        "action": "submitted",
+        "comment": null,
+        "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+        "createdAt": "2026-01-28T14:51:43.772Z"
+      },
+      {
+        "id": "863c5191-a24c-4f6f-9962-8a2d05e45a0f",
+        "action": "approved",
+        "comment": null,
+        "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+        "createdAt": "2026-01-28T14:51:58.347Z"
+      }
+    ]
   }
 ]
