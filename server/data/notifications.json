@@ -1780,5 +1780,27 @@
     "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=collaboration",
     "createdAt": "2026-01-28T15:19:35.280Z",
     "readAt": null
+  },
+  {
+    "id": "a9ba4a87-381a-4225-8c97-0765263d895f",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "project.document.test.submitted",
+    "title": "系統驗證文件待簽核",
+    "message": "專案「軟體媒合系統設計」已提交系統驗證文件，請前往簽核。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-29T15:05:38.177Z",
+    "readAt": null
+  },
+  {
+    "id": "86c46203-d6fb-4c04-9a27-d5bff5d7542b",
+    "recipientId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "project.document.test.submitted",
+    "title": "系統驗證文件待簽核",
+    "message": "專案「軟體媒合系統設計」已提交系統驗證文件，請前往簽核。",
+    "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=documents",
+    "createdAt": "2026-01-29T15:05:38.185Z",
+    "readAt": null
   }
 ]

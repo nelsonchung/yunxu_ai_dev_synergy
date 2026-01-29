@@ -1891,5 +1891,18 @@
       "itemId": "b5ca59ff-d49a-4e41-9a78-e68dd5d2156e",
       "done": true
     }
+  },
+  {
+    "id": "eccc64b3-e780-4858-8270-22811bd1951b",
+    "createdAt": "2026-01-29T15:05:38.148Z",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_CREATED",
+    "before": null,
+    "after": {
+      "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+      "documentId": "a6a7f3a3-20ae-485d-b6af-5a2472d6df56",
+      "version": 1
+    }
   }
 ]

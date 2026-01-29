@@ -431,11 +431,13 @@ export default function MyRequirements() {
                   : hasChecklist
                     ? getChecklistProgress(progress?.checklistDone ?? 0, progress?.checklistTotal ?? 0)
                     : getProjectProgress(progress?.projectStatus ?? null, progress?.projectPreviousStatus ?? null);
-                const progressLabel = hasVerificationChecklist
-                  ? `系統驗證完成 ${progress?.verificationChecklistDone ?? 0}/${progress?.verificationChecklistTotal ?? 0}`
-                  : hasChecklist
-                    ? `開發完成 ${progress?.checklistDone ?? 0}/${progress?.checklistTotal ?? 0}`
-                    : projectStatusLabels[progress.projectStatus ?? ""] ?? progress?.projectStatus ?? "--";
+                const progressLabel = progress
+                  ? hasVerificationChecklist
+                    ? `系統驗證完成 ${progress?.verificationChecklistDone ?? 0}/${progress?.verificationChecklistTotal ?? 0}`
+                    : hasChecklist
+                      ? `開發完成 ${progress?.checklistDone ?? 0}/${progress?.checklistTotal ?? 0}`
+                      : projectStatusLabels[progress?.projectStatus ?? ""] ?? progress?.projectStatus ?? "--"
+                  : "--";
 
                 return (
                 <div key={item.id} className="rounded-2xl border bg-white/90 p-4 space-y-3">
