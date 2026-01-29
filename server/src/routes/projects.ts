@@ -5,6 +5,7 @@ import {
   deleteProject,
   deleteProjectDocument,
   getDevelopmentChecklist,
+  getVerificationChecklist,
   getProjectById,
   getProjectDocument,
   getQuotationReview,
@@ -15,7 +16,9 @@ import {
   reviewQuotationReview,
   submitQuotationReview,
   updateDevelopmentChecklistItem,
+  updateVerificationChecklistItem,
   upsertDevelopmentChecklist,
+  upsertVerificationChecklist,
   upsertQuotationReview,
   updateProjectStatus,
 } from "../platformData.js";
@@ -515,6 +518,73 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
     }
   );
 
+  app.get(
+    "/projects/:id/verification-checklist",
+    { preHandler: app.requirePermission("projects.documents.review") },
+    async (request) => {
+      const { id } = request.params as { id: string };
+      const checklist = await getVerificationChecklist(id);
+      return { checklist };
+    }
+  );
+
+  app.patch(
+    "/projects/:id/verification-checklist",
+    { preHandler: app.requirePermission("projects.tasks.manage") },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const body = (request.body as { item_id?: string; done?: boolean }) ?? {};
+      if (!body.item_id || typeof body.done !== "boolean") {
+        return reply.code(400).send({ message: "請提供 item_id 與 done。" });
+      }
+      const updated = await updateVerificationChecklistItem({
+        projectId: id,
+        itemId: String(body.item_id),
+        done: body.done,
+        actorId: request.user?.sub ?? null,
+      });
+      if (!updated) {
+        return reply.code(404).send({ message: "找不到 checklist。" });
+      }
+
+      const updatedItem = updated.items.find((item) => item.id === body.item_id);
+      if (request.user?.sub) {
+        await addAuditLog({
+          actorId: request.user.sub,
+          targetUserId: null,
+          action: "PROJECT_VERIFICATION_CHECKLIST_ITEM_UPDATED",
+          before: null,
+          after: {
+            projectId: id,
+            itemId: body.item_id,
+            done: body.done,
+          },
+        });
+      }
+
+      try {
+        const project = await getProjectById(id);
+        const requirement = project ? await getRequirementById(project.requirementId) : null;
+        const recipientId = requirement?.ownerId ?? null;
+        if (recipientId && updatedItem) {
+          const statusLabel = body.done ? "已完成" : "已標記為未完成";
+          await notifyUsers({
+            recipientIds: [recipientId],
+            actorId: request.user?.sub ?? null,
+            type: "quality.verification.checklist.updated",
+            title: "系統驗證清單已更新",
+            message: `項目「${updatedItem.h3}」${statusLabel}。`,
+            link: `/my/requirements/${project?.requirementId ?? ""}?tab=quality`,
+          });
+        }
+      } catch (error) {
+        app.log.error(error);
+      }
+
+      return { checklist: updated };
+    }
+  );
+
   app.post("/projects/:id/documents", { preHandler: app.authenticate }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const body = (request.body as {
@@ -575,16 +645,19 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         requirement?.ownerId ?? "",
       ].filter(Boolean);
       const requirementId = requirement?.id ?? project?.requirementId ?? "";
+      const isTestSubmission = type === "test" && (body.status ?? "") === "pending_approval";
       await notifyUsers({
         recipientIds: recipients,
         actorId: request.user?.sub ?? null,
-        type: "project.document.created",
-        title: "專案文件已更新",
-        message: `專案「${project?.name ?? id}」新增 ${type} 文件版本 v${document.version}。`,
+        type: isTestSubmission ? "project.document.test.submitted" : "project.document.created",
+        title: isTestSubmission ? "系統驗證文件待簽核" : "專案文件已更新",
+        message: isTestSubmission
+          ? `專案「${project?.name ?? id}」已提交系統驗證文件，請前往簽核。`
+          : `專案「${project?.name ?? id}」新增 ${type} 文件版本 v${document.version}。`,
         link: `/workspace?project=${id}`,
         linkByRole: requirementId
           ? {
-              customer: `/my/requirements/${requirementId}`,
+              customer: `/my/requirements/${requirementId}?tab=documents`,
             }
           : undefined,
       });
@@ -663,6 +736,19 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
               });
             }
           }
+        }
+      }
+
+      if (body.approved === true && updated.type === "test") {
+        const docResult = await getProjectDocument(id, docId);
+        if (docResult) {
+          await upsertVerificationChecklist({
+            projectId: id,
+            documentId: docId,
+            documentVersion: docResult.document.version,
+            content: docResult.content,
+            actorId: request.user?.sub ?? null,
+          });
         }
       }
 

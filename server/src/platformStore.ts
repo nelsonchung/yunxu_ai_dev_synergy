@@ -205,6 +205,29 @@ export type DevelopmentChecklist = {
   updatedBy: string | null;
 };
 
+export type VerificationChecklistItem = {
+  id: string;
+  key: string;
+  path: string;
+  h1: string;
+  h2: string | null;
+  h3: string;
+  done: boolean;
+  updatedAt: string | null;
+};
+
+export type VerificationChecklist = {
+  id: string;
+  projectId: string;
+  documentId: string;
+  documentVersion: number;
+  items: VerificationChecklistItem[];
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string | null;
+  updatedBy: string | null;
+};
+
 export type AIJob = {
   id: string;
   type: string;
@@ -243,6 +266,9 @@ const QUOTATION_REVIEWS_FILE = resolveDataPath(
 const DEVELOPMENT_CHECKLISTS_FILE = resolveDataPath(
   process.env.DATA_DEVELOPMENT_CHECKLISTS_FILE ?? "./data/development_checklists.json"
 );
+const VERIFICATION_CHECKLISTS_FILE = resolveDataPath(
+  process.env.DATA_VERIFICATION_CHECKLISTS_FILE ?? "./data/verification_checklists.json"
+);
 
 export const platformStores = {
   requirements: createJsonStore<Requirement[]>(REQUIREMENTS_FILE, []),
@@ -257,6 +283,7 @@ export const platformStores = {
   aiJobs: createJsonStore<AIJob[]>(AI_JOBS_FILE, []),
   quotationReviews: createJsonStore<QuotationReview[]>(QUOTATION_REVIEWS_FILE, []),
   developmentChecklists: createJsonStore<DevelopmentChecklist[]>(DEVELOPMENT_CHECKLISTS_FILE, []),
+  verificationChecklists: createJsonStore<VerificationChecklist[]>(VERIFICATION_CHECKLISTS_FILE, []),
 };
 
 export const initPlatformStore = async () => {

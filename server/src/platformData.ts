@@ -23,6 +23,8 @@ import {
   type QuotationReviewHistory,
   type DevelopmentChecklist,
   type DevelopmentChecklistItem,
+  type VerificationChecklist,
+  type VerificationChecklistItem,
 } from "./platformStore.js";
 import { resolveDataPath } from "./jsonStore.js";
 
@@ -675,6 +677,10 @@ export const deleteProjectDocument = async (projectId: string, docId: string) =>
   await platformStores.developmentChecklists.write(
     checklists.filter((checklist) => checklist.documentId !== docId)
   );
+  const verification = await platformStores.verificationChecklists.read();
+  await platformStores.verificationChecklists.write(
+    verification.filter((checklist) => checklist.documentId !== docId)
+  );
   return true;
 };
 
@@ -741,6 +747,10 @@ export const deleteProject = async (projectId: string) => {
   const checklists = await platformStores.developmentChecklists.read();
   await platformStores.developmentChecklists.write(
     checklists.filter((checklist) => checklist.projectId !== projectId)
+  );
+  const verification = await platformStores.verificationChecklists.read();
+  await platformStores.verificationChecklists.write(
+    verification.filter((checklist) => checklist.projectId !== projectId)
   );
 
   const tasks = await platformStores.tasks.read();
@@ -1027,11 +1037,20 @@ const buildUniqueKey = (base: string, counter: Map<string, number>) => {
   return current === 0 ? base : `${base}::${current + 1}`;
 };
 
-const parseDevelopmentChecklist = (markdown: string): DevelopmentChecklistItem[] => {
+const parseChecklistItems = (
+  markdown: string,
+  builder: (item: {
+    key: string;
+    path: string;
+    h1: string;
+    h2: string | null;
+    h3: string;
+  }) => DevelopmentChecklistItem | VerificationChecklistItem
+) => {
   const lines = markdown.split(/\r?\n/);
   let currentH1 = "未分類";
   let currentH2: string | null = null;
-  const items: DevelopmentChecklistItem[] = [];
+  const items: Array<DevelopmentChecklistItem | VerificationChecklistItem> = [];
   const counter = new Map<string, number>();
 
   lines.forEach((line) => {
@@ -1057,16 +1076,15 @@ const parseDevelopmentChecklist = (markdown: string): DevelopmentChecklistItem[]
       if (!h3) return;
       const path = `${currentH1} / ${currentH2 ?? "未分類"} / ${h3}`;
       const key = buildUniqueKey(path, counter);
-      items.push({
-        id: randomUUID(),
-        key,
-        path,
-        h1: currentH1,
-        h2: currentH2,
-        h3,
-        done: false,
-        updatedAt: null,
-      });
+      items.push(
+        builder({
+          key,
+          path,
+          h1: currentH1,
+          h2: currentH2,
+          h3,
+        })
+      );
     }
   });
 
@@ -1104,7 +1122,12 @@ export const upsertDevelopmentChecklist = async (payload: {
     projectId: payload.projectId,
     documentId: payload.documentId,
     documentVersion: payload.documentVersion,
-    items: parseDevelopmentChecklist(payload.content),
+    items: parseChecklistItems(payload.content, (item) => ({
+      id: randomUUID(),
+      ...item,
+      done: false,
+      updatedAt: null,
+    })) as DevelopmentChecklistItem[],
     createdAt: now,
     updatedAt: now,
     createdBy: payload.actorId,
@@ -1142,6 +1165,83 @@ export const updateDevelopmentChecklistItem = async (payload: {
   };
   checklists[index] = updated;
   await platformStores.developmentChecklists.write(checklists);
+  return updated;
+};
+
+export const getVerificationChecklist = async (projectId: string) => {
+  const checklists = await platformStores.verificationChecklists.read();
+  return checklists.find((checklist) => checklist.projectId === projectId) ?? null;
+};
+
+export const upsertVerificationChecklist = async (payload: {
+  projectId: string;
+  documentId: string;
+  documentVersion: number;
+  content: string;
+  actorId: string | null;
+}) => {
+  const checklists = await platformStores.verificationChecklists.read();
+  const index = checklists.findIndex((checklist) => checklist.projectId === payload.projectId);
+  const now = new Date().toISOString();
+
+  if (index !== -1) {
+    const existing = checklists[index];
+    if (
+      existing.documentId === payload.documentId &&
+      existing.documentVersion === payload.documentVersion
+    ) {
+      return existing;
+    }
+  }
+
+  const checklist: VerificationChecklist = {
+    id: randomUUID(),
+    projectId: payload.projectId,
+    documentId: payload.documentId,
+    documentVersion: payload.documentVersion,
+    items: parseChecklistItems(payload.content, (item) => ({
+      id: randomUUID(),
+      ...item,
+      done: false,
+      updatedAt: null,
+    })) as VerificationChecklistItem[],
+    createdAt: now,
+    updatedAt: now,
+    createdBy: payload.actorId,
+    updatedBy: payload.actorId,
+  };
+
+  if (index === -1) {
+    checklists.push(checklist);
+  } else {
+    checklists[index] = checklist;
+  }
+  await platformStores.verificationChecklists.write(checklists);
+  return checklist;
+};
+
+export const updateVerificationChecklistItem = async (payload: {
+  projectId: string;
+  itemId: string;
+  done: boolean;
+  actorId: string | null;
+}) => {
+  const checklists = await platformStores.verificationChecklists.read();
+  const index = checklists.findIndex((checklist) => checklist.projectId === payload.projectId);
+  if (index === -1) return null;
+  const now = new Date().toISOString();
+  const checklist = checklists[index];
+  const items = checklist.items.map((item) =>
+    item.id === payload.itemId ? { ...item, done: payload.done, updatedAt: now } : item
+  );
+  const updated: VerificationChecklist = {
+    ...checklist,
+    items,
+    updatedAt: now,
+    updatedBy: payload.actorId,
+  };
+  checklists[index] = updated;
+  await platformStores.verificationChecklists.write(checklists);
   return updated;
 };
 

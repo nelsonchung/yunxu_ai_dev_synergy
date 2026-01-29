@@ -6,6 +6,7 @@ import {
   approveRequirement,
   getProjectDocumentQuotation,
   getProjectChecklist,
+  getProjectVerificationChecklist,
   listMyRequirements,
   listProjectDocuments,
   listRequirementDocuments,
@@ -87,12 +88,16 @@ type RequirementProgress = {
   projectPreviousStatus: string | null;
   checklistTotal: number;
   checklistDone: number;
+  verificationChecklistTotal: number;
+  verificationChecklistDone: number;
   requirementDocId: string | null;
   requirementDocStatus: string | null;
   systemDocId: string | null;
   systemDocStatus: string | null;
   softwareDocId: string | null;
   softwareDocStatus: string | null;
+  testDocId: string | null;
+  testDocStatus: string | null;
   quotationDocId: string | null;
   quotationTotal: number | null;
   quotationCurrency: string | null;
@@ -169,12 +174,16 @@ export default function MyRequirements() {
                   projectPreviousStatus: null,
                   checklistTotal: 0,
                   checklistDone: 0,
+                  verificationChecklistTotal: 0,
+                  verificationChecklistDone: 0,
                   requirementDocId: requirementDocs[0]?.id ?? null,
                   requirementDocStatus,
                   systemDocId: null,
                   systemDocStatus: null,
                   softwareDocId: null,
                   softwareDocStatus: null,
+                  testDocId: null,
+                  testDocStatus: null,
                   quotationDocId: null,
                   quotationTotal: null,
                   quotationCurrency: null,
@@ -191,15 +200,22 @@ export default function MyRequirements() {
             const latestSoftware = projectDocs
               .filter((doc) => doc.type === "software")
               .sort((a, b) => b.version - a.version)[0];
+            const latestTest = projectDocs
+              .filter((doc) => doc.type === "test")
+              .sort((a, b) => b.version - a.version)[0];
 
-            const [quotation, checklist] = await Promise.all([
+            const [quotation, checklist, verificationChecklist] = await Promise.all([
               latestSoftware
                 ? getProjectDocumentQuotation(latestProject.id, latestSoftware.id)
                 : Promise.resolve(null),
               getProjectChecklist(latestProject.id),
+              getProjectVerificationChecklist(latestProject.id),
             ]);
             const checklistTotal = checklist?.items?.length ?? 0;
             const checklistDone = checklist?.items?.filter((item) => item.done).length ?? 0;
+            const verificationChecklistTotal = verificationChecklist?.items?.length ?? 0;
+            const verificationChecklistDone =
+              verificationChecklist?.items?.filter((item) => item.done).length ?? 0;
 
             return [
               requirement.id,
@@ -209,12 +225,16 @@ export default function MyRequirements() {
                 projectPreviousStatus: latestProject.previousStatus ?? null,
                 checklistTotal,
                 checklistDone,
+                verificationChecklistTotal,
+                verificationChecklistDone,
                 requirementDocId: requirementDocs[0]?.id ?? null,
                 requirementDocStatus,
                 systemDocId: latestSystem?.id ?? null,
                 systemDocStatus: latestSystem?.status ?? null,
                 softwareDocId: latestSoftware?.id ?? null,
                 softwareDocStatus: latestSoftware?.status ?? null,
+                testDocId: latestTest?.id ?? null,
+                testDocStatus: latestTest?.status ?? null,
                 quotationDocId: latestSoftware?.id ?? null,
                 quotationTotal: quotation && quotation.status !== "draft" ? quotation.total : null,
                 quotationCurrency: quotation && quotation.status !== "draft" ? quotation.currency : null,
@@ -231,12 +251,16 @@ export default function MyRequirements() {
                 projectPreviousStatus: null,
                 checklistTotal: 0,
                 checklistDone: 0,
+                verificationChecklistTotal: 0,
+                verificationChecklistDone: 0,
                 requirementDocId: null,
                 requirementDocStatus: null,
                 systemDocId: null,
                 systemDocStatus: null,
                 softwareDocId: null,
                 softwareDocStatus: null,
+                testDocId: null,
+                testDocStatus: null,
                 quotationDocId: null,
                 quotationTotal: null,
                 quotationCurrency: null,
@@ -378,8 +402,8 @@ export default function MyRequirements() {
             <div className="grid gap-4 lg:grid-cols-2">
               {requirements.map((item) => {
                 const progress = progressMap[item.id];
-                  const canApproveRequirement =
-                    progress?.requirementDocId && progress.requirementDocStatus === "pending_approval";
+                const canApproveRequirement =
+                  progress?.requirementDocId && progress.requirementDocStatus === "pending_approval";
                 const canApproveSystem =
                   progress?.projectId &&
                   progress.systemDocId &&
@@ -388,15 +412,30 @@ export default function MyRequirements() {
                   progress?.projectId &&
                   progress.softwareDocId &&
                   progress.softwareDocStatus === "pending_approval";
+                const canApproveTest =
+                  progress?.projectId &&
+                  progress.testDocId &&
+                  progress.testDocStatus === "pending_approval";
                 const canApproveQuotation =
                   progress?.projectId &&
                   progress.quotationDocId &&
                   progress.quotationStatus === "submitted";
 
-                  const hasChecklist = Boolean(progress?.checklistTotal);
-                  const progressPercent = hasChecklist
+                const hasVerificationChecklist = Boolean(progress?.verificationChecklistTotal);
+                const hasChecklist = Boolean(progress?.checklistTotal);
+                const progressPercent = hasVerificationChecklist
+                  ? getChecklistProgress(
+                      progress?.verificationChecklistDone ?? 0,
+                      progress?.verificationChecklistTotal ?? 0
+                    )
+                  : hasChecklist
                     ? getChecklistProgress(progress?.checklistDone ?? 0, progress?.checklistTotal ?? 0)
                     : getProjectProgress(progress?.projectStatus ?? null, progress?.projectPreviousStatus ?? null);
+                const progressLabel = hasVerificationChecklist
+                  ? `系統驗證完成 ${progress?.verificationChecklistDone ?? 0}/${progress?.verificationChecklistTotal ?? 0}`
+                  : hasChecklist
+                    ? `開發完成 ${progress?.checklistDone ?? 0}/${progress?.checklistTotal ?? 0}`
+                    : projectStatusLabels[progress.projectStatus ?? ""] ?? progress?.projectStatus ?? "--";
 
                 return (
                 <div key={item.id} className="rounded-2xl border bg-white/90 p-4 space-y-3">
@@ -439,14 +478,11 @@ export default function MyRequirements() {
                         <div className="text-xs text-muted-foreground">
                           專案：{progress?.projectName ?? "尚未建立"}
                         </div>
-                        {progress?.projectStatus || progress?.checklistTotal ? (
+                        {progress?.projectStatus || progress?.checklistTotal || progress?.verificationChecklistTotal ? (
                           <div className="space-y-1">
                             <div className="flex items-center justify-between text-xs text-muted-foreground">
                               <span>
-                                進度：
-                                {hasChecklist
-                                  ? `完成 ${progress?.checklistDone ?? 0}/${progress?.checklistTotal ?? 0}`
-                                  : projectStatusLabels[progress.projectStatus ?? ""] ?? progress?.projectStatus ?? "--"}
+                                進度：{progressLabel}
                               </span>
                               <span>{progressPercent}%</span>
                             </div>
@@ -470,6 +506,10 @@ export default function MyRequirements() {
                           <div className="flex items-center justify-between rounded-lg border bg-white px-2 py-1 text-xs">
                             <span className="text-muted-foreground">軟體設計簽核</span>
                             {renderDocStatus(progress?.softwareDocStatus ?? null)}
+                          </div>
+                          <div className="flex items-center justify-between rounded-lg border bg-white px-2 py-1 text-xs">
+                            <span className="text-muted-foreground">系統驗證簽核</span>
+                            {renderDocStatus(progress?.testDocStatus ?? null)}
                           </div>
                           <div className="flex items-center justify-between rounded-lg border bg-white px-2 py-1 text-xs">
                             <span className="text-muted-foreground">報價</span>
@@ -518,6 +558,18 @@ export default function MyRequirements() {
                         className="rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         簽核軟體設計
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          progress?.projectId && progress.testDocId
+                            ? handleQuickApproveProjectDoc(progress.projectId, progress.testDocId)
+                            : undefined
+                        }
+                        disabled={!canApproveTest || isQuickAction}
+                        className="rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        簽核系統驗證
                       </button>
                       <button
                         type="button"

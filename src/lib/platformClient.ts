@@ -160,6 +160,29 @@ export type DevelopmentChecklist = {
   updatedBy: string | null;
 };
 
+export type VerificationChecklistItem = {
+  id: string;
+  key: string;
+  path: string;
+  h1: string;
+  h2: string | null;
+  h3: string;
+  done: boolean;
+  updatedAt: string | null;
+};
+
+export type VerificationChecklist = {
+  id: string;
+  projectId: string;
+  documentId: string;
+  documentVersion: number;
+  items: VerificationChecklistItem[];
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string | null;
+  updatedBy: string | null;
+};
+
 export type MatchingResult = {
   id: string;
   requirementId: string;
@@ -463,6 +486,28 @@ export const updateProjectChecklistItem = async (
 ) => {
   const data = await apiRequest<{ checklist: DevelopmentChecklist }>(
     `/api/projects/${projectId}/checklist`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ item_id: payload.itemId, done: payload.done }),
+    }
+  );
+  return data.checklist;
+};
+
+export const getProjectVerificationChecklist = async (projectId: string) => {
+  const data = await apiRequest<{ checklist: VerificationChecklist | null }>(
+    `/api/projects/${projectId}/verification-checklist`,
+    { method: "GET" }
+  );
+  return data.checklist;
+};
+
+export const updateProjectVerificationChecklistItem = async (
+  projectId: string,
+  payload: { itemId: string; done: boolean }
+) => {
+  const data = await apiRequest<{ checklist: VerificationChecklist }>(
+    `/api/projects/${projectId}/verification-checklist`,
     {
       method: "PATCH",
       body: JSON.stringify({ item_id: payload.itemId, done: payload.done }),

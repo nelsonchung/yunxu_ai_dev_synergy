@@ -17,6 +17,7 @@ import {
   commentRequirementDocument,
   getProjectDocumentQuotation,
   getProjectChecklist,
+  getProjectVerificationChecklist,
   listMilestones,
   listMyRequirements,
   listProjectDocuments,
@@ -31,6 +32,7 @@ import {
   type ProjectSummary,
   type QualityReport,
   type DevelopmentChecklist,
+  type VerificationChecklist,
   type QuotationReview,
   type RequirementDocumentSummary,
   type RequirementSummary,
@@ -83,7 +85,7 @@ const docTypeLabels: Record<string, string> = {
   requirement: "需求",
   system: "系統架構",
   software: "軟體設計",
-  test: "測試",
+  test: "系統驗證",
   delivery: "交付",
 };
 
@@ -116,6 +118,7 @@ export default function RequirementDetailTabs() {
   const [quotationComment, setQuotationComment] = useState("");
   const [expandedDocGroups, setExpandedDocGroups] = useState<Record<string, boolean>>({});
   const [checklist, setChecklist] = useState<DevelopmentChecklist | null>(null);
+  const [verificationChecklist, setVerificationChecklist] = useState<VerificationChecklist | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [qualityReports, setQualityReports] = useState<QualityReport[]>([]);
@@ -182,18 +185,27 @@ export default function RequirementDetailTabs() {
       setProject(matchedProject);
 
       if (matchedProject) {
-        const [projectDocsData, taskData, milestoneData, qualityData, checklistData] = await Promise.all([
+        const [
+          projectDocsData,
+          taskData,
+          milestoneData,
+          qualityData,
+          checklistData,
+          verificationChecklistData,
+        ] = await Promise.all([
           listProjectDocuments(matchedProject.id),
           listTasks(matchedProject.id),
           listMilestones(matchedProject.id),
           listQualityReports(matchedProject.id),
           getProjectChecklist(matchedProject.id),
+          getProjectVerificationChecklist(matchedProject.id),
         ]);
         setProjectDocs(projectDocsData);
         setTasks(taskData);
         setMilestones(milestoneData);
         setQualityReports(qualityData);
         setChecklist(checklistData);
+        setVerificationChecklist(verificationChecklistData);
 
         const latestSoftware = projectDocsData
           .filter((doc) => doc.type === "software")
@@ -217,6 +229,7 @@ export default function RequirementDetailTabs() {
         setQuotation(null);
         setQuotationDoc(null);
         setChecklist(null);
+        setVerificationChecklist(null);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "無法載入需求詳情。");
@@ -343,8 +356,9 @@ export default function RequirementDetailTabs() {
     return {
       system: groups.system ?? [],
       software: groups.software ?? [],
+      test: groups.test ?? [],
       other: Object.entries(groups)
-        .filter(([type]) => type !== "system" && type !== "software")
+        .filter(([type]) => type !== "system" && type !== "software" && type !== "test")
         .flatMap(([, list]) => list)
         .sort((a, b) => b.version - a.version),
     };
@@ -426,6 +440,12 @@ export default function RequirementDetailTabs() {
     const done = checklist.items.filter((item) => item.done).length;
     return { total: checklist.items.length, done };
   }, [checklist]);
+
+  const verificationChecklistStats = useMemo(() => {
+    if (!verificationChecklist?.items?.length) return { total: 0, done: 0 };
+    const done = verificationChecklist.items.filter((item) => item.done).length;
+    return { total: verificationChecklist.items.length, done };
+  }, [verificationChecklist]);
 
   if (!match) {
     return (
@@ -677,6 +697,33 @@ export default function RequirementDetailTabs() {
                       )}
                     </div>
 
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-semibold">系統驗證文件</p>
+                        {projectDocGroups.test.length > 1 ? (
+                          <button
+                            type="button"
+                            onClick={() => toggleDocGroup("test")}
+                            className="text-xs font-semibold text-primary hover:text-primary/80"
+                          >
+                            {expandedDocGroups.test ? "收合舊版本" : "展開舊版本"}
+                          </button>
+                        ) : null}
+                      </div>
+                      {projectDocGroups.test.length === 0 ? (
+                        <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
+                          尚無系統驗證文件。
+                        </div>
+                      ) : (
+                        <>
+                          {renderProjectDocCard(projectDocGroups.test[0], true)}
+                          {expandedDocGroups.test
+                            ? projectDocGroups.test.slice(1).map((doc) => renderProjectDocCard(doc, false))
+                            : null}
+                        </>
+                      )}
+                    </div>
+
                     {projectDocGroups.other.length ? (
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
@@ -858,7 +905,34 @@ export default function RequirementDetailTabs() {
           ) : null}
 
           {activeTab === "quality" ? (
-            <div className="space-y-3">
+            <div className="space-y-4">
+              <div className="rounded-2xl border bg-white/90 p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold">系統驗證清單</p>
+                  <span className="text-xs text-muted-foreground">
+                    {verificationChecklistStats.total
+                      ? `完成 ${verificationChecklistStats.done}/${verificationChecklistStats.total}`
+                      : "尚未生成"}
+                  </span>
+                </div>
+                {!verificationChecklist || verificationChecklist.items.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">系統驗證文件簽核後才會產生清單。</p>
+                ) : (
+                  <div className="space-y-2">
+                    {verificationChecklist.items.map((item) => (
+                      <div key={item.id} className="rounded-xl border bg-secondary/10 px-3 py-2 text-xs">
+                        <p className="text-muted-foreground">
+                          {item.h1} / {item.h2 ?? "未分類"}
+                        </p>
+                        <p className={item.done ? "line-through text-muted-foreground" : "text-foreground"}>
+                          {item.h3}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {qualityReports.length === 0 ? (
                 <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
                   尚無品質報告。
