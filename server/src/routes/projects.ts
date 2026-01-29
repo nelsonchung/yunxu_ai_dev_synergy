@@ -336,12 +336,14 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         const requirement = project ? await getRequirementById(project.requirementId) : null;
         const recipients = requirement?.ownerId ? [requirement.ownerId] : [];
         if (recipients.length) {
+          const customerLabel =
+            requirement?.companyName?.trim() || requirement?.contact?.name?.trim() || "客戶";
           await notifyUsers({
             recipientIds: recipients,
             actorId: request.user?.sub ?? null,
             type: "quotation.submitted",
-            title: "報價已提交",
-            message: `專案「${project?.name ?? id}」已提交報價，請前往簽核。`,
+            title: `客戶「${customerLabel}」報價已提交`,
+            message: `客戶「${customerLabel}」的專案「${project?.name ?? id}」已提交報價，請前往簽核。`,
             link: `/my/requirements/${project?.requirementId ?? ""}?tab=documents`,
           });
         }
@@ -648,13 +650,15 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
       ].filter(Boolean);
       const requirementId = requirement?.id ?? project?.requirementId ?? "";
       const isTestSubmission = type === "test" && (body.status ?? "") === "pending_approval";
+      const customerLabel =
+        requirement?.companyName?.trim() || requirement?.contact?.name?.trim() || "客戶";
       await notifyUsers({
         recipientIds: recipients,
         actorId: request.user?.sub ?? null,
         type: isTestSubmission ? "project.document.test.submitted" : "project.document.created",
-        title: isTestSubmission ? "系統驗證文件待簽核" : "專案文件已更新",
+        title: isTestSubmission ? `客戶「${customerLabel}」系統驗證文件待簽核` : "專案文件已更新",
         message: isTestSubmission
-          ? `專案「${project?.name ?? id}」已提交系統驗證文件，請前往簽核。`
+          ? `客戶「${customerLabel}」的專案「${project?.name ?? id}」已提交系統驗證文件，請前往簽核。`
           : `專案「${project?.name ?? id}」新增 ${type} 文件版本 v${document.version}。`,
         link: `/workspace?project=${id}`,
         linkByRole: requirementId
