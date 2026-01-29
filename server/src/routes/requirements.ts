@@ -314,6 +314,8 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
           ...roleRecipients,
           updated.ownerId ?? "",
         ].filter(Boolean);
+        const customerLabel =
+          updated.companyName?.trim() || updated.contact?.name?.trim() || "客戶";
         const autoNote =
           autoTransitioned > 0
             ? `，並已自動推進 ${autoTransitioned} 個專案至「${
@@ -324,8 +326,12 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
           recipientIds: recipients,
           actorId: request.user.sub,
           type: "requirement.reviewed",
-          title: body.approved ? "需求已核准" : "需求已退回",
-          message: `需求「${updated.title}」${body.approved ? "已核准" : "已退回"}${autoNote}。`,
+          title: body.approved
+            ? `客戶「${customerLabel}」需求已核准`
+            : `客戶「${customerLabel}」需求已退回`,
+          message: `客戶「${customerLabel}」的需求「${updated.title}」${
+            body.approved ? "已核准" : "已退回"
+          }${autoNote}。`,
           link: `/requirements/${id}`,
           linkByRole: {
             customer: `/my/requirements/${id}`,

@@ -766,18 +766,29 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         ].filter(Boolean);
         const customerLabel =
           requirement?.companyName?.trim() || requirement?.contact?.name?.trim() || "客戶";
+        const docTypeLabels: Record<string, string> = {
+          requirement: "需求文件",
+          system: "系統架構文件",
+          software: "軟體設計文件",
+          test: "系統驗證文件",
+          delivery: "交付文件",
+        };
+        const docLabel = docTypeLabels[updated.type] ?? "專案文件";
         const autoNote = autoTransitionTo
           ? `，專案狀態已自動更新為「${projectStatusLabels[autoTransitionTo] ?? autoTransitionTo}」`
           : "";
         const reviewMessage =
           body.approved === false
-            ? `客戶「${customerLabel}」退回專案「${project?.name ?? id}」文件，請依簽核意見調整。`
-            : `客戶「${customerLabel}」已完成專案「${project?.name ?? id}」文件簽核${autoNote}。`;
+            ? `客戶「${customerLabel}」退回專案「${project?.name ?? id}」${docLabel}，請依簽核意見調整。`
+            : `客戶「${customerLabel}」已完成專案「${project?.name ?? id}」${docLabel}簽核${autoNote}。`;
         await notifyUsers({
           recipientIds: recipients,
           actorId: request.user.sub,
           type: "project.document.reviewed",
-          title: body.approved === false ? `客戶「${customerLabel}」專案文件需調整` : `客戶「${customerLabel}」專案文件已簽核`,
+          title:
+            body.approved === false
+              ? `客戶「${customerLabel}」${docLabel}需調整`
+              : `客戶「${customerLabel}」${docLabel}已簽核`,
           message: reviewMessage,
           link: `/workspace?project=${id}`,
           linkByRole: {
