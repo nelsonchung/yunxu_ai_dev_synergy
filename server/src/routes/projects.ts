@@ -433,13 +433,15 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         const roleRecipients = await listActiveUserIdsByRole(["developer", "admin"]);
         const recipients = roleRecipients.filter(Boolean);
         if (recipients.length) {
+          const customerLabel =
+            requirement?.companyName?.trim() || requirement?.contact?.name?.trim() || "客戶";
           const actionLabel = updated.status === "approved" ? "已核准" : "需調整";
           await notifyUsers({
             recipientIds: recipients,
             actorId: request.user?.sub ?? null,
             type: "quotation.reviewed",
-            title: `報價${actionLabel}`,
-            message: `專案「${project?.name ?? id}」報價${actionLabel}，請查看處理。`,
+            title: `客戶「${customerLabel}」報價${actionLabel}`,
+            message: `客戶「${customerLabel}」已${actionLabel}專案「${project?.name ?? id}」報價，請查看處理。`,
             link: `/workspace?project=${id}`,
           });
         }
@@ -758,18 +760,20 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
           ...roleRecipients,
           requirement?.ownerId ?? "",
         ].filter(Boolean);
+        const customerLabel =
+          requirement?.companyName?.trim() || requirement?.contact?.name?.trim() || "客戶";
         const autoNote = autoTransitionTo
           ? `，專案狀態已自動更新為「${projectStatusLabels[autoTransitionTo] ?? autoTransitionTo}」`
           : "";
         const reviewMessage =
           body.approved === false
-            ? `專案「${project?.name ?? id}」的文件已被退回，請依簽核意見調整。`
-            : `專案「${project?.name ?? id}」的文件已完成簽核${autoNote}。`;
+            ? `客戶「${customerLabel}」退回專案「${project?.name ?? id}」文件，請依簽核意見調整。`
+            : `客戶「${customerLabel}」已完成專案「${project?.name ?? id}」文件簽核${autoNote}。`;
         await notifyUsers({
           recipientIds: recipients,
           actorId: request.user.sub,
           type: "project.document.reviewed",
-          title: body.approved === false ? "專案文件需調整" : "專案文件已簽核",
+          title: body.approved === false ? `客戶「${customerLabel}」專案文件需調整` : `客戶「${customerLabel}」專案文件已簽核`,
           message: reviewMessage,
           link: `/workspace?project=${id}`,
           linkByRole: {

@@ -374,12 +374,14 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
           ...roleRecipients,
           requirement?.ownerId ?? "",
         ].filter(Boolean);
+        const customerLabel =
+          requirement?.companyName?.trim() || requirement?.contact?.name?.trim() || "客戶";
         await notifyUsers({
           recipientIds: recipients,
           actorId: request.user.sub,
           type: "requirement.document.commented",
-          title: "需求文件有新留言",
-          message: `需求「${requirement?.title ?? id}」有新的留言或回覆。`,
+          title: `客戶「${customerLabel}」在需求文件有新留言`,
+          message: `客戶「${customerLabel}」在需求「${requirement?.title ?? id}」留下新的留言或回覆。`,
           link: `/requirements/${id}`,
           linkByRole: {
             customer: `/my/requirements/${id}`,
