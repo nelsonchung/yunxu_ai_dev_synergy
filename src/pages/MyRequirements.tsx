@@ -423,21 +423,20 @@ export default function MyRequirements() {
 
                 const hasVerificationChecklist = Boolean(progress?.verificationChecklistTotal);
                 const hasChecklist = Boolean(progress?.checklistTotal);
-                const progressPercent = hasVerificationChecklist
+                const developmentPercent = hasChecklist
+                  ? getChecklistProgress(progress?.checklistDone ?? 0, progress?.checklistTotal ?? 0)
+                  : null;
+                const verificationPercent = hasVerificationChecklist
                   ? getChecklistProgress(
                       progress?.verificationChecklistDone ?? 0,
                       progress?.verificationChecklistTotal ?? 0
                     )
-                  : hasChecklist
-                    ? getChecklistProgress(progress?.checklistDone ?? 0, progress?.checklistTotal ?? 0)
-                    : getProjectProgress(progress?.projectStatus ?? null, progress?.projectPreviousStatus ?? null);
-                const progressLabel = progress
-                  ? hasVerificationChecklist
-                    ? `系統驗證完成 ${progress?.verificationChecklistDone ?? 0}/${progress?.verificationChecklistTotal ?? 0}`
-                    : hasChecklist
-                      ? `開發完成 ${progress?.checklistDone ?? 0}/${progress?.checklistTotal ?? 0}`
-                      : projectStatusLabels[progress?.projectStatus ?? ""] ?? progress?.projectStatus ?? "--"
-                  : "--";
+                  : null;
+                const projectStatusPercent = getProjectProgress(
+                  progress?.projectStatus ?? null,
+                  progress?.projectPreviousStatus ?? null
+                );
+                const projectStageLabel = projectStatusLabels[progress?.projectStatus ?? ""] ?? progress?.projectStatus ?? "--";
 
                 return (
                 <div key={item.id} className="rounded-2xl border bg-white/90 p-4 space-y-3">
@@ -480,18 +479,53 @@ export default function MyRequirements() {
                         <div className="text-xs text-muted-foreground">
                           專案：{progress?.projectName ?? "尚未建立"}
                         </div>
-                        {progress?.projectStatus || progress?.checklistTotal || progress?.verificationChecklistTotal ? (
+                        {progress?.projectStatus ? (
+                          <div className="text-xs text-muted-foreground">
+                            階段：{projectStageLabel}
+                          </div>
+                        ) : null}
+                        {hasChecklist ? (
                           <div className="space-y-1">
                             <div className="flex items-center justify-between text-xs text-muted-foreground">
                               <span>
-                                進度：{progressLabel}
+                                開發進度：完成 {progress?.checklistDone ?? 0}/{progress?.checklistTotal ?? 0}
                               </span>
-                              <span>{progressPercent}%</span>
+                              <span>{developmentPercent ?? 0}%</span>
                             </div>
                             <div className="h-2 w-full rounded-full bg-slate-100">
                               <div
                                 className="h-2 rounded-full bg-primary transition-all"
-                                style={{ width: `${progressPercent}%` }}
+                                style={{ width: `${developmentPercent ?? 0}%` }}
+                              />
+                            </div>
+                          </div>
+                        ) : null}
+                        {hasVerificationChecklist ? (
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                              <span>
+                                系統驗證進度：完成 {progress?.verificationChecklistDone ?? 0}/{progress?.verificationChecklistTotal ?? 0}
+                              </span>
+                              <span>{verificationPercent ?? 0}%</span>
+                            </div>
+                            <div className="h-2 w-full rounded-full bg-slate-100">
+                              <div
+                                className="h-2 rounded-full bg-primary transition-all"
+                                style={{ width: `${verificationPercent ?? 0}%` }}
+                              />
+                            </div>
+                          </div>
+                        ) : null}
+                        {!hasChecklist && !hasVerificationChecklist && progress?.projectStatus ? (
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                              <span>專案進度：{projectStageLabel}</span>
+                              <span>{projectStatusPercent}%</span>
+                            </div>
+                            <div className="h-2 w-full rounded-full bg-slate-100">
+                              <div
+                                className="h-2 rounded-full bg-primary transition-all"
+                                style={{ width: `${projectStatusPercent}%` }}
                               />
                             </div>
                           </div>
