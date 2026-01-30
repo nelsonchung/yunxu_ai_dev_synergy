@@ -1,4 +1,5 @@
 import { createJsonStore, resolveDataPath } from "./jsonStore.js";
+import type { UserRole } from "./store.js";
 
 export type RequirementStatus =
   | "draft"
@@ -228,6 +229,17 @@ export type VerificationChecklist = {
   updatedBy: string | null;
 };
 
+export type SupportMessage = {
+  id: string;
+  threadId: string;
+  senderId: string;
+  senderRole: UserRole;
+  recipientId: string | null;
+  recipientRole: UserRole;
+  message: string;
+  createdAt: string;
+};
+
 export type AIJob = {
   id: string;
   type: string;
@@ -269,6 +281,9 @@ const DEVELOPMENT_CHECKLISTS_FILE = resolveDataPath(
 const VERIFICATION_CHECKLISTS_FILE = resolveDataPath(
   process.env.DATA_VERIFICATION_CHECKLISTS_FILE ?? "./data/verification_checklists.json"
 );
+const SUPPORT_MESSAGES_FILE = resolveDataPath(
+  process.env.DATA_SUPPORT_MESSAGES_FILE ?? "./data/support_messages.json"
+);
 
 export const platformStores = {
   requirements: createJsonStore<Requirement[]>(REQUIREMENTS_FILE, []),
@@ -284,6 +299,7 @@ export const platformStores = {
   quotationReviews: createJsonStore<QuotationReview[]>(QUOTATION_REVIEWS_FILE, []),
   developmentChecklists: createJsonStore<DevelopmentChecklist[]>(DEVELOPMENT_CHECKLISTS_FILE, []),
   verificationChecklists: createJsonStore<VerificationChecklist[]>(VERIFICATION_CHECKLISTS_FILE, []),
+  supportMessages: createJsonStore<SupportMessage[]>(SUPPORT_MESSAGES_FILE, []),
 };
 
 export const initPlatformStore = async () => {

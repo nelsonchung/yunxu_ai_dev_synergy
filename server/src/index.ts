@@ -15,6 +15,7 @@ import qualityRoutes from "./routes/quality.js";
 import auditRoutes from "./routes/audit.js";
 import permissionsRoutes from "./routes/permissions.js";
 import notificationsRoutes from "./routes/notifications.js";
+import supportRoutes from "./routes/support.js";
 import { initStore } from "./store.js";
 import { initPlatformStore } from "./platformStore.js";
 import { hasPermission, initPermissionsStore } from "./permissionsStore.js";
@@ -96,6 +97,7 @@ app.register(qualityRoutes, { prefix: "/api" });
 app.register(auditRoutes, { prefix: "/api" });
 app.register(permissionsRoutes, { prefix: "/api" });
 app.register(notificationsRoutes, { prefix: "/api" });
+app.register(supportRoutes, { prefix: "/api" });
 
 app.server.on("upgrade", (request, socket) => {
   void handleNotificationsUpgrade(app, request, socket as Socket);

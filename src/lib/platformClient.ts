@@ -183,6 +183,25 @@ export type VerificationChecklist = {
   updatedBy: string | null;
 };
 
+export type SupportMessage = {
+  id: string;
+  threadId: string;
+  senderId: string;
+  senderRole: "customer" | "developer" | "admin";
+  recipientId: string | null;
+  recipientRole: "customer" | "developer" | "admin";
+  message: string;
+  createdAt: string;
+};
+
+export type SupportThread = {
+  threadId: string;
+  lastMessage: string;
+  lastAt: string;
+  total: number;
+  user: { id: string; username: string; email: string; role: string } | null;
+};
+
 export type MatchingResult = {
   id: string;
   requirementId: string;
@@ -514,6 +533,33 @@ export const updateProjectVerificationChecklistItem = async (
     }
   );
   return data.checklist;
+};
+
+export const listSupportThreads = async () => {
+  const data = await apiRequest<{ threads: SupportThread[] }>("/api/support/threads", {
+    method: "GET",
+  });
+  return data.threads;
+};
+
+export const listSupportMessages = async (threadId?: string) => {
+  const query = threadId ? `?thread_id=${encodeURIComponent(threadId)}` : "";
+  const data = await apiRequest<{ messages: SupportMessage[] }>(
+    `/api/support/messages${query}`,
+    { method: "GET" }
+  );
+  return data.messages;
+};
+
+export const sendSupportMessage = async (payload: { message: string; threadId?: string }) => {
+  const data = await apiRequest<{ message: SupportMessage }>("/api/support/messages", {
+    method: "POST",
+    body: JSON.stringify({
+      message: payload.message,
+      thread_id: payload.threadId,
+    }),
+  });
+  return data.message;
 };
 
 export const listMatchingResults = async (requirementId?: string) => {

@@ -25,6 +25,7 @@ import {
   type DevelopmentChecklistItem,
   type VerificationChecklist,
   type VerificationChecklistItem,
+  type SupportMessage,
 } from "./platformStore.js";
 import { resolveDataPath } from "./jsonStore.js";
 
@@ -1498,6 +1499,66 @@ export const listQualityReports = async (projectId?: string) => {
     ? reports.filter((report) => report.projectId === projectId)
     : reports;
   return [...filtered].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+};
+
+export const listSupportMessages = async (threadId: string) => {
+  const messages = await platformStores.supportMessages.read();
+  return messages
+    .filter((message) => message.threadId === threadId)
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+};
+
+export const listSupportThreads = async () => {
+  const messages = await platformStores.supportMessages.read();
+  const latestMap = new Map<
+    string,
+    { threadId: string; lastMessage: string; lastAt: string; total: number }
+  >();
+
+  for (const message of messages) {
+    const existing = latestMap.get(message.threadId);
+    if (!existing) {
+      latestMap.set(message.threadId, {
+        threadId: message.threadId,
+        lastMessage: message.message,
+        lastAt: message.createdAt,
+        total: 1,
+      });
+      continue;
+    }
+    existing.total += 1;
+    if (message.createdAt > existing.lastAt) {
+      existing.lastAt = message.createdAt;
+      existing.lastMessage = message.message;
+    }
+  }
+
+  return Array.from(latestMap.values()).sort((a, b) => b.lastAt.localeCompare(a.lastAt));
+};
+
+export const createSupportMessage = async (payload: {
+  threadId: string;
+  senderId: string;
+  senderRole: SupportMessage["senderRole"];
+  recipientId: string | null;
+  recipientRole: SupportMessage["recipientRole"];
+  message: string;
+}) => {
+  const messages = await platformStores.supportMessages.read();
+  const now = new Date().toISOString();
+  const message: SupportMessage = {
+    id: randomUUID(),
+    threadId: payload.threadId,
+    senderId: payload.senderId,
+    senderRole: payload.senderRole,
+    recipientId: payload.recipientId,
+    recipientRole: payload.recipientRole,
+    message: payload.message,
+    createdAt: now,
+  };
+  messages.push(message);
+  await platformStores.supportMessages.write(messages);
+  return message;
 };
 
 export const getQualityReport = async (reportId: string) => {
