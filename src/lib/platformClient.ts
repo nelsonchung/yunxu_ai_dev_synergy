@@ -359,12 +359,27 @@ export const listProjects = async () => {
   return data.projects;
 };
 
+export const listMyProjects = async () => {
+  const data = await apiRequest<{ projects: ProjectSummary[] }>("/api/projects/mine", { method: "GET" });
+  return data.projects;
+};
+
 export const listProjectsByRequirement = async (requirementId: string) => {
   const data = await apiRequest<{ projects: ProjectSummary[] }>(
     `/api/requirements/${requirementId}/projects`,
     { method: "GET" }
   );
   return data.projects;
+};
+
+export const sendRequirementInterest = async (
+  requirementId: string,
+  payload?: { message?: string }
+) => {
+  await apiRequest(`/api/requirements/${requirementId}/interest`, {
+    method: "POST",
+    body: JSON.stringify(payload ?? {}),
+  });
 };
 
 export const deleteProject = async (projectId: string) => {

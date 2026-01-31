@@ -6,6 +6,7 @@ import {
   createRequirementDocument,
   deleteRequirement,
   deleteRequirementDocument,
+  forceSetProjectStatus,
   getRequirementById,
   getRequirementDocument,
   listRequirementDocuments,
@@ -13,7 +14,7 @@ import {
   listProjects,
   updateProjectStatus,
 } from "../platformData.js";
-import { addAuditLog } from "../store.js";
+import { addAuditLog, findUserById } from "../store.js";
 import { listActiveUserIdsByRole, notifyUsers } from "../notificationService.js";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -159,6 +160,58 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
     }
   );
 
+  app.post(
+    "/requirements/:id/interest",
+    { preHandler: app.authenticate },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      if (request.user.role !== "developer" && request.user.role !== "admin") {
+        return reply.code(403).send({ message: "權限不足。" });
+      }
+      const requirement = await getRequirementById(id);
+      if (!requirement) {
+        return reply.code(404).send({ message: "找不到需求。" });
+      }
+      if (!requirement.ownerId) {
+        return reply.code(400).send({ message: "需求尚未設定客戶。" });
+      }
+
+      const body = (request.body as { message?: string }) ?? {};
+      const customMessage = String(body.message ?? "").trim();
+      const sender = request.user?.sub ? await findUserById(request.user.sub) : null;
+      const developerLabel = sender?.username?.trim() || sender?.email?.trim() || "開發商";
+      const customerLabel =
+        requirement.companyName?.trim() || requirement.contact?.name?.trim() || "客戶";
+      const defaultMessage = `開發商「${developerLabel}」對你的需求有興趣，方便告知預計何時完成需求文件嗎？`;
+      const finalMessage = customMessage || defaultMessage;
+
+      await notifyUsers({
+        recipientIds: [requirement.ownerId],
+        actorId: request.user?.sub ?? null,
+        type: "requirement.interest",
+        title: `開發商「${developerLabel}」對需求有興趣`,
+        message: `需求「${requirement.title}」：${finalMessage}`,
+        link: `/my/requirements/${id}`,
+      });
+
+      if (request.user?.sub) {
+        await addAuditLog({
+          actorId: request.user.sub,
+          targetUserId: requirement.ownerId,
+          action: "REQUIREMENT_INTEREST_SENT",
+          before: null,
+          after: {
+            requirementId: id,
+            customerLabel,
+            message: finalMessage,
+          },
+        });
+      }
+
+      return { ok: true };
+    }
+  );
+
   app.get("/requirements/:id/documents", async (request, reply) => {
     const { id } = request.params as { id: string };
     const requirement = await getRequirementById(id);
@@ -229,6 +282,28 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
         after: { requirementId: id, documentId: document.id, version: document.version },
       });
 
+      let rollbackCount = 0;
+      try {
+        const projects = (await listProjects()).filter((project) => project.requirementId === id);
+        for (const project of projects) {
+          if (project.status === "closed" || project.status === "canceled") continue;
+          const result = await forceSetProjectStatus(project.id, "requirements_signed");
+          if ("error" in result) continue;
+          if (result.before.status !== result.after.status) {
+            rollbackCount += 1;
+            await addAuditLog({
+              actorId: request.user.sub,
+              targetUserId: null,
+              action: "PROJECT_STATUS_UPDATED",
+              before: { projectId: project.id, status: result.before.status },
+              after: { projectId: project.id, status: result.after.status },
+            });
+          }
+        }
+      } catch (error) {
+        app.log.error(error);
+      }
+
       try {
         const requirement = await getRequirementById(id);
         const roleRecipients = await listActiveUserIdsByRole(["developer", "admin"]);
@@ -236,12 +311,13 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
           ...roleRecipients,
           requirement?.ownerId ?? "",
         ].filter(Boolean);
+        const rollbackNote = rollbackCount > 0 ? "專案已回到需求簽核，請重新確認。" : "";
         await notifyUsers({
           recipientIds: recipients,
           actorId: request.user.sub,
           type: "requirement.document.updated",
           title: "需求文件已更新",
-          message: `需求「${requirement?.title ?? id}」已更新文件版本 v${document.version}。`,
+          message: `需求「${requirement?.title ?? id}」已更新文件版本 v${document.version}。${rollbackNote}`,
           link: `/requirements/${id}`,
           linkByRole: {
             customer: `/my/requirements/${id}`,

@@ -406,17 +406,20 @@ const normalizeProjectRecord = (project: Project) => {
     endDate = project.updatedAt ?? project.createdAt;
   }
 
+  const normalizedCreatorId = project.creatorId ?? null;
   const changed =
     normalizedStatus !== project.status ||
     previousStatus !== (project.previousStatus ?? null) ||
     startDate !== project.startDate ||
-    endDate !== project.endDate;
+    endDate !== project.endDate ||
+    normalizedCreatorId !== (project.creatorId ?? null);
 
   if (!changed) return { changed: false, project };
   return {
     changed: true,
     project: {
       ...project,
+      creatorId: normalizedCreatorId,
       status: normalizedStatus,
       previousStatus,
       startDate,
@@ -458,6 +461,7 @@ const getLatestProjectDocumentByType = (
 
 const transitionGuards: Partial<Record<`${ProjectStatus}->${ProjectStatus}`, string>> = {
   "intake->requirements_signed": "需求文件需為核准狀態",
+  "requirements_signed->architecture_review": "需求文件需為核准狀態",
   "architecture_review->system_architecture_signed": "系統架構文件需為核准狀態",
   "software_design_review->software_design_signed": "軟體設計文件需為核准狀態",
   "software_design_signed->implementation": "報價需完成簽核",
@@ -497,6 +501,13 @@ const checkTransitionGuard = async (project: Project, nextStatus: ProjectStatus)
   const projectDocs = await platformStores.projectDocuments.read();
 
   if (key === "intake->requirements_signed") {
+    const latest = getLatestRequirementDocument(project.requirementId, requirementDocs);
+    return latest?.status === "approved"
+      ? { ok: true as const }
+      : { ok: false as const, reason: transitionGuards[key] };
+  }
+
+  if (key === "requirements_signed->architecture_review") {
     const latest = getLatestRequirementDocument(project.requirementId, requirementDocs);
     return latest?.status === "approved"
       ? { ok: true as const }
@@ -647,7 +658,49 @@ export const forceCloseProject = async (projectId: string) => {
   return { before: current, after: updated };
 };
 
-export const createProject = async (payload: { requirementId: string; name: string }) => {
+export const forceSetProjectStatus = async (projectId: string, status: ProjectStatus) => {
+  const projects = await normalizeProjects();
+  const index = projects.findIndex((project) => project.id === projectId);
+  if (index === -1) return { error: "NOT_FOUND" as const };
+
+  const current = projects[index];
+  if (current.status === status) {
+    return { before: current, after: current };
+  }
+
+  const now = new Date().toISOString();
+  const nextPreviousStatus =
+    status === "on_hold"
+      ? current.status === "on_hold"
+        ? current.previousStatus ?? null
+        : current.status
+      : null;
+  const nextStartDate = current.startDate ?? (status === "implementation" ? now : current.startDate);
+  const nextEndDate =
+    status === "closed"
+      ? now
+      : current.status === "closed"
+        ? null
+        : current.endDate;
+
+  const updated: Project = {
+    ...current,
+    status,
+    previousStatus: nextPreviousStatus,
+    startDate: nextStartDate ?? null,
+    endDate: nextEndDate ?? null,
+    updatedAt: now,
+  };
+  projects[index] = updated;
+  await platformStores.projects.write(projects);
+  return { before: current, after: updated };
+};
+
+export const createProject = async (payload: {
+  requirementId: string;
+  name: string;
+  creatorId?: string | null;
+}) => {
   const projects = await platformStores.projects.read();
   const requirements = await platformStores.requirements.read();
   const now = new Date().toISOString();
@@ -655,6 +708,7 @@ export const createProject = async (payload: { requirementId: string; name: stri
     id: randomUUID(),
     requirementId: payload.requirementId,
     name: payload.name,
+    creatorId: payload.creatorId ?? null,
     status: "intake",
     previousStatus: null,
     startDate: null,

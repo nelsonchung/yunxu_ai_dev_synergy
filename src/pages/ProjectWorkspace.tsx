@@ -17,9 +17,11 @@ import {
   getProjectVerificationChecklist,
   listMilestones,
   listProjectDocuments,
+  listMyProjects,
   listProjects,
   listQualityReports,
   listTasks,
+  sendRequirementInterest,
   updateProjectChecklistItem,
   updateProjectVerificationChecklistItem,
   updateMilestone,
@@ -138,6 +140,7 @@ export default function ProjectWorkspace() {
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
+  const [interestRequirementId, setInterestRequirementId] = useState<string | null>(null);
   const [accountRole, setAccountRole] = useState<string | null>(null);
   const [permissions, setPermissions] = useState<string[]>([]);
 
@@ -160,10 +163,11 @@ export default function ProjectWorkspace() {
     return tabs.find((tab) => tab.id === activeTab)?.label ?? "";
   }, [activeTab]);
 
-  const loadProjects = async () => {
+  const loadProjects = async (roleOverride?: string | null) => {
     try {
       setError("");
-      const data = await listProjects();
+      const role = roleOverride ?? accountRole;
+      const data = role === "developer" ? await listMyProjects() : await listProjects();
       setProjects(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "無法載入專案清單。");
@@ -213,6 +217,7 @@ export default function ProjectWorkspace() {
       setAccountRole(session?.role ?? null);
       if (!session) {
         setPermissions([]);
+        setProjects([]);
         return;
       }
       try {
@@ -221,9 +226,9 @@ export default function ProjectWorkspace() {
       } catch {
         setPermissions([]);
       }
+      await loadProjects(session.role);
     };
     syncSession();
-    loadProjects();
   }, []);
 
   useEffect(() => {
@@ -272,13 +277,33 @@ export default function ProjectWorkspace() {
     }
     try {
       setError("");
+      setInterestRequirementId(null);
       setStatus("正在更新專案狀態...");
       const updated = await updateProjectStatus(selectedProjectId, nextStatus);
       setProjects((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
       setSelectedProject(updated);
       setStatus(`專案狀態已更新為「${formatProjectStatus(updated)}」。`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "更新專案狀態失敗。");
+      const message = err instanceof Error ? err.message : "更新專案狀態失敗。";
+      setError(message);
+      if (message.includes("需求文件需為核准狀態") && selectedProject) {
+        setInterestRequirementId(selectedProject.requirementId);
+      } else {
+        setInterestRequirementId(null);
+      }
+      setStatus("");
+    }
+  };
+
+  const handleSendInterest = async (requirementId: string) => {
+    try {
+      setError("");
+      setStatus("正在通知客戶...");
+      await sendRequirementInterest(requirementId);
+      setStatus("已通知客戶需求文件完成時間。");
+      setInterestRequirementId(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "通知客戶失敗。");
       setStatus("");
     }
   };
@@ -491,11 +516,20 @@ export default function ProjectWorkspace() {
 
         {(error || status) && (
           <div
-            className={`rounded-2xl border p-4 text-sm ${
+            className={`rounded-2xl border p-4 text-sm space-y-2 ${
               error ? "border-red-200 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"
             }`}
           >
-            {error || status}
+            <div>{error || status}</div>
+            {error && interestRequirementId && accountRole === "developer" ? (
+              <button
+                type="button"
+                onClick={() => handleSendInterest(interestRequirementId)}
+                className="inline-flex items-center justify-center rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition"
+              >
+                通知客戶完成需求文件
+              </button>
+            ) : null}
           </div>
         )}
 
@@ -549,6 +583,15 @@ export default function ProjectWorkspace() {
                     <span className="rounded-full border border-primary/20 bg-primary/10 px-4 py-1 text-xs font-semibold text-primary">
                       {formatProjectStatus(selectedProject)}
                     </span>
+                    {accountRole === "developer" ? (
+                      <button
+                        type="button"
+                        onClick={() => handleSendInterest(selectedProject.requirementId)}
+                        className="rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition"
+                      >
+                        表達興趣
+                      </button>
+                    ) : null}
                     {canManageProjectStatus && allowedStatusTransitions.length > 0 ? (
                       <div className="flex items-center gap-2 text-xs">
                         <span className="text-muted-foreground">更新狀態</span>

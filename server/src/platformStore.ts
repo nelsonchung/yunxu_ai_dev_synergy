@@ -69,6 +69,7 @@ export type Project = {
   id: string;
   requirementId: string;
   name: string;
+  creatorId: string | null;
   status: ProjectStatus;
   previousStatus: ProjectStatus | null;
   startDate: string | null;

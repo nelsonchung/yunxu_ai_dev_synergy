@@ -71,6 +71,28 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
     };
   });
 
+  app.get("/projects/mine", { preHandler: app.authenticate }, async (request, reply) => {
+    if (request.user.role !== "developer" && request.user.role !== "admin") {
+      return reply.code(403).send({ message: "權限不足。" });
+    }
+    const projects = await listProjects();
+    const items =
+      request.user.role === "admin"
+        ? projects
+        : projects.filter((project) => project.creatorId === request.user.sub);
+    return {
+      projects: items.map((project) => ({
+        id: project.id,
+        name: project.name,
+        requirementId: project.requirementId,
+        status: project.status,
+        previousStatus: project.previousStatus,
+        createdAt: project.createdAt,
+        updatedAt: project.updatedAt,
+      })),
+    };
+  });
+
   app.post("/projects", { preHandler: app.requirePermission("projects.create") }, async (request, reply) => {
     const body = (request.body as { requirementId?: string; name?: string }) ?? {};
     const requirementId = String(body.requirementId ?? "").trim();
@@ -80,7 +102,7 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
       return reply.code(400).send({ message: "請提供 requirementId 與 name。" });
     }
 
-    const project = await createProject({ requirementId, name });
+    const project = await createProject({ requirementId, name, creatorId: request.user?.sub ?? null });
     if (request.user?.sub) {
       await addAuditLog({
         actorId: request.user.sub,
