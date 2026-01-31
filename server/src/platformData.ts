@@ -383,6 +383,7 @@ const legacyProjectStatusMap: Record<string, ProjectStatus> = {
   planned: "intake",
   active: "implementation",
   architecture_signed: "system_architecture_signed",
+  system_verification: "system_verification_review",
   on_hold: "on_hold",
   closed: "closed",
 };
@@ -394,8 +395,8 @@ const baseProjectTransitions: Record<ProjectStatus, ProjectStatus[]> = {
   system_architecture_signed: ["software_design_review"],
   software_design_review: ["software_design_signed"],
   software_design_signed: ["implementation"],
-  implementation: ["system_verification"],
-  system_verification: ["system_verification_signed"],
+  implementation: ["system_verification_review"],
+  system_verification_review: ["system_verification_signed"],
   system_verification_signed: ["delivery_review"],
   delivery_review: ["closed"],
   on_hold: [],
@@ -411,7 +412,7 @@ const stageStatuses = new Set<ProjectStatus>([
   "software_design_review",
   "software_design_signed",
   "implementation",
-  "system_verification",
+  "system_verification_review",
   "system_verification_signed",
   "delivery_review",
 ]);
@@ -440,7 +441,7 @@ const normalizeProjectRecord = (project: Project) => {
   if (
     !startDate &&
     (normalizedStatus === "implementation" ||
-      normalizedStatus === "system_verification" ||
+      normalizedStatus === "system_verification_review" ||
       normalizedStatus === "system_verification_signed" ||
       normalizedStatus === "delivery_review" ||
       normalizedStatus === "closed")
@@ -514,7 +515,7 @@ const transitionGuards: Partial<Record<`${ProjectStatus}->${ProjectStatus}`, str
   "architecture_review->system_architecture_signed": "系統架構文件需為核准狀態",
   "software_design_review->software_design_signed": "軟體設計文件需為核准狀態",
   "software_design_signed->implementation": "報價需完成簽核",
-  "system_verification->system_verification_signed": "測試文件需為核准狀態",
+  "system_verification_review->system_verification_signed": "測試文件需為核准狀態",
   "system_verification_signed->delivery_review": "使用說明文件需已建立",
   "delivery_review->closed": "使用說明文件需為核准狀態",
 };
@@ -591,7 +592,7 @@ const checkTransitionGuard = async (project: Project, nextStatus: ProjectStatus)
       : { ok: false as const, reason: transitionGuards[key] };
   }
 
-  if (key === "system_verification->system_verification_signed") {
+  if (key === "system_verification_review->system_verification_signed") {
     const latest = getLatestProjectDocumentByType(project.id, "test", projectDocs);
     return latest?.status === "approved"
       ? { ok: true as const }

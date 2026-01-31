@@ -67,7 +67,7 @@ const projectStatusLabels: Record<ProjectStatus, string> = {
   software_design_review: "設計審查",
   software_design_signed: "設計簽核",
   implementation: "實作開發",
-  system_verification: "系統驗證",
+  system_verification_review: "系統驗證審查",
   system_verification_signed: "系統驗證簽核",
   delivery_review: "交付審查",
   on_hold: "暫停中",
@@ -90,8 +90,8 @@ const baseProjectStatusTransitions: Record<ProjectStatus, ProjectStatus[]> = {
   system_architecture_signed: ["software_design_review"],
   software_design_review: ["software_design_signed"],
   software_design_signed: ["implementation"],
-  implementation: ["system_verification"],
-  system_verification: ["system_verification_signed"],
+  implementation: ["system_verification_review"],
+  system_verification_review: ["system_verification_signed"],
   system_verification_signed: ["delivery_review"],
   delivery_review: ["closed"],
   on_hold: [],
@@ -154,8 +154,7 @@ export default function ProjectWorkspace() {
     accountRole === "admin" || permissions.includes("projects.tasks.manage");
   const canManageMilestones =
     accountRole === "admin" || permissions.includes("projects.milestones.manage");
-  const canManageProjectStatus =
-    accountRole === "admin" || permissions.includes("projects.status.manage");
+  const canManageProjectStatus = accountRole === "admin";
   const canCreateAnyProjectDoc =
     accountRole === "admin" || permissions.some((permission) => permission.startsWith("projects.documents."));
 

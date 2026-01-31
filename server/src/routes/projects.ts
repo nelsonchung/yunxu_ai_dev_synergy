@@ -45,7 +45,7 @@ const projectStatusLabels: Record<ProjectStatus, string> = {
   software_design_review: "設計審查",
   software_design_signed: "設計簽核",
   implementation: "實作開發",
-  system_verification: "系統驗證",
+  system_verification_review: "系統驗證審查",
   system_verification_signed: "系統驗證簽核",
   delivery_review: "交付審查",
   on_hold: "暫停中",
@@ -695,7 +695,42 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
       });
     }
     try {
+      let autoTransitionTo: ProjectStatus | null = null;
       if (status === "pending_approval") {
+        const autoTransitionByDocType: Record<
+          string,
+          { from: ProjectStatus; to: ProjectStatus }
+        > = {
+          system: { from: "requirements_signed", to: "architecture_review" },
+          software: { from: "system_architecture_signed", to: "software_design_review" },
+          test: { from: "implementation", to: "system_verification_review" },
+          delivery: { from: "system_verification_signed", to: "delivery_review" },
+        };
+        const target = autoTransitionByDocType[type];
+        if (target) {
+          const currentProject = await getProjectById(id);
+          const matchesFrom =
+            currentProject &&
+            (currentProject.status === target.from ||
+              (currentProject.status === "on_hold" &&
+                currentProject.previousStatus === target.from));
+          if (matchesFrom) {
+            const result = await updateProjectStatus(id, target.to);
+            if (!("error" in result)) {
+              autoTransitionTo = result.after.status;
+              if (request.user?.sub && result.before.status !== result.after.status) {
+                await addAuditLog({
+                  actorId: request.user.sub,
+                  targetUserId: null,
+                  action: "PROJECT_STATUS_UPDATED",
+                  before: { projectId: id, status: result.before.status },
+                  after: { projectId: id, status: result.after.status },
+                });
+              }
+            }
+          }
+        }
+
         const project = await getProjectById(id);
         const requirement = project ? await getRequirementById(project.requirementId) : null;
         const roleRecipients = await listActiveUserIdsByRole(["admin"]);
@@ -707,14 +742,17 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         const isTestSubmission = type === "test";
         const customerLabel =
           requirement?.companyName?.trim() || requirement?.contact?.name?.trim() || "客戶";
+        const autoNote = autoTransitionTo
+          ? `，專案狀態已自動更新為「${projectStatusLabels[autoTransitionTo] ?? autoTransitionTo}」`
+          : "";
         await notifyUsers({
           recipientIds: recipients,
           actorId: request.user?.sub ?? null,
           type: isTestSubmission ? "project.document.test.submitted" : "project.document.created",
           title: isTestSubmission ? `客戶「${customerLabel}」系統驗證文件待簽核` : "專案文件已更新",
           message: isTestSubmission
-            ? `客戶「${customerLabel}」的專案「${project?.name ?? id}」已提交系統驗證文件，請前往簽核。`
-            : `專案「${project?.name ?? id}」新增 ${type} 文件版本 v${document.version}。`,
+            ? `客戶「${customerLabel}」的專案「${project?.name ?? id}」已提交系統驗證文件${autoNote}，請前往簽核。`
+            : `專案「${project?.name ?? id}」新增 ${type} 文件版本 v${document.version}${autoNote}。`,
           link: `/workspace?project=${id}`,
           linkByRole: requirementId
             ? {
@@ -828,7 +866,7 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         const autoTransitionByDocType: Record<string, { from: ProjectStatus; to: ProjectStatus }> = {
           system: { from: "architecture_review", to: "system_architecture_signed" },
           software: { from: "software_design_review", to: "software_design_signed" },
-          test: { from: "system_verification", to: "system_verification_signed" },
+          test: { from: "system_verification_review", to: "system_verification_signed" },
         };
         const target = autoTransitionByDocType[updated.type];
         if (target) {

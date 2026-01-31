@@ -66,7 +66,7 @@ const projectStatusLabels: Record<string, string> = {
   software_design_review: "設計審查",
   software_design_signed: "設計簽核",
   implementation: "實作開發",
-  system_verification: "系統驗證",
+  system_verification_review: "系統驗證審查",
   system_verification_signed: "系統驗證簽核",
   delivery_review: "交付審查",
   on_hold: "暫停中",

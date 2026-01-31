@@ -111,7 +111,6 @@ export const defaultRolePermissions: RolePermissions = {
   ],
   developer: [
     "projects.create",
-    "projects.status.manage",
     "projects.documents.system",
     "projects.documents.software",
     "projects.documents.test",

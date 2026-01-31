@@ -236,11 +236,11 @@ parse_response "$response"
 assert_status "200" "$RESPONSE_STATUS" "software_design_signed to implementation"
 assert_project_status "implementation"
 
-log_step "developer transitions -> system_verification"
-response="$(request_json "PATCH" "/api/projects/$project_id/status" '{"status":"system_verification"}' "$developer_cookie" "")"
+log_step "developer transitions -> system_verification_review"
+response="$(request_json "PATCH" "/api/projects/$project_id/status" '{"status":"system_verification_review"}' "$developer_cookie" "")"
 parse_response "$response"
-assert_status "200" "$RESPONSE_STATUS" "implementation to system_verification"
-assert_project_status "system_verification"
+assert_status "200" "$RESPONSE_STATUS" "implementation to system_verification_review"
+assert_project_status "system_verification_review"
 
 log_step "developer creates test document"
 test_doc_payload='{"type":"test","title":"測試計畫 v1","content":"# Test\n\n- autotest"}'

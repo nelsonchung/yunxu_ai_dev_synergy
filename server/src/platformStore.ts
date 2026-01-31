@@ -19,7 +19,7 @@ export type ProjectStatus =
   | "software_design_review"
   | "software_design_signed"
   | "implementation"
-  | "system_verification"
+  | "system_verification_review"
   | "system_verification_signed"
   | "delivery_review"
   | "on_hold"
