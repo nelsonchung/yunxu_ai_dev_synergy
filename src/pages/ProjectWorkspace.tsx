@@ -453,7 +453,7 @@ export default function ProjectWorkspace() {
           <div className="space-y-2">
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1 text-sm font-semibold text-primary">
               <LayoutGrid className="h-4 w-4" />
-              專案工作台
+              專業工作台
             </span>
             <h1 className="font-serif text-3xl md:text-4xl font-bold">專案協作與交付</h1>
             <p className="text-muted-foreground">集中查看專案進度、文件、協作與品質報告。</p>
@@ -467,6 +467,23 @@ export default function ProjectWorkspace() {
             重新整理
           </button>
         </div>
+
+        {!accountRole ? (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+            請先登入後查看專案工作台。
+          </div>
+        ) : accountRole === "customer" ? (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+            <p className="font-medium">此頁面僅供開發者權限瀏覽</p>
+            <p className="mt-1">
+              如有需要，請透過{" "}
+              <Link href="/support" className="text-primary underline hover:no-underline">
+                客服中心
+              </Link>{" "}
+              與我們聯繫。
+            </p>
+          </div>
+        ) : null}
 
         {(error || status) && (
           <div

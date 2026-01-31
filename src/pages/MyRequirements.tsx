@@ -114,6 +114,9 @@ export default function MyRequirements() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  const canViewPage = userRole === "customer" || userRole === "admin";
 
   const loadRequirements = async () => {
     try {
@@ -132,7 +135,8 @@ export default function MyRequirements() {
     const syncSession = async () => {
       const session = await getSession();
       setIsLoggedIn(Boolean(session));
-      if (session) {
+      setUserRole(session?.role ?? null);
+      if (session && (session.role === "customer" || session.role === "admin")) {
         loadRequirements();
       }
     };
@@ -375,6 +379,17 @@ export default function MyRequirements() {
         {!isLoggedIn ? (
           <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
             請先登入後查看你的需求列表。
+          </div>
+        ) : !canViewPage ? (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+            <p className="font-medium">此頁面僅供客戶或管理員權限瀏覽</p>
+            <p className="mt-1">
+              如有需要，請透過{" "}
+              <Link href="/support" className="text-primary underline hover:no-underline">
+                客服中心
+              </Link>{" "}
+              與我們聯繫。
+            </p>
           </div>
         ) : null}
 

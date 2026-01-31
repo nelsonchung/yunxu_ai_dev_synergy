@@ -191,10 +191,10 @@ export default function Requirements() {
                     </Link>
                     {showDocumentLink ? (
                       <Link
-                        href={`/documents?requirement=${item.id}`}
+                        href={`/editor?kind=requirement&requirement=${item.id}`}
                         className="inline-flex items-center justify-center rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition"
                       >
-                        查看 / 編輯文件
+                        前往需求文件
                       </Link>
                     ) : (
                       <span className="inline-flex items-center justify-center rounded-full border border-border px-3 py-1 text-xs font-semibold text-muted-foreground">

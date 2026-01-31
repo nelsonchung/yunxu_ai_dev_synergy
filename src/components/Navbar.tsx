@@ -21,6 +21,7 @@ const anchorItems = [
 const customerRoutes = [
   { label: "需求中心", href: "/requirements", type: "route" },
   { label: "訊息中心", href: "/notifications", type: "route" },
+  { label: "使用指南", href: "/guide", type: "route" },
   { label: "客服中心", href: "/support", type: "route" },
   { label: "我的需求", href: "/my/requirements", type: "route" },
 ];
@@ -28,20 +29,17 @@ const customerRoutes = [
 const developerRoutes = [
   { label: "需求中心", href: "/requirements", type: "route" },
   { label: "訊息中心", href: "/notifications", type: "route" },
+  { label: "使用指南", href: "/guide", type: "route" },
   { label: "客服中心", href: "/support", type: "route" },
-  { label: "專案工作台", href: "/workspace", type: "route" },
+  { label: "專業工作台", href: "/workspace", type: "route" },
 ];
 
 const adminRoutes = [
   { label: "需求中心", href: "/requirements", type: "route" },
   { label: "訊息中心", href: "/notifications", type: "route" },
   { label: "客服中心", href: "/support", type: "route" },
-  { label: "媒合估工", href: "/matching", type: "route" },
-  { label: "專案工作台", href: "/workspace", type: "route" },
+  { label: "專業工作台", href: "/workspace", type: "route" },
   { label: "專案管理", href: "/projects", type: "route" },
-  { label: "協作開發", href: "/collaboration", type: "route" },
-  { label: "文件中心", href: "/documents", type: "route" },
-  { label: "品質交付", href: "/quality", type: "route" },
 ];
 
 export default function Navbar() {

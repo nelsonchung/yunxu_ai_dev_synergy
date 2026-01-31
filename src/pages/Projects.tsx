@@ -189,10 +189,10 @@ export default function Projects() {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
                 <Link
-                  href="/documents"
+                  href="/workspace"
                   className="inline-flex items-center justify-center rounded-full border border-white/60 px-6 py-3 text-base font-semibold text-white hover:bg-white/10 transition"
                 >
-                  文件中心
+                  專案工作台
                 </Link>
               </div>
             </div>

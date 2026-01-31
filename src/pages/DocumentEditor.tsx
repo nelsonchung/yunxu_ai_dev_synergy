@@ -315,7 +315,7 @@ export default function DocumentEditor() {
       ? { href: "/workspace", label: "返回專案工作台" }
       : accountRole === "customer"
       ? { href: "/my/requirements", label: "返回我的需求" }
-      : { href: "/documents", label: "返回文件中心" };
+      : { href: "/projects", label: "返回專案管理" };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-secondary/30 to-background">

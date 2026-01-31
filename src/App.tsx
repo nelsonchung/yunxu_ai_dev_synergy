@@ -10,13 +10,10 @@ import CustomerOverviewTabs from "@/pages/CustomerOverviewTabs";
 import MyRequirements from "@/pages/MyRequirements";
 import RequirementDetailTabs from "@/pages/RequirementDetailTabs";
 import RequirementDetail from "@/pages/RequirementDetail";
-import Documents from "@/pages/Documents";
 import Notifications from "@/pages/Notifications";
 import Support from "@/pages/Support";
-import Matching from "@/pages/Matching";
+import Guide from "@/pages/Guide";
 import Requirements from "@/pages/Requirements";
-import Collaboration from "@/pages/Collaboration";
-import Quality from "@/pages/Quality";
 import Home from "@/pages/Home";
 import ProjectDetail from "@/pages/ProjectDetail";
 import ProjectNew from "@/pages/ProjectNew";
@@ -33,12 +30,9 @@ export default function App() {
         <Switch>
           <Route path="/" component={Home} />
           <Route path="/auth" component={Auth} />
-          <Route path="/documents" component={Documents} />
           <Route path="/notifications" component={Notifications} />
+          <Route path="/guide" component={Guide} />
           <Route path="/support" component={Support} />
-          <Route path="/matching" component={Matching} />
-          <Route path="/collaboration" component={Collaboration} />
-          <Route path="/quality" component={Quality} />
           <Route path="/admin/audit" component={AdminAudit} />
           <Route path="/admin/permissions" component={AdminPermissions} />
           <Route path="/editor" component={DocumentEditor} />
