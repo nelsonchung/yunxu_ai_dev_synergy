@@ -1,0 +1,42 @@
+[
+  {
+    "id": "6860ef0c-9955-4012-9ab8-1216cc7725cf",
+    "threadId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "senderId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "senderRole": "developer",
+    "recipientId": null,
+    "recipientRole": "admin",
+    "message": "Hi",
+    "createdAt": "2026-01-30T13:10:12.510Z"
+  },
+  {
+    "id": "4309b109-135a-43cd-854f-2ec090600a70",
+    "threadId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "senderId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "senderRole": "admin",
+    "recipientId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "recipientRole": "developer",
+    "message": "您好",
+    "createdAt": "2026-01-30T13:10:30.087Z"
+  },
+  {
+    "id": "f62b1e67-2ed7-4559-88a7-983d0c149c40",
+    "threadId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "senderId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "senderRole": "customer",
+    "recipientId": null,
+    "recipientRole": "admin",
+    "message": "Hi",
+    "createdAt": "2026-01-30T13:10:42.351Z"
+  },
+  {
+    "id": "96224932-8971-495d-8640-99990cec9ecd",
+    "threadId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "senderId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "senderRole": "admin",
+    "recipientId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "recipientRole": "customer",
+    "message": "您好",
+    "createdAt": "2026-01-30T13:10:53.039Z"
+  }
+]
