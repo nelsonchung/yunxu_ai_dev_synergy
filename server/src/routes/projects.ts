@@ -771,7 +771,7 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
           system: "系統架構文件",
           software: "軟體設計文件",
           test: "系統驗證文件",
-          delivery: "交付文件",
+          delivery: "使用說明文件",
         };
         const docLabel = docTypeLabels[updated.type] ?? "專案文件";
         const autoNote = autoTransitionTo

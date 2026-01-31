@@ -462,8 +462,8 @@ const transitionGuards: Partial<Record<`${ProjectStatus}->${ProjectStatus}`, str
   "software_design_review->software_design_signed": "軟體設計文件需為核准狀態",
   "software_design_signed->implementation": "報價需完成簽核",
   "system_verification->system_verification_signed": "測試文件需為核准狀態",
-  "system_verification_signed->delivery_review": "交付文件需已建立",
-  "delivery_review->closed": "交付文件需為核准狀態",
+  "system_verification_signed->delivery_review": "使用說明文件需已建立",
+  "delivery_review->closed": "使用說明文件需為核准狀態",
 };
 
 const getEffectiveStatus = (project: Project): ProjectStatus => {

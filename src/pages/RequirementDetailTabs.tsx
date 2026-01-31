@@ -86,7 +86,7 @@ const docTypeLabels: Record<string, string> = {
   system: "系統架構",
   software: "軟體設計",
   test: "系統驗證",
-  delivery: "交付",
+  delivery: "使用說明",
 };
 
 const quotationStatusLabels: Record<string, string> = {
@@ -357,8 +357,12 @@ export default function RequirementDetailTabs() {
       system: groups.system ?? [],
       software: groups.software ?? [],
       test: groups.test ?? [],
+      delivery: groups.delivery ?? [],
       other: Object.entries(groups)
-        .filter(([type]) => type !== "system" && type !== "software" && type !== "test")
+        .filter(
+          ([type]) =>
+            type !== "system" && type !== "software" && type !== "test" && type !== "delivery"
+        )
         .flatMap(([, list]) => list)
         .sort((a, b) => b.version - a.version),
     };
@@ -560,7 +564,7 @@ export default function RequirementDetailTabs() {
           {activeTab === "documents" ? (
             <div className="space-y-6">
               <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 text-xs text-primary">
-                這裡是客戶簽核入口：請先簽核需求文件，再依序簽核系統架構、軟體設計、測試與交付文件。
+                這裡是客戶簽核入口：請先簽核需求文件，再依序簽核系統架構、軟體設計、測試與使用說明文件。
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -719,6 +723,33 @@ export default function RequirementDetailTabs() {
                           {renderProjectDocCard(projectDocGroups.test[0], true)}
                           {expandedDocGroups.test
                             ? projectDocGroups.test.slice(1).map((doc) => renderProjectDocCard(doc, false))
+                            : null}
+                        </>
+                      )}
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-semibold">使用說明文件</p>
+                        {projectDocGroups.delivery.length > 1 ? (
+                          <button
+                            type="button"
+                            onClick={() => toggleDocGroup("delivery")}
+                            className="text-xs font-semibold text-primary hover:text-primary/80"
+                          >
+                            {expandedDocGroups.delivery ? "收合舊版本" : "展開舊版本"}
+                          </button>
+                        ) : null}
+                      </div>
+                      {projectDocGroups.delivery.length === 0 ? (
+                        <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
+                          尚無使用說明文件。
+                        </div>
+                      ) : (
+                        <>
+                          {renderProjectDocCard(projectDocGroups.delivery[0], true)}
+                          {expandedDocGroups.delivery
+                            ? projectDocGroups.delivery.slice(1).map((doc) => renderProjectDocCard(doc, false))
                             : null}
                         </>
                       )}

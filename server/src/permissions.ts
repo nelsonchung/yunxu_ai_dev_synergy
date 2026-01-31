@@ -64,8 +64,8 @@ export const permissionDefinitions = [
   },
   {
     id: "projects.documents.delivery",
-    label: "撰寫交付文件",
-    description: "建立/更新交付與驗收文件",
+    label: "撰寫使用說明文件",
+    description: "建立/更新使用說明文件",
     category: "文件中心",
   },
   {
