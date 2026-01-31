@@ -317,11 +317,30 @@ export const getRequirementDocument = async (requirementId: string, docId: strin
   return { ...data.document, content: data.content };
 };
 
-export const createRequirementDocument = async (requirementId: string, content: string) => {
+export const createRequirementDocument = async (
+  requirementId: string,
+  content: string,
+  status?: "draft" | "pending_approval"
+) => {
   const data = await apiRequest<{ document_id: string; version: number }>(
     `/api/requirements/${requirementId}/documents`,
     {
       method: "POST",
+      body: JSON.stringify({ content, status }),
+    }
+  );
+  return data;
+};
+
+export const updateRequirementDocumentDraft = async (
+  requirementId: string,
+  docId: string,
+  content: string
+) => {
+  const data = await apiRequest<{ document_id: string; version: number; status: string; updatedAt: string }>(
+    `/api/requirements/${requirementId}/documents/${docId}`,
+    {
+      method: "PATCH",
       body: JSON.stringify({ content }),
     }
   );
@@ -439,6 +458,25 @@ export const createProjectDocument = async (projectId: string, payload: {
         content: payload.content,
         version_note: payload.versionNote,
         status: payload.status,
+      }),
+    }
+  );
+  return data;
+};
+
+export const updateProjectDocumentDraft = async (
+  projectId: string,
+  docId: string,
+  payload: { content: string; title?: string; versionNote?: string }
+) => {
+  const data = await apiRequest<{ document_id: string; version: number; status: string; updatedAt: string }>(
+    `/api/projects/${projectId}/documents/${docId}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({
+        content: payload.content,
+        title: payload.title,
+        version_note: payload.versionNote,
       }),
     }
   );

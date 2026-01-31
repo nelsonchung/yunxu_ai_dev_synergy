@@ -9,6 +9,8 @@ import {
   getProjectDocument,
   getRequirementDocument,
   listRequirementDocuments,
+  updateProjectDocumentDraft,
+  updateRequirementDocumentDraft,
 } from "@/lib/platformClient";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import QuotationReview from "@/components/QuotationReview";
@@ -45,6 +47,7 @@ export default function DocumentEditor() {
   const [projectDocType, setProjectDocType] = useState("");
   const [projectDocTitle, setProjectDocTitle] = useState("");
   const [projectDocStatus, setProjectDocStatus] = useState("draft");
+  const [requirementDocStatus, setRequirementDocStatus] = useState("draft");
   const [versionNote, setVersionNote] = useState("");
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
@@ -122,6 +125,7 @@ export default function DocumentEditor() {
           if (docs.length === 0) {
             setDocMeta(null);
             setContent("");
+            setRequirementDocStatus("draft");
             return;
           }
           setDocId(docs[0].id);
@@ -136,6 +140,7 @@ export default function DocumentEditor() {
           updatedAt: data.updatedAt,
           createdAt: data.createdAt,
         });
+        setRequirementDocStatus(data.status === "pending_approval" ? "pending_approval" : "draft");
       } catch (err) {
         setError(err instanceof Error ? err.message : "無法載入需求文件。");
       } finally {
@@ -166,7 +171,7 @@ export default function DocumentEditor() {
         setContent(data.content);
         setProjectDocType(data.type);
         setProjectDocTitle(data.title);
-        setProjectDocStatus(data.status);
+        setProjectDocStatus(data.status === "pending_approval" ? "pending_approval" : "draft");
         setDocMeta({
           id: data.id,
           version: data.version,
@@ -209,13 +214,14 @@ export default function DocumentEditor() {
           updatedAt: data.updatedAt,
           createdAt: data.createdAt,
         });
+        setRequirementDocStatus(data.status === "pending_approval" ? "pending_approval" : "draft");
       }
       if (docKind === "project" && targetId && docId) {
         const data = await getProjectDocument(targetId, docId);
         setContent(data.content);
         setProjectDocType(data.type);
         setProjectDocTitle(data.title);
-        setProjectDocStatus(data.status);
+        setProjectDocStatus(data.status === "pending_approval" ? "pending_approval" : "draft");
         setDocMeta({
           id: data.id,
           version: data.version,
@@ -246,12 +252,13 @@ export default function DocumentEditor() {
       }
       try {
         setIsSaving(true);
-        const result = await createRequirementDocument(targetId, content.trim());
+        const nextStatus = requirementDocStatus === "pending_approval" ? "pending_approval" : "draft";
+        const result = await createRequirementDocument(targetId, content.trim(), nextStatus);
         setDocId(result.document_id);
         setDocMeta({
           id: result.document_id,
           version: result.version,
-          status: "pending_approval",
+          status: nextStatus,
           updatedAt: new Date().toISOString(),
           createdAt: new Date().toISOString(),
         });
@@ -283,18 +290,19 @@ export default function DocumentEditor() {
       }
       try {
         setIsSaving(true);
+        const nextStatus = projectDocStatus === "pending_approval" ? "pending_approval" : "draft";
         const result = await createProjectDocument(targetId, {
           type: projectDocType,
           title: projectDocTitle.trim(),
           content: content.trim(),
           versionNote: versionNote.trim() || undefined,
-          status: projectDocStatus,
+          status: nextStatus,
         });
         setDocId(result.document_id);
         setDocMeta({
           id: result.document_id,
           version: result.version,
-          status: projectDocStatus,
+          status: nextStatus,
           updatedAt: new Date().toISOString(),
           createdAt: new Date().toISOString(),
           title: projectDocTitle.trim(),
@@ -303,6 +311,126 @@ export default function DocumentEditor() {
         setStatus(`已新增專案文件版本 v${result.version}。`);
       } catch (err) {
         setError(err instanceof Error ? err.message : "新增專案文件失敗。");
+      } finally {
+        setIsSaving(false);
+      }
+    }
+  };
+
+  const handleSaveDraft = async () => {
+    setStatus("");
+    setError("");
+
+    if (docKind === "requirement") {
+      if (!canEditRequirementDoc) {
+        setError("目前角色無法編修需求文件，請洽管理者調整權限。");
+        return;
+      }
+      if (requirementDocStatus !== "draft") {
+        setError("目前為待簽核版本，請使用「儲存新版本」。");
+        return;
+      }
+      if (!content.trim()) {
+        setError("請輸入需求文件內容。");
+        return;
+      }
+      try {
+        setIsSaving(true);
+        if (docId && docMeta?.status === "draft") {
+          const result = await updateRequirementDocumentDraft(targetId, docId, content.trim());
+          setDocMeta((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  status: "draft",
+                  updatedAt: result.updatedAt,
+                }
+              : prev
+          );
+          setStatus("草稿已儲存。");
+        } else {
+          const result = await createRequirementDocument(targetId, content.trim(), "draft");
+          setDocId(result.document_id);
+          setDocMeta({
+            id: result.document_id,
+            version: result.version,
+            status: "draft",
+            updatedAt: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+          });
+          setStatus(`已新增需求文件草稿 v${result.version}。`);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "儲存草稿失敗。");
+      } finally {
+        setIsSaving(false);
+      }
+      return;
+    }
+
+    if (docKind === "project") {
+      if (!projectDocType) {
+        setError("請選擇文件類型。");
+        return;
+      }
+      if (!canEditProjectDocType(projectDocType)) {
+        setError("目前角色無法建立此類型文件，請洽管理者調整權限。");
+        return;
+      }
+      if (projectDocStatus !== "draft") {
+        setError("目前為待簽核版本，請使用「儲存新版本」。");
+        return;
+      }
+      if (!projectDocTitle.trim()) {
+        setError("請輸入文件標題。");
+        return;
+      }
+      if (!content.trim()) {
+        setError("請輸入文件內容。");
+        return;
+      }
+      try {
+        setIsSaving(true);
+        if (docId && docMeta?.status === "draft") {
+          const result = await updateProjectDocumentDraft(targetId, docId, {
+            title: projectDocTitle.trim(),
+            content: content.trim(),
+            versionNote: versionNote.trim() || undefined,
+          });
+          setDocMeta((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  status: "draft",
+                  updatedAt: result.updatedAt,
+                  title: projectDocTitle.trim(),
+                  type: projectDocType,
+                }
+              : prev
+          );
+          setStatus("草稿已儲存。");
+        } else {
+          const result = await createProjectDocument(targetId, {
+            type: projectDocType,
+            title: projectDocTitle.trim(),
+            content: content.trim(),
+            versionNote: versionNote.trim() || undefined,
+            status: "draft",
+          });
+          setDocId(result.document_id);
+          setDocMeta({
+            id: result.document_id,
+            version: result.version,
+            status: "draft",
+            updatedAt: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+            title: projectDocTitle.trim(),
+            type: projectDocType,
+          });
+          setStatus(`已新增專案文件草稿 v${result.version}。`);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "儲存草稿失敗。");
       } finally {
         setIsSaving(false);
       }
@@ -336,7 +464,7 @@ export default function DocumentEditor() {
             </div>
             <h1 className="font-serif text-3xl md:text-4xl font-bold">{docTitle}</h1>
             <p className="text-muted-foreground">
-              使用 Markdown 編輯文件內容，儲存時會建立新版本並保留歷史紀錄。
+              草稿可儲存不產生新版本；送審或儲存新版本才會建立版本紀錄。
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -347,6 +475,21 @@ export default function DocumentEditor() {
             >
               <RefreshCcw className="h-4 w-4" />
               重新載入
+            </button>
+            <button
+              type="button"
+              onClick={handleSaveDraft}
+              disabled={
+                isSaving ||
+                isLoading ||
+                !docKind ||
+                (docKind === "requirement" && requirementDocStatus !== "draft") ||
+                (docKind === "project" && projectDocStatus !== "draft")
+              }
+              className="inline-flex items-center gap-2 rounded-full border border-primary/30 px-4 py-2 text-sm font-semibold text-primary hover:bg-primary/10 transition disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              <Save className="h-4 w-4" />
+              儲存
             </button>
             <button
               type="button"
@@ -432,7 +575,6 @@ export default function DocumentEditor() {
                   >
                     <option value="draft">草稿</option>
                     <option value="pending_approval">待簽核</option>
-                    <option value="approved">已核准</option>
                   </select>
                 </label>
                 <label className="space-y-2 text-sm font-medium md:col-span-3">
@@ -453,6 +595,18 @@ export default function DocumentEditor() {
               </div>
             ) : (
               <div className="space-y-3">
+                <label className="space-y-2 text-sm font-medium">
+                  文件狀態
+                  <select
+                    value={requirementDocStatus}
+                    onChange={(event) => setRequirementDocStatus(event.target.value)}
+                    disabled={!canEditRequirementDoc}
+                    className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                  >
+                    <option value="draft">草稿</option>
+                    <option value="pending_approval">待簽核</option>
+                  </select>
+                </label>
                 {!canEditRequirementDoc ? (
                   <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
                     目前角色無法編修需求文件，請洽管理者調整權限。

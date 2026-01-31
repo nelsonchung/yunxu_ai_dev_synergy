@@ -134,6 +134,8 @@ export default function RequirementDetailTabs() {
   const canReviewProjectDocs = permissions.includes("projects.documents.review");
 
   const latestRequirementDocId = requirementDocs[0]?.id ?? null;
+  const latestRequirementReviewDocId =
+    requirementDocs.find((doc) => doc.status === "pending_approval")?.id ?? null;
 
   const formatProjectStatus = (item: ProjectSummary | null) => {
     if (!item) return "--";
@@ -372,8 +374,10 @@ export default function RequirementDetailTabs() {
     setExpandedDocGroups((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const renderProjectDocCard = (doc: ProjectDocumentSummary, isLatest: boolean) => (
-    <div key={doc.id} className="rounded-2xl border bg-white/90 p-4 space-y-3">
+  const renderProjectDocCard = (doc: ProjectDocumentSummary, isLatest: boolean) => {
+    const canReview = isLatest && doc.status === "pending_approval";
+    return (
+      <div key={doc.id} className="rounded-2xl border bg-white/90 p-4 space-y-3">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs text-muted-foreground">
@@ -389,7 +393,7 @@ export default function RequirementDetailTabs() {
       {doc.reviewComment ? (
         <p className="text-xs text-muted-foreground">最新留言：{doc.reviewComment}</p>
       ) : null}
-      {isLatest ? (
+      {canReview ? (
         <>
           <textarea
             value={commentDrafts[doc.id] ?? ""}
@@ -432,8 +436,9 @@ export default function RequirementDetailTabs() {
           開啟編輯器
         </Link>
       )}
-    </div>
-  );
+      </div>
+    );
+  };
 
   const activeLabel = useMemo(() => {
     return tabs.find((tab) => tab.id === activeTab)?.label ?? "";
@@ -611,7 +616,12 @@ export default function RequirementDetailTabs() {
                         <button
                           type="button"
                           onClick={() => handleApproveRequirement(doc.id)}
-                          disabled={!canReviewRequirementDocs || isSaving || doc.id !== latestRequirementDocId}
+                          disabled={
+                            !canReviewRequirementDocs ||
+                            isSaving ||
+                            doc.status !== "pending_approval" ||
+                            doc.id !== latestRequirementReviewDocId
+                          }
                           className="inline-flex items-center justify-center rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition disabled:cursor-not-allowed disabled:opacity-70"
                         >
                           簽核同意

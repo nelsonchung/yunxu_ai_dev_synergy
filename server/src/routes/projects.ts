@@ -13,6 +13,7 @@ import {
   listProjectDocuments,
   listProjects,
   forceCloseProject,
+  updateProjectDocumentDraft,
   reviewProjectDocument,
   reviewQuotationReview,
   submitQuotationReview,
@@ -645,17 +646,21 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
       title?: string;
       content?: string;
       version_note?: string;
-      status?: "draft" | "pending_approval" | "approved" | "archived";
+      status?: "draft" | "pending_approval";
     }) ?? {};
     const type = String(body.type ?? "").trim();
     const title = String(body.title ?? "").trim();
     const content = String(body.content ?? "").trim();
+    const status = body.status ?? "draft";
 
     if (!type || !title || !content) {
       return reply.code(400).send({ message: "請提供 type、title 與 content。" });
     }
     if (!allowedProjectDocumentTypes.has(type)) {
       return reply.code(400).send({ message: "不支援的文件類型。" });
+    }
+    if (status !== "draft" && status !== "pending_approval") {
+      return reply.code(400).send({ message: "不支援的文件狀態。" });
     }
 
     const permissionId = projectDocumentPermissionMap[type];
@@ -671,7 +676,7 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         type,
         title,
         content,
-        status: body.status,
+        status,
         versionNote: body.version_note ?? null,
       });
     } catch (error) {
@@ -690,37 +695,92 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
       });
     }
     try {
-      const project = await getProjectById(id);
-      const requirement = project ? await getRequirementById(project.requirementId) : null;
-      const roleRecipients = await listActiveUserIdsByRole(["admin"]);
-      const recipients = [
-        ...roleRecipients,
-        requirement?.ownerId ?? "",
-      ].filter(Boolean);
-      const requirementId = requirement?.id ?? project?.requirementId ?? "";
-      const isTestSubmission = type === "test" && (body.status ?? "") === "pending_approval";
-      const customerLabel =
-        requirement?.companyName?.trim() || requirement?.contact?.name?.trim() || "客戶";
-      await notifyUsers({
-        recipientIds: recipients,
-        actorId: request.user?.sub ?? null,
-        type: isTestSubmission ? "project.document.test.submitted" : "project.document.created",
-        title: isTestSubmission ? `客戶「${customerLabel}」系統驗證文件待簽核` : "專案文件已更新",
-        message: isTestSubmission
-          ? `客戶「${customerLabel}」的專案「${project?.name ?? id}」已提交系統驗證文件，請前往簽核。`
-          : `專案「${project?.name ?? id}」新增 ${type} 文件版本 v${document.version}。`,
-        link: `/workspace?project=${id}`,
-        linkByRole: requirementId
-          ? {
-              customer: `/my/requirements/${requirementId}?tab=documents`,
-            }
-          : undefined,
-      });
+      if (status === "pending_approval") {
+        const project = await getProjectById(id);
+        const requirement = project ? await getRequirementById(project.requirementId) : null;
+        const roleRecipients = await listActiveUserIdsByRole(["admin"]);
+        const recipients = [
+          ...roleRecipients,
+          requirement?.ownerId ?? "",
+        ].filter(Boolean);
+        const requirementId = requirement?.id ?? project?.requirementId ?? "";
+        const isTestSubmission = type === "test";
+        const customerLabel =
+          requirement?.companyName?.trim() || requirement?.contact?.name?.trim() || "客戶";
+        await notifyUsers({
+          recipientIds: recipients,
+          actorId: request.user?.sub ?? null,
+          type: isTestSubmission ? "project.document.test.submitted" : "project.document.created",
+          title: isTestSubmission ? `客戶「${customerLabel}」系統驗證文件待簽核` : "專案文件已更新",
+          message: isTestSubmission
+            ? `客戶「${customerLabel}」的專案「${project?.name ?? id}」已提交系統驗證文件，請前往簽核。`
+            : `專案「${project?.name ?? id}」新增 ${type} 文件版本 v${document.version}。`,
+          link: `/workspace?project=${id}`,
+          linkByRole: requirementId
+            ? {
+                customer: `/my/requirements/${requirementId}?tab=documents`,
+              }
+            : undefined,
+        });
+      }
     } catch (error) {
       app.log.error(error);
     }
     return reply.code(201).send({ document_id: document.id, version: document.version });
   });
+
+  app.patch(
+    "/projects/:id/documents/:docId",
+    { preHandler: app.authenticate },
+    async (request, reply) => {
+      const { id, docId } = request.params as { id: string; docId: string };
+      const body = (request.body as { content?: string; title?: string; version_note?: string }) ?? {};
+      const content = String(body.content ?? "").trim();
+      if (!content) {
+        return reply.code(400).send({ message: "請提供文件內容。" });
+      }
+
+      const docResult = await getProjectDocument(id, docId);
+      if (!docResult) {
+        return reply.code(404).send({ message: "找不到文件。" });
+      }
+      const docType = docResult.document.type;
+      const permissionId = projectDocumentPermissionMap[docType];
+      const allowed = await hasPermission(request.user.role, permissionId);
+      if (!allowed) {
+        return reply.code(403).send({ message: "權限不足，無法編修此類型文件。" });
+      }
+
+      const result = await updateProjectDocumentDraft({
+        projectId: id,
+        docId,
+        content,
+        title: body.title ? String(body.title).trim() : undefined,
+        versionNote: body.version_note !== undefined ? String(body.version_note).trim() : undefined,
+      });
+      if ("error" in result) {
+        if (result.error === "NOT_DRAFT") {
+          return reply.code(400).send({ message: "僅草稿版本可儲存。" });
+        }
+        return reply.code(404).send({ message: "找不到文件。" });
+      }
+
+      await addAuditLog({
+        actorId: request.user?.sub ?? null,
+        targetUserId: null,
+        action: "PROJECT_DOCUMENT_DRAFT_UPDATED",
+        before: null,
+        after: { projectId: id, documentId: docId },
+      });
+
+      return {
+        document_id: result.document.id,
+        version: result.document.version,
+        status: result.document.status,
+        updatedAt: result.document.updatedAt,
+      };
+    }
+  );
 
   app.post(
     "/projects/:id/documents/:docId/review",

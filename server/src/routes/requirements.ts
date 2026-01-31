@@ -12,6 +12,7 @@ import {
   listRequirementDocuments,
   listRequirements,
   listProjects,
+  updateRequirementDocumentDraft,
   updateProjectStatus,
 } from "../platformData.js";
 import { addAuditLog, findUserById } from "../store.js";
@@ -255,6 +256,95 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
     { preHandler: app.requirePermission("requirements.documents.manage") },
     async (request, reply) => {
       const { id } = request.params as { id: string };
+      const body = (request.body as { content?: string; status?: "draft" | "pending_approval" }) ?? {};
+      const content = String(body.content ?? "").trim();
+      const status = body.status ?? "pending_approval";
+      if (!content) {
+        return reply.code(400).send({ message: "請提供文件內容。" });
+      }
+      if (status !== "draft" && status !== "pending_approval") {
+        return reply.code(400).send({ message: "不支援的文件狀態。" });
+      }
+
+      const requirement = await getRequirementById(id);
+      if (!requirement) {
+        return reply.code(404).send({ message: "找不到需求。" });
+      }
+      if (request.user.role !== "admin" && requirement.ownerId !== request.user.sub) {
+        return reply.code(403).send({ message: "僅需求提出者可編修需求文件。" });
+      }
+
+      const document = await createRequirementDocument({ requirementId: id, content, status });
+      if (!document) {
+        return reply.code(404).send({ message: "找不到需求。" });
+      }
+
+      await addAuditLog({
+        actorId: request.user.sub,
+        targetUserId: null,
+        action: "REQUIREMENT_DOCUMENT_CREATED",
+        before: null,
+        after: { requirementId: id, documentId: document.id, version: document.version },
+      });
+
+      let rollbackCount = 0;
+      if (document.status === "pending_approval") {
+        try {
+          const projects = (await listProjects()).filter((project) => project.requirementId === id);
+          for (const project of projects) {
+            if (project.status === "closed" || project.status === "canceled") continue;
+            const result = await forceSetProjectStatus(project.id, "requirements_signed");
+            if ("error" in result) continue;
+            if (result.before.status !== result.after.status) {
+              rollbackCount += 1;
+              await addAuditLog({
+                actorId: request.user.sub,
+                targetUserId: null,
+                action: "PROJECT_STATUS_UPDATED",
+                before: { projectId: project.id, status: result.before.status },
+                after: { projectId: project.id, status: result.after.status },
+              });
+            }
+          }
+        } catch (error) {
+          app.log.error(error);
+        }
+      }
+
+      try {
+        const requirement = await getRequirementById(id);
+        if (document.status === "pending_approval") {
+          const roleRecipients = await listActiveUserIdsByRole(["developer", "admin"]);
+          const recipients = [
+            ...roleRecipients,
+            requirement?.ownerId ?? "",
+          ].filter(Boolean);
+          const rollbackNote = rollbackCount > 0 ? "專案已回到需求簽核，請重新確認。" : "";
+          await notifyUsers({
+            recipientIds: recipients,
+            actorId: request.user.sub,
+            type: "requirement.document.updated",
+            title: "需求文件已更新",
+            message: `需求「${requirement?.title ?? id}」已更新文件版本 v${document.version}。${rollbackNote}`,
+            link: `/requirements/${id}`,
+            linkByRole: {
+              customer: `/my/requirements/${id}`,
+            },
+          });
+        }
+      } catch (error) {
+        app.log.error(error);
+      }
+
+      return reply.code(201).send({ document_id: document.id, version: document.version });
+    }
+  );
+
+  app.patch(
+    "/requirements/:id/documents/:docId",
+    { preHandler: app.requirePermission("requirements.documents.manage") },
+    async (request, reply) => {
+      const { id, docId } = request.params as { id: string; docId: string };
       const body = (request.body as { content?: string }) ?? {};
       const content = String(body.content ?? "").trim();
       if (!content) {
@@ -269,65 +359,32 @@ const requirementsRoutes: FastifyPluginAsync = async (app) => {
         return reply.code(403).send({ message: "僅需求提出者可編修需求文件。" });
       }
 
-      const document = await createRequirementDocument({ requirementId: id, content });
-      if (!document) {
-        return reply.code(404).send({ message: "找不到需求。" });
+      const result = await updateRequirementDocumentDraft({
+        requirementId: id,
+        docId,
+        content,
+      });
+      if ("error" in result) {
+        if (result.error === "NOT_DRAFT") {
+          return reply.code(400).send({ message: "僅草稿版本可儲存。" });
+        }
+        return reply.code(404).send({ message: "找不到文件。" });
       }
 
       await addAuditLog({
         actorId: request.user.sub,
         targetUserId: null,
-        action: "REQUIREMENT_DOCUMENT_CREATED",
+        action: "REQUIREMENT_DOCUMENT_DRAFT_UPDATED",
         before: null,
-        after: { requirementId: id, documentId: document.id, version: document.version },
+        after: { requirementId: id, documentId: docId },
       });
 
-      let rollbackCount = 0;
-      try {
-        const projects = (await listProjects()).filter((project) => project.requirementId === id);
-        for (const project of projects) {
-          if (project.status === "closed" || project.status === "canceled") continue;
-          const result = await forceSetProjectStatus(project.id, "requirements_signed");
-          if ("error" in result) continue;
-          if (result.before.status !== result.after.status) {
-            rollbackCount += 1;
-            await addAuditLog({
-              actorId: request.user.sub,
-              targetUserId: null,
-              action: "PROJECT_STATUS_UPDATED",
-              before: { projectId: project.id, status: result.before.status },
-              after: { projectId: project.id, status: result.after.status },
-            });
-          }
-        }
-      } catch (error) {
-        app.log.error(error);
-      }
-
-      try {
-        const requirement = await getRequirementById(id);
-        const roleRecipients = await listActiveUserIdsByRole(["developer", "admin"]);
-        const recipients = [
-          ...roleRecipients,
-          requirement?.ownerId ?? "",
-        ].filter(Boolean);
-        const rollbackNote = rollbackCount > 0 ? "專案已回到需求簽核，請重新確認。" : "";
-        await notifyUsers({
-          recipientIds: recipients,
-          actorId: request.user.sub,
-          type: "requirement.document.updated",
-          title: "需求文件已更新",
-          message: `需求「${requirement?.title ?? id}」已更新文件版本 v${document.version}。${rollbackNote}`,
-          link: `/requirements/${id}`,
-          linkByRole: {
-            customer: `/my/requirements/${id}`,
-          },
-        });
-      } catch (error) {
-        app.log.error(error);
-      }
-
-      return reply.code(201).send({ document_id: document.id, version: document.version });
+      return {
+        document_id: result.document.id,
+        version: result.document.version,
+        status: result.document.status,
+        updatedAt: result.document.updatedAt,
+      };
     }
   );
 

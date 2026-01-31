@@ -191,23 +191,31 @@ export const createRequirementDocument = async (payload: {
   const nextVersion = existing.length ? Math.max(...existing.map((doc) => doc.version)) + 1 : 1;
   const now = new Date().toISOString();
   const contentUrl = requirementDocPath(payload.requirementId, nextVersion);
+  const status = payload.status ?? "pending_approval";
   const document: RequirementDocument = {
     id: randomUUID(),
     requirementId: payload.requirementId,
     version: nextVersion,
     contentUrl,
-    status: payload.status ?? "pending_approval",
+    status,
     approvedBy: null,
     reviewComment: null,
     createdAt: now,
     updatedAt: now,
   };
 
-  const updatedDocuments = documents.map<RequirementDocument>((doc) =>
-    doc.requirementId === payload.requirementId && doc.status !== "archived"
-      ? { ...doc, status: "archived", updatedAt: now }
-      : doc
-  );
+  const updatedDocuments = documents.map<RequirementDocument>((doc) => {
+    if (doc.requirementId !== payload.requirementId || doc.status === "archived") {
+      return doc;
+    }
+    if (status === "pending_approval") {
+      return { ...doc, status: "archived", updatedAt: now };
+    }
+    if (status === "draft" && doc.status === "draft") {
+      return { ...doc, status: "archived", updatedAt: now };
+    }
+    return doc;
+  });
 
   await writeDocumentFile(contentUrl, payload.content);
   updatedDocuments.push(document);
@@ -215,12 +223,50 @@ export const createRequirementDocument = async (payload: {
 
   requirements[requirementIndex] = {
     ...requirements[requirementIndex],
-    status: "under_review",
+    status: status === "pending_approval" ? "under_review" : requirements[requirementIndex].status,
     updatedAt: now,
   };
   await platformStores.requirements.write(requirements);
 
   return document;
+};
+
+export const updateRequirementDocumentDraft = async (payload: {
+  requirementId: string;
+  docId: string;
+  content: string;
+}) => {
+  const documents = await platformStores.requirementDocuments.read();
+  const index = documents.findIndex(
+    (doc) => doc.requirementId === payload.requirementId && doc.id === payload.docId
+  );
+  if (index === -1) return { error: "NOT_FOUND" as const };
+
+  const current = documents[index];
+  if (current.status !== "draft") {
+    return { error: "NOT_DRAFT" as const };
+  }
+
+  const now = new Date().toISOString();
+  await writeDocumentFile(current.contentUrl, payload.content);
+  const updated: RequirementDocument = {
+    ...current,
+    updatedAt: now,
+  };
+  documents[index] = updated;
+  await platformStores.requirementDocuments.write(documents);
+
+  const requirements = await platformStores.requirements.read();
+  const requirementIndex = requirements.findIndex((item) => item.id === payload.requirementId);
+  if (requirementIndex !== -1) {
+    requirements[requirementIndex] = {
+      ...requirements[requirementIndex],
+      updatedAt: now,
+    };
+    await platformStores.requirements.write(requirements);
+  }
+
+  return { document: updated };
 };
 
 export const getRequirementDocument = async (requirementId: string, docId: string) => {
@@ -313,7 +359,7 @@ export const approveRequirement = async (
   requirements[requirementIndex] = updatedRequirement;
 
   const requirementDocs = documents
-    .filter((doc) => doc.requirementId === requirementId)
+    .filter((doc) => doc.requirementId === requirementId && doc.status !== "draft")
     .sort((a, b) => b.version - a.version);
   const latestDoc = requirementDocs[0];
   if (latestDoc) {
@@ -447,7 +493,7 @@ const getLatestRequirementDocument = (
   documents: RequirementDocument[]
 ) =>
   documents
-    .filter((doc) => doc.requirementId === requirementId)
+    .filter((doc) => doc.requirementId === requirementId && doc.status !== "draft")
     .sort((a, b) => b.version - a.version)[0] ?? null;
 
 const getLatestProjectDocumentByType = (
@@ -456,7 +502,10 @@ const getLatestProjectDocumentByType = (
   documents: ProjectDocument[]
 ) =>
   documents
-    .filter((doc) => doc.projectId === projectId && doc.type === docType)
+    .filter(
+      (doc) =>
+        doc.projectId === projectId && doc.type === docType && doc.status !== "draft"
+    )
     .sort((a, b) => b.version - a.version)[0] ?? null;
 
 const transitionGuards: Partial<Record<`${ProjectStatus}->${ProjectStatus}`, string>> = {
@@ -879,17 +928,56 @@ export const createProjectDocument = async (payload: {
     updatedAt: now,
   };
 
-  const updatedDocuments = documents.map<ProjectDocument>((doc) =>
-    doc.projectId === payload.projectId && doc.type === docType && doc.status !== "archived"
-      ? { ...doc, status: "archived", updatedAt: now }
-      : doc
-  );
+  const updatedDocuments = documents.map<ProjectDocument>((doc) => {
+    if (doc.projectId !== payload.projectId || doc.type !== docType || doc.status === "archived") {
+      return doc;
+    }
+    if (document.status === "pending_approval") {
+      return { ...doc, status: "archived", updatedAt: now };
+    }
+    if (document.status === "draft" && doc.status === "draft") {
+      return { ...doc, status: "archived", updatedAt: now };
+    }
+    return doc;
+  });
 
   await writeDocumentFile(contentUrl, payload.content);
   updatedDocuments.push(document);
   await platformStores.projectDocuments.write(updatedDocuments);
 
   return document;
+};
+
+export const updateProjectDocumentDraft = async (payload: {
+  projectId: string;
+  docId: string;
+  content: string;
+  title?: string;
+  versionNote?: string | null;
+}) => {
+  const documents = await platformStores.projectDocuments.read();
+  const index = documents.findIndex(
+    (doc) => doc.projectId === payload.projectId && doc.id === payload.docId
+  );
+  if (index === -1) return { error: "NOT_FOUND" as const };
+
+  const current = documents[index];
+  if (current.status !== "draft") {
+    return { error: "NOT_DRAFT" as const };
+  }
+
+  const now = new Date().toISOString();
+  await writeDocumentFile(current.contentUrl, payload.content);
+  const updated: ProjectDocument = {
+    ...current,
+    title: payload.title ?? current.title,
+    versionNote:
+      payload.versionNote !== undefined ? payload.versionNote : current.versionNote ?? null,
+    updatedAt: now,
+  };
+  documents[index] = updated;
+  await platformStores.projectDocuments.write(documents);
+  return { document: updated };
 };
 
 export const reviewProjectDocument = async (payload: {
