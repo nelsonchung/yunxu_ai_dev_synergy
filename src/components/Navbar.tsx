@@ -19,17 +19,17 @@ const anchorItems = [
 ];
 
 const customerRoutes = [
+  { label: "使用指南", href: "/guide", type: "route" },
   { label: "需求中心", href: "/requirements", type: "route" },
   { label: "訊息中心", href: "/notifications", type: "route" },
-  { label: "使用指南", href: "/guide", type: "route" },
   { label: "客服中心", href: "/support", type: "route" },
   { label: "我的需求", href: "/my/requirements", type: "route" },
 ];
 
 const developerRoutes = [
+  { label: "使用指南", href: "/guide", type: "route" },
   { label: "需求中心", href: "/requirements", type: "route" },
   { label: "訊息中心", href: "/notifications", type: "route" },
-  { label: "使用指南", href: "/guide", type: "route" },
   { label: "客服中心", href: "/support", type: "route" },
   { label: "專業工作台", href: "/workspace", type: "route" },
 ];
