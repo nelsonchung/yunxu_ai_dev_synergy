@@ -1,0 +1,45 @@
+services:
+  # 後端 API 服務
+  - type: web
+    name: yunxu-ai-dev-api
+    runtime: node
+    region: singapore
+    plan: free
+    buildCommand: cd server && npm install && npm run build
+    startCommand: cd server && npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: HOST
+        value: 0.0.0.0
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: CORS_ORIGIN
+        sync: false
+      - key: DATA_USERS_FILE
+        value: ./data/users.json
+      - key: DATA_AUDIT_FILE
+        value: ./data/audit_logs.json
+      - key: DATA_FILE
+        value: ./data/auth.json
+    healthCheckPath: /health
+
+  # 前端靜態網站
+  - type: web
+    name: yunxu-ai-dev-frontend
+    runtime: static
+    region: singapore
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

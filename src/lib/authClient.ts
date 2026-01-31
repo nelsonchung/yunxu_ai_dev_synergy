@@ -7,6 +7,10 @@ export type AuthUser = {
 };
 
 const resolveApiBase = () => {
+  // 優先使用環境變數配置的 API URL（用於生產環境）
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
   if (typeof window === "undefined") return "http://localhost:8787";
   const protocol = window.location.protocol;
   const hostname = window.location.hostname;
@@ -18,7 +22,7 @@ const resolveApiBase = () => {
   return `${protocol}//${hostname.replace("5173", "8787")}`;
 };
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? resolveApiBase();
+const API_BASE = resolveApiBase();
 const REQUEST_TIMEOUT_MS = Number(import.meta.env.VITE_API_TIMEOUT_MS ?? "8000");
 const EVENT_NAME = "yunxu-auth-session";
 
