@@ -9,7 +9,7 @@ const links = [
   { label: "AI 角色", href: "/#ai", type: "anchor" },
   { label: "合作模式", href: "/#collaboration", type: "anchor" },
   { label: "品牌介紹", href: "/#brand", type: "anchor" },
-  { label: "專案管理", href: "/projects", type: "route" },
+  { label: "使用指南", href: "/guide", type: "route" },
 ];
 
 export default function Footer() {
@@ -112,8 +112,8 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-primary" />
-                <a href="mailto:hello@yunxu.com.tw" className="hover:text-primary transition">
-                  hello@yunxu.com.tw
+                <a href="mailto:yunxu_services@outlook.com" className="hover:text-primary transition">
+                  yunxu_services@outlook.com
                 </a>
               </li>
             </ul>
