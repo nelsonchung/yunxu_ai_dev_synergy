@@ -1031,7 +1031,7 @@
     "message": "需求「軟體媒合系統設計」已建立專案「軟體媒合系統設計」。",
     "link": "/workspace",
     "createdAt": "2026-01-25T13:21:43.047Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:36.114Z"
   },
   {
     "id": "882fc641-2dfb-476f-8c43-46e5ca9e7557",
@@ -1053,7 +1053,7 @@
     "message": "專案「軟體媒合系統設計」新增 system 文件版本 v1。",
     "link": "/workspace",
     "createdAt": "2026-01-25T13:22:25.073Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:36.114Z"
   },
   {
     "id": "2b759d1b-a54a-4e19-88e2-bac98b2ac9c8",
@@ -1141,7 +1141,7 @@
     "message": "專案「軟體媒合系統設計」狀態由「需求簽核」變更為「架構審查」。",
     "link": "/workspace",
     "createdAt": "2026-01-25T13:23:53.215Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:36.114Z"
   },
   {
     "id": "6ccb5367-0667-4882-9a95-18ef2b9534ca",
@@ -1196,7 +1196,7 @@
     "message": "專案「軟體媒合系統設計」新增 system 文件版本 v3。",
     "link": "/workspace",
     "createdAt": "2026-01-25T13:27:21.599Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:36.114Z"
   },
   {
     "id": "ee44ba22-6a2a-411d-a1a3-fcba8564f6bb",
@@ -1339,7 +1339,7 @@
     "message": "專案「軟體媒合系統設計」狀態由「架構簽核」變更為「設計審查」。",
     "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
     "createdAt": "2026-01-27T12:22:43.664Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:36.114Z"
   },
   {
     "id": "e920f4c0-e648-4688-8dbd-35afce209c71",
@@ -1361,7 +1361,7 @@
     "message": "專案「軟體媒合系統設計」新增 software 文件版本 v1。",
     "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
     "createdAt": "2026-01-27T12:23:39.348Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:36.114Z"
   },
   {
     "id": "cbf819a0-75de-4a54-a396-a0441866915f",
@@ -1416,7 +1416,7 @@
     "message": "專案「軟體媒合系統設計」的文件已完成簽核，專案狀態已自動更新為「設計簽核」。",
     "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
     "createdAt": "2026-01-27T14:09:46.421Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:40.818Z"
   },
   {
     "id": "0308721e-b598-4577-b53e-1ef909070bc1",
@@ -1449,7 +1449,7 @@
     "message": "專案「軟體媒合系統設計」的文件已完成簽核。",
     "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
     "createdAt": "2026-01-27T14:09:54.602Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:40.818Z"
   },
   {
     "id": "95001bdc-bce4-4e02-bfe4-fa8344ea8c69",
@@ -1482,7 +1482,7 @@
     "message": "專案「軟體媒合系統設計」報價已核准，請查看處理。",
     "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
     "createdAt": "2026-01-28T14:48:57.028Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:40.818Z"
   },
   {
     "id": "67faf92d-7c93-4ae1-9c87-203a1409c907",
@@ -1526,7 +1526,7 @@
     "message": "專案「軟體媒合系統設計」報價已核准，請查看處理。",
     "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
     "createdAt": "2026-01-28T14:50:04.000Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:40.818Z"
   },
   {
     "id": "892fcc12-6b94-4637-a06c-50c513cdec73",
@@ -1570,7 +1570,7 @@
     "message": "專案「軟體媒合系統設計」報價需調整，請查看處理。",
     "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
     "createdAt": "2026-01-28T14:51:16.876Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:40.818Z"
   },
   {
     "id": "b8f4076b-1cec-429d-b022-b5fe9a9a550d",
@@ -1581,7 +1581,7 @@
     "message": "專案「軟體媒合系統設計」已提交報價，請前往簽核。",
     "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=documents",
     "createdAt": "2026-01-28T14:51:33.914Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:36.114Z"
   },
   {
     "id": "cf22b3d8-51c2-4844-b0a7-b794ec3a6ff4",
@@ -1592,7 +1592,7 @@
     "message": "專案「軟體媒合系統設計」已提交報價，請前往簽核。",
     "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=documents",
     "createdAt": "2026-01-28T14:51:40.412Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:36.114Z"
   },
   {
     "id": "84626353-5669-4b14-a9c3-15f334e8b14d",
@@ -1636,7 +1636,7 @@
     "message": "專案「軟體媒合系統設計」報價已核准，請查看處理。",
     "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
     "createdAt": "2026-01-28T14:51:58.369Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:40.818Z"
   },
   {
     "id": "0d6c2228-d704-4794-889e-329054ee6a12",
@@ -1647,7 +1647,7 @@
     "message": "項目「4.4 AI Orchestrator」已完成。",
     "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=collaboration",
     "createdAt": "2026-01-28T15:12:11.477Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:36.114Z"
   },
   {
     "id": "59e52ca9-1fb3-4861-a5ee-935ca330f1c1",
@@ -1658,7 +1658,7 @@
     "message": "項目「5.1 需求提交流程」已完成。",
     "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=collaboration",
     "createdAt": "2026-01-28T15:12:20.959Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:36.114Z"
   },
   {
     "id": "819693b5-69c7-4ff2-afdf-1af26cbf9753",
@@ -1669,7 +1669,7 @@
     "message": "項目「5.2 文件中心」已完成。",
     "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=collaboration",
     "createdAt": "2026-01-28T15:12:23.127Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:36.114Z"
   },
   {
     "id": "c2309aa4-3fa8-493c-8495-454fa7b1801c",
@@ -1680,7 +1680,7 @@
     "message": "項目「5.3 里程碑與任務視圖」已完成。",
     "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=collaboration",
     "createdAt": "2026-01-28T15:12:40.635Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:36.114Z"
   },
   {
     "id": "204105c0-974a-43f7-b52c-e0afe05d8adc",
@@ -1691,7 +1691,7 @@
     "message": "項目「5.4 管理者監控」已完成。",
     "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=collaboration",
     "createdAt": "2026-01-28T15:12:42.160Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:36.114Z"
   },
   {
     "id": "8e29b6e1-ca6b-489d-9552-3470edfe6410",
@@ -1702,7 +1702,7 @@
     "message": "項目「6.1 通用規範」已完成。",
     "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=collaboration",
     "createdAt": "2026-01-28T15:12:44.102Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:36.114Z"
   },
   {
     "id": "f32cfb76-ce6c-4851-9dea-6b1a2cb58c25",
@@ -1713,7 +1713,7 @@
     "message": "項目「4.1 Web Frontend」已完成。",
     "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=collaboration",
     "createdAt": "2026-01-28T15:12:52.848Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:36.114Z"
   },
   {
     "id": "b3cb37c3-affc-410d-8d28-9b9c158360cc",
@@ -1724,7 +1724,7 @@
     "message": "項目「6.2 需求管理 API」已完成。",
     "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=collaboration",
     "createdAt": "2026-01-28T15:12:54.625Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:36.114Z"
   },
   {
     "id": "3bf7b53f-a92b-4396-ae13-144116cd3e5d",
@@ -1735,7 +1735,7 @@
     "message": "項目「6.3 媒合與估工 API」已完成。",
     "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=collaboration",
     "createdAt": "2026-01-28T15:12:55.662Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:36.114Z"
   },
   {
     "id": "36e2dfe0-0ed1-4781-bd56-a5f58fa1c918",
@@ -1746,7 +1746,7 @@
     "message": "項目「4.1 Web Frontend」已標記為未完成。",
     "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=collaboration",
     "createdAt": "2026-01-28T15:19:23.346Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:36.114Z"
   },
   {
     "id": "ebf367e3-d64e-497b-bdf6-27aba77e66f2",
@@ -1757,7 +1757,7 @@
     "message": "項目「6.4 專案與文件 API」已完成。",
     "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=collaboration",
     "createdAt": "2026-01-28T15:19:32.546Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:36.114Z"
   },
   {
     "id": "3b3ceb8b-d40d-47a7-88e1-a447ddf9da3c",
@@ -1768,7 +1768,7 @@
     "message": "項目「6.5 品質與測試 API」已完成。",
     "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=collaboration",
     "createdAt": "2026-01-28T15:19:34.535Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:36.114Z"
   },
   {
     "id": "aa8a8d8f-8ea3-4c69-88bb-ec6bd7daee03",
@@ -1779,7 +1779,7 @@
     "message": "項目「6.6 管理與稽核 API」已完成。",
     "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=collaboration",
     "createdAt": "2026-01-28T15:19:35.280Z",
-    "readAt": null
+    "readAt": "2026-01-29T15:33:36.114Z"
   },
   {
     "id": "a9ba4a87-381a-4225-8c97-0765263d895f",
@@ -1801,6 +1801,578 @@
     "message": "專案「軟體媒合系統設計」已提交系統驗證文件，請前往簽核。",
     "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=documents",
     "createdAt": "2026-01-29T15:05:38.185Z",
+    "readAt": "2026-01-29T15:33:36.114Z"
+  },
+  {
+    "id": "4b619235-eb67-4574-b689-85b6ea3ea97f",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "requirement.document.commented",
+    "title": "需求文件有新留言",
+    "message": "需求「軟體媒合系統設計」有新的留言或回覆。",
+    "link": "/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
+    "createdAt": "2026-01-29T15:09:12.091Z",
+    "readAt": null
+  },
+  {
+    "id": "6c44c320-113f-4cca-b9cd-e3bef248145d",
+    "recipientId": "a9428c6b-15ba-47b0-84a6-f721048c3651",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "requirement.document.commented",
+    "title": "需求文件有新留言",
+    "message": "需求「軟體媒合系統設計」有新的留言或回覆。",
+    "link": "/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
+    "createdAt": "2026-01-29T15:09:12.097Z",
+    "readAt": null
+  },
+  {
+    "id": "d0bc3246-3313-41e1-bf59-1c3a13aa2a8f",
+    "recipientId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "requirement.document.commented",
+    "title": "需求文件有新留言",
+    "message": "需求「軟體媒合系統設計」有新的留言或回覆。",
+    "link": "/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
+    "createdAt": "2026-01-29T15:09:12.103Z",
+    "readAt": "2026-01-29T15:09:18.070Z"
+  },
+  {
+    "id": "bf3d33d2-5af1-42cf-ad2f-39ab93862d0e",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "專案文件需調整",
+    "message": "專案「軟體媒合系統設計」的文件已被退回，請依簽核意見調整。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-29T15:13:33.676Z",
+    "readAt": null
+  },
+  {
+    "id": "c61d0288-5cfa-4220-a82a-c11bbdfbab24",
+    "recipientId": "a9428c6b-15ba-47b0-84a6-f721048c3651",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "專案文件需調整",
+    "message": "專案「軟體媒合系統設計」的文件已被退回，請依簽核意見調整。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-29T15:13:33.680Z",
+    "readAt": null
+  },
+  {
+    "id": "7208d954-23ee-4087-81a7-c83e41f2aebf",
+    "recipientId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "專案文件需調整",
+    "message": "專案「軟體媒合系統設計」的文件已被退回，請依簽核意見調整。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-29T15:13:33.683Z",
+    "readAt": "2026-01-29T15:33:40.818Z"
+  },
+  {
+    "id": "f2754a5d-006e-48a3-b426-5bdf20c2980e",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "requirement.document.commented",
+    "title": "客戶「鋆旭科技」在需求文件有新留言",
+    "message": "需求「軟體媒合系統設計」有新的留言或回覆。",
+    "link": "/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
+    "createdAt": "2026-01-29T15:15:46.004Z",
+    "readAt": null
+  },
+  {
+    "id": "f4dd685d-24f1-4fc9-a652-0106ccf4ad4a",
+    "recipientId": "a9428c6b-15ba-47b0-84a6-f721048c3651",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "requirement.document.commented",
+    "title": "客戶「鋆旭科技」在需求文件有新留言",
+    "message": "需求「軟體媒合系統設計」有新的留言或回覆。",
+    "link": "/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
+    "createdAt": "2026-01-29T15:15:46.013Z",
+    "readAt": null
+  },
+  {
+    "id": "cd12575a-99d1-4d25-a032-d0004cdbc3c2",
+    "recipientId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "requirement.document.commented",
+    "title": "客戶「鋆旭科技」在需求文件有新留言",
+    "message": "需求「軟體媒合系統設計」有新的留言或回覆。",
+    "link": "/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
+    "createdAt": "2026-01-29T15:15:46.015Z",
+    "readAt": "2026-01-29T15:33:40.818Z"
+  },
+  {
+    "id": "f0516296-02d4-4dee-8665-143031336c06",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "專案文件需調整",
+    "message": "專案「軟體媒合系統設計」的文件已被退回，請依簽核意見調整。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-29T15:16:21.547Z",
+    "readAt": null
+  },
+  {
+    "id": "cde7d27f-9ece-4bea-9ca7-e0200ac8dace",
+    "recipientId": "a9428c6b-15ba-47b0-84a6-f721048c3651",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "專案文件需調整",
+    "message": "專案「軟體媒合系統設計」的文件已被退回，請依簽核意見調整。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-29T15:16:21.553Z",
+    "readAt": null
+  },
+  {
+    "id": "f60391d5-d48d-4d69-83ab-415a23e610bc",
+    "recipientId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "專案文件需調整",
+    "message": "專案「軟體媒合系統設計」的文件已被退回，請依簽核意見調整。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-29T15:16:21.559Z",
+    "readAt": "2026-01-29T15:33:40.818Z"
+  },
+  {
+    "id": "37dfb2d2-c461-469b-af31-1dcab83dcd53",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "客戶「鋆旭科技」專案文件需調整",
+    "message": "客戶「鋆旭科技」退回專案「軟體媒合系統設計」文件，請依簽核意見調整。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-29T15:23:08.091Z",
+    "readAt": null
+  },
+  {
+    "id": "e4f148f5-741f-4408-b3c6-7f6cf870f589",
+    "recipientId": "a9428c6b-15ba-47b0-84a6-f721048c3651",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "客戶「鋆旭科技」專案文件需調整",
+    "message": "客戶「鋆旭科技」退回專案「軟體媒合系統設計」文件，請依簽核意見調整。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-29T15:23:08.099Z",
+    "readAt": null
+  },
+  {
+    "id": "1276d28f-08b6-451c-b3a9-96f0da6242c1",
+    "recipientId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "客戶「鋆旭科技」專案文件需調整",
+    "message": "客戶「鋆旭科技」退回專案「軟體媒合系統設計」文件，請依簽核意見調整。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-29T15:23:08.106Z",
+    "readAt": "2026-01-29T15:33:40.818Z"
+  },
+  {
+    "id": "6ce3b9f8-8df7-438d-b88d-9110a63f273f",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "requirement.reviewed",
+    "title": "需求已核准",
+    "message": "需求「軟體媒合系統設計」已核准。",
+    "link": "/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
+    "createdAt": "2026-01-29T15:23:18.330Z",
+    "readAt": null
+  },
+  {
+    "id": "cdf0dd46-599c-494e-9018-51038c5b29df",
+    "recipientId": "a9428c6b-15ba-47b0-84a6-f721048c3651",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "requirement.reviewed",
+    "title": "需求已核准",
+    "message": "需求「軟體媒合系統設計」已核准。",
+    "link": "/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
+    "createdAt": "2026-01-29T15:23:18.341Z",
+    "readAt": null
+  },
+  {
+    "id": "a01ebbb1-17c4-4560-bb8b-0421b2186dd8",
+    "recipientId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "requirement.reviewed",
+    "title": "需求已核准",
+    "message": "需求「軟體媒合系統設計」已核准。",
+    "link": "/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
+    "createdAt": "2026-01-29T15:23:18.347Z",
+    "readAt": "2026-01-29T15:33:40.818Z"
+  },
+  {
+    "id": "3a081f09-2928-4fb0-a376-b487a75a51df",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "requirement.document.commented",
+    "title": "客戶「鋆旭科技」在需求文件有新留言",
+    "message": "客戶「鋆旭科技」在需求「軟體媒合系統設計」留下新的留言或回覆。",
+    "link": "/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
+    "createdAt": "2026-01-29T15:24:05.970Z",
+    "readAt": null
+  },
+  {
+    "id": "04a3cd77-9abe-4d8f-bb71-8efcaa073ce9",
+    "recipientId": "a9428c6b-15ba-47b0-84a6-f721048c3651",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "requirement.document.commented",
+    "title": "客戶「鋆旭科技」在需求文件有新留言",
+    "message": "客戶「鋆旭科技」在需求「軟體媒合系統設計」留下新的留言或回覆。",
+    "link": "/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
+    "createdAt": "2026-01-29T15:24:05.977Z",
+    "readAt": null
+  },
+  {
+    "id": "fecb1a12-e0e5-4c4f-8eba-d716564c1ee1",
+    "recipientId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "requirement.document.commented",
+    "title": "客戶「鋆旭科技」在需求文件有新留言",
+    "message": "客戶「鋆旭科技」在需求「軟體媒合系統設計」留下新的留言或回覆。",
+    "link": "/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
+    "createdAt": "2026-01-29T15:24:05.997Z",
+    "readAt": "2026-01-29T15:33:40.818Z"
+  },
+  {
+    "id": "deff5327-6909-499a-8567-2c1c6703531f",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "requirement.reviewed",
+    "title": "客戶「鋆旭科技」需求已核准",
+    "message": "客戶「鋆旭科技」的需求「軟體媒合系統設計」已核准。",
+    "link": "/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
+    "createdAt": "2026-01-29T15:24:15.309Z",
+    "readAt": null
+  },
+  {
+    "id": "5d4b7e44-ed4a-496a-9f5b-491817b19c69",
+    "recipientId": "a9428c6b-15ba-47b0-84a6-f721048c3651",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "requirement.reviewed",
+    "title": "客戶「鋆旭科技」需求已核准",
+    "message": "客戶「鋆旭科技」的需求「軟體媒合系統設計」已核准。",
+    "link": "/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
+    "createdAt": "2026-01-29T15:24:15.315Z",
+    "readAt": null
+  },
+  {
+    "id": "41b9d481-e229-42cf-87cc-baece043d9b7",
+    "recipientId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "requirement.reviewed",
+    "title": "客戶「鋆旭科技」需求已核准",
+    "message": "客戶「鋆旭科技」的需求「軟體媒合系統設計」已核准。",
+    "link": "/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
+    "createdAt": "2026-01-29T15:24:15.323Z",
+    "readAt": "2026-01-29T15:33:40.818Z"
+  },
+  {
+    "id": "b57a99e1-af2b-4214-8194-e37f0b644139",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "project.document.test.submitted",
+    "title": "客戶「鋆旭科技」系統驗證文件待簽核",
+    "message": "客戶「鋆旭科技」的專案「軟體媒合系統設計」已提交系統驗證文件，請前往簽核。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-29T15:24:46.374Z",
+    "readAt": null
+  },
+  {
+    "id": "be7a1fc6-5acc-4677-b1a8-a9766a0cfff3",
+    "recipientId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "project.document.test.submitted",
+    "title": "客戶「鋆旭科技」系統驗證文件待簽核",
+    "message": "客戶「鋆旭科技」的專案「軟體媒合系統設計」已提交系統驗證文件，請前往簽核。",
+    "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=documents",
+    "createdAt": "2026-01-29T15:24:46.379Z",
+    "readAt": "2026-01-29T15:24:52.203Z"
+  },
+  {
+    "id": "441f1386-258a-4986-9d0e-26f9acac5818",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "客戶「鋆旭科技」專案文件已簽核",
+    "message": "客戶「鋆旭科技」已完成專案「軟體媒合系統設計」文件簽核。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-29T15:25:02.826Z",
+    "readAt": null
+  },
+  {
+    "id": "705cc995-29ec-4468-b3ef-2ed9bc2268ca",
+    "recipientId": "a9428c6b-15ba-47b0-84a6-f721048c3651",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "客戶「鋆旭科技」專案文件已簽核",
+    "message": "客戶「鋆旭科技」已完成專案「軟體媒合系統設計」文件簽核。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-29T15:25:02.831Z",
+    "readAt": null
+  },
+  {
+    "id": "3cca0d41-f1ac-477a-962f-8033e9acf94d",
+    "recipientId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "客戶「鋆旭科技」專案文件已簽核",
+    "message": "客戶「鋆旭科技」已完成專案「軟體媒合系統設計」文件簽核。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-29T15:25:02.837Z",
+    "readAt": "2026-01-29T15:33:40.818Z"
+  },
+  {
+    "id": "5486c623-befb-4c2c-b368-28f644296dad",
+    "recipientId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "quality.verification.checklist.updated",
+    "title": "系統驗證清單已更新",
+    "message": "項目「7.1 需求對齊」已完成。",
+    "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=quality",
+    "createdAt": "2026-01-29T15:26:57.038Z",
+    "readAt": "2026-01-29T15:33:36.114Z"
+  },
+  {
+    "id": "d3ad730c-9479-4c59-bd9d-05a6d0cc79b2",
+    "recipientId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "quality.verification.checklist.updated",
+    "title": "系統驗證清單已更新",
+    "message": "項目「7.2 媒合評估」已完成。",
+    "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=quality",
+    "createdAt": "2026-01-29T15:26:57.607Z",
+    "readAt": "2026-01-29T15:33:36.114Z"
+  },
+  {
+    "id": "630dc200-f1bc-4508-aedc-50c4c1e5f57d",
+    "recipientId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "quality.verification.checklist.updated",
+    "title": "系統驗證清單已更新",
+    "message": "項目「7.3 協作開發」已完成。",
+    "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=quality",
+    "createdAt": "2026-01-29T15:26:58.610Z",
+    "readAt": "2026-01-29T15:33:36.114Z"
+  },
+  {
+    "id": "d2887ae9-4e7d-49fd-82a9-f5047f2ce7b3",
+    "recipientId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "quality.verification.checklist.updated",
+    "title": "系統驗證清單已更新",
+    "message": "項目「7.4 品質交付」已完成。",
+    "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=quality",
+    "createdAt": "2026-01-29T15:26:59.155Z",
+    "readAt": "2026-01-29T15:33:36.114Z"
+  },
+  {
+    "id": "1e9d4882-2e47-4278-8bcc-2059af5efd95",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "客戶「鋆旭科技」系統驗證文件需調整",
+    "message": "客戶「鋆旭科技」退回專案「軟體媒合系統設計」系統驗證文件，請依簽核意見調整。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-29T15:28:19.361Z",
+    "readAt": null
+  },
+  {
+    "id": "ee27685e-2bb5-4b91-9a6c-131a4638d044",
+    "recipientId": "a9428c6b-15ba-47b0-84a6-f721048c3651",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "客戶「鋆旭科技」系統驗證文件需調整",
+    "message": "客戶「鋆旭科技」退回專案「軟體媒合系統設計」系統驗證文件，請依簽核意見調整。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-29T15:28:19.364Z",
+    "readAt": null
+  },
+  {
+    "id": "9024dd59-e2a1-4c9e-83bf-68467ff3f478",
+    "recipientId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "客戶「鋆旭科技」系統驗證文件需調整",
+    "message": "客戶「鋆旭科技」退回專案「軟體媒合系統設計」系統驗證文件，請依簽核意見調整。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-29T15:28:19.369Z",
+    "readAt": "2026-01-29T15:33:40.818Z"
+  },
+  {
+    "id": "cb47644f-24d0-4e08-865a-512e7528ea76",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "project.document.test.submitted",
+    "title": "客戶「鋆旭科技」系統驗證文件待簽核",
+    "message": "客戶「鋆旭科技」的專案「軟體媒合系統設計」已提交系統驗證文件，請前往簽核。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-29T15:28:48.081Z",
+    "readAt": null
+  },
+  {
+    "id": "ad9faee6-e345-4aad-87bb-e6c959b100ed",
+    "recipientId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "project.document.test.submitted",
+    "title": "客戶「鋆旭科技」系統驗證文件待簽核",
+    "message": "客戶「鋆旭科技」的專案「軟體媒合系統設計」已提交系統驗證文件，請前往簽核。",
+    "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=documents",
+    "createdAt": "2026-01-29T15:28:48.087Z",
+    "readAt": "2026-01-29T15:33:36.114Z"
+  },
+  {
+    "id": "f79ddfc3-76bb-4a2a-9820-a4a360e671a1",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "客戶「鋆旭科技」系統驗證文件已簽核",
+    "message": "客戶「鋆旭科技」已完成專案「軟體媒合系統設計」系統驗證文件簽核。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-29T15:29:10.520Z",
+    "readAt": null
+  },
+  {
+    "id": "78f09933-1a4d-4480-aaf0-7761725ed928",
+    "recipientId": "a9428c6b-15ba-47b0-84a6-f721048c3651",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "客戶「鋆旭科技」系統驗證文件已簽核",
+    "message": "客戶「鋆旭科技」已完成專案「軟體媒合系統設計」系統驗證文件簽核。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-29T15:29:10.528Z",
+    "readAt": null
+  },
+  {
+    "id": "7809a644-d5cc-44e4-aafd-8f53fc24a2cd",
+    "recipientId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "actorId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "type": "project.document.reviewed",
+    "title": "客戶「鋆旭科技」系統驗證文件已簽核",
+    "message": "客戶「鋆旭科技」已完成專案「軟體媒合系統設計」系統驗證文件簽核。",
+    "link": "/workspace?project=069c5c7f-2770-4a2c-b074-6094b874751f",
+    "createdAt": "2026-01-29T15:29:10.534Z",
+    "readAt": "2026-01-29T15:33:40.818Z"
+  },
+  {
+    "id": "855ccc28-d505-4e48-8f35-65ffef700892",
+    "recipientId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "quality.verification.checklist.updated",
+    "title": "系統驗證清單已更新",
+    "message": "項目「7.2 媒合評估」已完成。",
+    "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=quality",
+    "createdAt": "2026-01-29T15:33:17.619Z",
+    "readAt": "2026-01-29T15:33:36.114Z"
+  },
+  {
+    "id": "c33b5ce6-032e-4d00-9240-a5a403d53ba1",
+    "recipientId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "quality.verification.checklist.updated",
+    "title": "系統驗證清單已更新",
+    "message": "項目「7.3 協作開發」已完成。",
+    "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=quality",
+    "createdAt": "2026-01-29T15:33:18.085Z",
+    "readAt": "2026-01-29T15:33:36.114Z"
+  },
+  {
+    "id": "e234dacc-9fd4-446d-94c5-02e297c39faa",
+    "recipientId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "quality.verification.checklist.updated",
+    "title": "系統驗證清單已更新",
+    "message": "項目「7.4 品質交付」已完成。",
+    "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=quality",
+    "createdAt": "2026-01-29T15:33:28.549Z",
+    "readAt": "2026-01-29T15:33:36.114Z"
+  },
+  {
+    "id": "cce8012c-f2f4-4ee9-ab60-10b2b5677d59",
+    "recipientId": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "quality.verification.checklist.updated",
+    "title": "系統驗證清單已更新",
+    "message": "項目「8.1 需求提交與文件化」已完成。",
+    "link": "/my/requirements/6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0?tab=quality",
+    "createdAt": "2026-01-29T15:33:45.446Z",
+    "readAt": null
+  },
+  {
+    "id": "ea9db663-5905-450a-bd06-0c4012c8f46c",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "type": "requirement.created",
+    "title": "新需求已提交",
+    "message": "需求「需要建立品牌網站」已提交，請評估是否接案。",
+    "link": "/requirements/7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
+    "createdAt": "2026-01-30T12:49:31.377Z",
+    "readAt": null
+  },
+  {
+    "id": "17120fd7-759c-4fef-a162-e6e397819f0c",
+    "recipientId": "a9428c6b-15ba-47b0-84a6-f721048c3651",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "type": "requirement.created",
+    "title": "新需求已提交",
+    "message": "需求「需要建立品牌網站」已提交，請評估是否接案。",
+    "link": "/requirements/7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
+    "createdAt": "2026-01-30T12:49:31.401Z",
+    "readAt": null
+  },
+  {
+    "id": "ea463825-cd39-4727-b8ad-3b8abcecd0b1",
+    "recipientId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "type": "requirement.created",
+    "title": "新需求已提交",
+    "message": "需求「需要建立品牌網站」已提交，請評估是否接案。",
+    "link": "/requirements/7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
+    "createdAt": "2026-01-30T12:49:31.415Z",
+    "readAt": null
+  },
+  {
+    "id": "e6ba217d-e4ed-4f14-b044-cffc0ef9ec94",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "type": "support.message",
+    "title": "開發者「engineer」 有新客服訊息",
+    "message": "開發者「engineer」：Hi",
+    "link": "/support?thread=eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "createdAt": "2026-01-30T13:10:12.526Z",
+    "readAt": null
+  },
+  {
+    "id": "74bd1d5d-2601-4497-9f53-c944eb0629f0",
+    "recipientId": "eb107b1e-1b0a-482d-b1b8-303fdd692528",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "type": "support.message",
+    "title": "客服回覆",
+    "message": "客服已回覆：您好",
+    "link": "/support",
+    "createdAt": "2026-01-30T13:10:30.091Z",
+    "readAt": null
+  },
+  {
+    "id": "577ce4e6-95a5-40c1-b5aa-33f5205dacc7",
+    "recipientId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "type": "support.message",
+    "title": "客戶「pastahouse」 有新客服訊息",
+    "message": "客戶「pastahouse」：Hi",
+    "link": "/support?thread=8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "createdAt": "2026-01-30T13:10:42.363Z",
+    "readAt": null
+  },
+  {
+    "id": "ee73942c-ae00-4007-aa06-8104f6cecedf",
+    "recipientId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "type": "support.message",
+    "title": "客服回覆",
+    "message": "客服已回覆：您好",
+    "link": "/support",
+    "createdAt": "2026-01-30T13:10:53.046Z",
     "readAt": null
   }
 ]

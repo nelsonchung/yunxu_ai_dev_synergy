@@ -8,6 +8,17 @@
     "approvedBy": "e38600d9-8f72-42d4-94b1-51928890e9b1",
     "reviewComment": "",
     "createdAt": "2026-01-25T13:21:14.423Z",
-    "updatedAt": "2026-01-25T13:23:20.713Z"
+    "updatedAt": "2026-01-29T15:24:15.287Z"
+  },
+  {
+    "id": "27d6cccd-5382-4ae9-8a37-cee6e66ccef8",
+    "requirementId": "7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
+    "version": 1,
+    "contentUrl": "requirements/7984c373-dd65-4dfa-8ed2-60c0cfe5e83e/v1.md",
+    "status": "pending_approval",
+    "approvedBy": null,
+    "reviewComment": null,
+    "createdAt": "2026-01-30T12:49:31.342Z",
+    "updatedAt": "2026-01-30T12:49:31.342Z"
   }
 ]

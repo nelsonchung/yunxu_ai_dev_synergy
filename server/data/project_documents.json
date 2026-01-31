@@ -104,11 +104,39 @@
     "title": "系統驗證文件",
     "version": 1,
     "contentUrl": "projects/069c5c7f-2770-4a2c-b074-6094b874751f/test/v1.md",
-    "status": "pending_approval",
+    "status": "archived",
     "versionNote": null,
-    "reviewComment": null,
+    "reviewComment": "請協助確認是否已完成",
     "approvedBy": null,
     "createdAt": "2026-01-29T15:05:38.140Z",
-    "updatedAt": "2026-01-29T15:05:38.140Z"
+    "updatedAt": "2026-01-29T15:24:46.341Z"
+  },
+  {
+    "id": "fb17bcb3-4c65-4cf5-8588-af43f548deb1",
+    "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+    "type": "test",
+    "title": "系統驗證文件",
+    "version": 2,
+    "contentUrl": "projects/069c5c7f-2770-4a2c-b074-6094b874751f/test/v2.md",
+    "status": "archived",
+    "versionNote": null,
+    "reviewComment": "再次確認",
+    "approvedBy": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "createdAt": "2026-01-29T15:24:46.341Z",
+    "updatedAt": "2026-01-29T15:28:48.060Z"
+  },
+  {
+    "id": "70586f20-8d84-473f-88ca-7d5e2a1e30e3",
+    "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+    "type": "test",
+    "title": "系統驗證文件",
+    "version": 3,
+    "contentUrl": "projects/069c5c7f-2770-4a2c-b074-6094b874751f/test/v3.md",
+    "status": "approved",
+    "versionNote": null,
+    "reviewComment": null,
+    "approvedBy": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "createdAt": "2026-01-29T15:28:48.060Z",
+    "updatedAt": "2026-01-29T15:29:10.477Z"
   }
 ]
