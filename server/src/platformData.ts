@@ -404,6 +404,25 @@ const baseProjectTransitions: Record<ProjectStatus, ProjectStatus[]> = {
   closed: [],
 };
 
+const projectStatusSequence: ProjectStatus[] = [
+  "intake",
+  "requirements_signed",
+  "architecture_review",
+  "system_architecture_signed",
+  "software_design_review",
+  "software_design_signed",
+  "implementation",
+  "system_verification_review",
+  "system_verification_signed",
+  "delivery_review",
+  "closed",
+];
+
+const getProjectStatusRank = (status: ProjectStatus) => {
+  const index = projectStatusSequence.indexOf(status);
+  return index === -1 ? -1 : index;
+};
+
 const stageStatuses = new Set<ProjectStatus>([
   "intake",
   "requirements_signed",
@@ -473,6 +492,101 @@ const normalizeProjectRecord = (project: Project) => {
       endDate,
     },
   };
+};
+
+const deriveProjectStatusFromDocuments = (
+  project: Project,
+  requirementDocs: RequirementDocument[],
+  projectDocs: ProjectDocument[],
+  quotationReviews: QuotationReview[]
+): ProjectStatus => {
+  let derived: ProjectStatus = "intake";
+
+  const requirementDoc = getLatestRequirementDocument(project.requirementId, requirementDocs);
+  if (requirementDoc?.status === "approved") {
+    derived = "requirements_signed";
+  }
+
+  const systemDoc = getLatestProjectDocumentByType(project.id, "system", projectDocs);
+  if (systemDoc?.status === "pending_approval") {
+    derived = "architecture_review";
+  }
+  if (systemDoc?.status === "approved") {
+    derived = "system_architecture_signed";
+  }
+
+  const softwareDoc = getLatestProjectDocumentByType(project.id, "software", projectDocs);
+  if (softwareDoc?.status === "pending_approval") {
+    derived = "software_design_review";
+  }
+  if (softwareDoc?.status === "approved") {
+    derived = "software_design_signed";
+  }
+
+  const quotationReview = softwareDoc
+    ? quotationReviews.find(
+        (item) => item.projectId === project.id && item.documentId === softwareDoc.id
+      )
+    : null;
+  const normalizedQuotation = quotationReview ? normalizeQuotationReview(quotationReview) : null;
+  if (softwareDoc?.status === "approved" && normalizedQuotation?.status === "approved") {
+    derived = "implementation";
+  }
+
+  const testDoc = getLatestProjectDocumentByType(project.id, "test", projectDocs);
+  if (testDoc?.status === "pending_approval") {
+    derived = "system_verification_review";
+  }
+  if (testDoc?.status === "approved") {
+    derived = "system_verification_signed";
+  }
+
+  const deliveryDoc = getLatestProjectDocumentByType(project.id, "delivery", projectDocs);
+  if (deliveryDoc && derived === "system_verification_signed") {
+    derived = "delivery_review";
+  }
+
+  return derived;
+};
+
+const syncProjectStatuses = async () => {
+  const projects = await normalizeProjects();
+  const requirementDocs = await platformStores.requirementDocuments.read();
+  const projectDocs = await platformStores.projectDocuments.read();
+  const quotationReviews = await platformStores.quotationReviews.read();
+  let changed = false;
+  const now = new Date().toISOString();
+
+  const updated = projects.map((project) => {
+    if (project.status === "on_hold" || project.status === "canceled" || project.status === "closed") {
+      return project;
+    }
+    const derived = deriveProjectStatusFromDocuments(
+      project,
+      requirementDocs,
+      projectDocs,
+      quotationReviews
+    );
+    const currentRank = getProjectStatusRank(project.status);
+    const derivedRank = getProjectStatusRank(derived);
+    if (derivedRank <= currentRank || derivedRank === -1) {
+      return project;
+    }
+
+    const next: Project = {
+      ...project,
+      status: derived,
+      updatedAt: now,
+    };
+    const normalized = normalizeProjectRecord(next).project;
+    changed = true;
+    return normalized;
+  });
+
+  if (changed) {
+    await platformStores.projects.write(updated);
+  }
+  return updated;
 };
 
 const normalizeProjects = async () => {
@@ -617,12 +731,12 @@ const checkTransitionGuard = async (project: Project, nextStatus: ProjectStatus)
 };
 
 export const listProjects = async () => {
-  const projects = await normalizeProjects();
+  const projects = await syncProjectStatuses();
   return [...projects].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 };
 
 export const getProjectById = async (projectId: string) => {
-  const projects = await normalizeProjects();
+  const projects = await syncProjectStatuses();
   return projects.find((project) => project.id === projectId) ?? null;
 };
 

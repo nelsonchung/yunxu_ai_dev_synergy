@@ -99,6 +99,21 @@ const baseProjectStatusTransitions: Record<ProjectStatus, ProjectStatus[]> = {
   closed: [],
 };
 
+const projectFlowOrder: ProjectStatus[] = [
+  "intake",
+  "requirements_signed",
+  "architecture_review",
+  "system_architecture_signed",
+  "software_design_review",
+  "software_design_signed",
+  "implementation",
+  "system_verification_review",
+  "system_verification_signed",
+  "delivery_review",
+  "closed",
+];
+
+
 const getEffectiveStatus = (project: ProjectSummary): ProjectStatus => {
   if (project.status !== "on_hold") return project.status;
   return project.previousStatus ?? "implementation";
@@ -143,6 +158,7 @@ export default function ProjectWorkspace() {
   const [interestRequirementId, setInterestRequirementId] = useState<string | null>(null);
   const [accountRole, setAccountRole] = useState<string | null>(null);
   const [permissions, setPermissions] = useState<string[]>([]);
+  const [sidebarWidth, setSidebarWidth] = useState(380);
 
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskStatus, setNewTaskStatus] = useState("todo");
@@ -157,6 +173,23 @@ export default function ProjectWorkspace() {
   const canManageProjectStatus = accountRole === "admin";
   const canCreateAnyProjectDoc =
     accountRole === "admin" || permissions.some((permission) => permission.startsWith("projects.documents."));
+
+  const flowStatus = selectedProject ? getEffectiveStatus(selectedProject) : null;
+  const flowIndex = flowStatus ? projectFlowOrder.indexOf(flowStatus) : -1;
+  const flowStatusLabel = flowStatus ? projectStatusLabels[flowStatus] ?? flowStatus : "--";
+
+  useEffect(() => {
+    const saved = localStorage.getItem("workspaceSidebarWidth");
+    if (!saved) return;
+    const value = Number(saved);
+    if (Number.isFinite(value)) {
+      setSidebarWidth(Math.min(520, Math.max(280, value)));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("workspaceSidebarWidth", String(sidebarWidth));
+  }, [sidebarWidth]);
 
   const activeLabel = useMemo(() => {
     return tabs.find((tab) => tab.id === activeTab)?.label ?? "";
@@ -532,8 +565,11 @@ export default function ProjectWorkspace() {
           </div>
         )}
 
-        <div className="grid gap-6 lg:grid-cols-[0.35fr_0.65fr]">
-          <div className="rounded-3xl border bg-card p-6 shadow-sm space-y-4">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-stretch lg:gap-2">
+          <div
+            className="rounded-3xl border bg-card p-6 shadow-sm space-y-4 shrink-0"
+            style={{ width: sidebarWidth, maxWidth: "100%" }}
+          >
             <div className="flex items-center justify-between">
               <h2 className="font-serif text-2xl font-bold">專案列表</h2>
               <span className="text-xs text-muted-foreground">共 {projects.length} 筆</span>
@@ -568,7 +604,41 @@ export default function ProjectWorkspace() {
             </div>
           </div>
 
-          <div className="rounded-3xl border bg-card p-6 shadow-sm space-y-6">
+          <div className="hidden lg:flex items-stretch">
+            <div
+              role="separator"
+              aria-orientation="vertical"
+              aria-label="調整專案列表寬度"
+              onMouseDown={(event) => {
+                event.preventDefault();
+                const startX = event.clientX;
+                const startWidth = sidebarWidth;
+
+                const handleMove = (moveEvent: MouseEvent) => {
+                  const delta = moveEvent.clientX - startX;
+                  const nextWidth = Math.min(520, Math.max(280, startWidth + delta));
+                  setSidebarWidth(nextWidth);
+                };
+
+                const handleUp = () => {
+                  document.removeEventListener("mousemove", handleMove);
+                  document.removeEventListener("mouseup", handleUp);
+                  document.body.style.cursor = "";
+                  document.body.style.userSelect = "";
+                };
+
+                document.addEventListener("mousemove", handleMove);
+                document.addEventListener("mouseup", handleUp);
+                document.body.style.cursor = "col-resize";
+                document.body.style.userSelect = "none";
+              }}
+              className="group flex w-4 items-stretch justify-center cursor-col-resize"
+            >
+              <div className="w-1 rounded-full bg-transparent group-hover:bg-primary/60 transition" />
+            </div>
+          </div>
+
+          <div className="rounded-3xl border bg-card p-6 shadow-sm space-y-6 flex-1 min-w-0">
             {selectedProject ? (
               <>
                 <div className="flex flex-wrap items-start justify-between gap-4">
@@ -641,20 +711,66 @@ export default function ProjectWorkspace() {
                   </div>
 
                   {activeTab === "overview" ? (
-                    <div className="grid gap-4 md:grid-cols-3">
-                      <div className="rounded-2xl border bg-white/90 p-4">
-                        <p className="text-xs text-muted-foreground">專案狀態</p>
-                        <p className="mt-2 text-lg font-semibold">
-                          {formatProjectStatus(selectedProject)}
-                        </p>
+                    <div className="space-y-4">
+                      <div className="grid gap-4 md:grid-cols-3">
+                        <div className="rounded-2xl border bg-white/90 p-4">
+                          <p className="text-xs text-muted-foreground">專案狀態</p>
+                          <p className="mt-2 text-lg font-semibold">
+                            {formatProjectStatus(selectedProject)}
+                          </p>
+                        </div>
+                        <div className="rounded-2xl border bg-white/90 p-4">
+                          <p className="text-xs text-muted-foreground">需求編號</p>
+                          <p className="mt-2 text-lg font-semibold">{selectedProject.requirementId.slice(0, 8)}</p>
+                        </div>
+                        <div className="rounded-2xl border bg-white/90 p-4">
+                          <p className="text-xs text-muted-foreground">更新時間</p>
+                          <p className="mt-2 text-lg font-semibold">{selectedProject.updatedAt}</p>
+                        </div>
                       </div>
+
                       <div className="rounded-2xl border bg-white/90 p-4">
-                        <p className="text-xs text-muted-foreground">需求編號</p>
-                        <p className="mt-2 text-lg font-semibold">{selectedProject.requirementId.slice(0, 8)}</p>
-                      </div>
-                      <div className="rounded-2xl border bg-white/90 p-4">
-                        <p className="text-xs text-muted-foreground">更新時間</p>
-                        <p className="mt-2 text-lg font-semibold">{selectedProject.updatedAt}</p>
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <p className="text-sm font-semibold">專案流程</p>
+                          <span className="text-xs text-muted-foreground">
+                            目前階段：{flowStatusLabel}
+                          </span>
+                        </div>
+                        <div className="mt-4 overflow-x-auto pb-2">
+                          <div className="flex min-w-[960px] flex-wrap items-center gap-3">
+                            {projectFlowOrder
+                              .flatMap((status) =>
+                                status === "software_design_signed" ? [status, "flow-break"] : [status]
+                              )
+                              .map((item, displayIndex) => {
+                                if (item === "flow-break") {
+                                  return <span key={`flow-break-${displayIndex}`} className="basis-full h-0" aria-hidden="true" />;
+                                }
+                                const status = item as ProjectStatus;
+                                const index = projectFlowOrder.indexOf(status);
+                                const isCompleted = flowIndex > -1 && index < flowIndex;
+                                const isCurrent = flowIndex === index;
+                                const chipTone = isCurrent
+                                  ? "border-primary bg-primary/10 text-primary"
+                                  : isCompleted
+                                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                                    : "border-slate-200 bg-slate-50 text-slate-400";
+                                const lineTone = isCompleted ? "bg-emerald-300" : "bg-slate-200";
+                                return (
+                                  <div key={status} className="flex items-center">
+                                    <div
+                                      className={`inline-flex items-center whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold ${chipTone}`}
+                                    >
+                                      {projectStatusLabels[status] ?? status}
+                                    </div>
+                                    {index < projectFlowOrder.length - 1 ? (
+                                      <div className={`mx-2 h-px w-8 ${lineTone}`} />
+                                    ) : null}
+                                  </div>
+                                );
+                              })}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ) : null}
