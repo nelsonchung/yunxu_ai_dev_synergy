@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { Bell, CheckCircle2, RefreshCcw } from "lucide-react";
 import { Link } from "wouter";
+import { getSession } from "@/lib/authClient";
 import {
   listNotifications,
   markAllNotificationsRead,
   markNotificationRead,
   onNotificationsChange,
+  replyNotification,
   type NotificationItem,
 } from "@/lib/notificationsClient";
 
@@ -14,6 +16,11 @@ export default function Notifications() {
   const [isLoading, setIsLoading] = useState(true);
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
+  const [accountRole, setAccountRole] = useState<string | null>(null);
+  const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
+  const [replyingId, setReplyingId] = useState<string | null>(null);
+
+  const quickReplyTemplates = ["預計 1 天內完成", "預計 3 天內完成", "正在確認最終版需求"];
 
   const loadNotifications = async (options?: { silent?: boolean }) => {
     const silent = options?.silent ?? false;
@@ -31,6 +38,14 @@ export default function Notifications() {
 
   useEffect(() => {
     loadNotifications();
+  }, []);
+
+  useEffect(() => {
+    const syncSession = async () => {
+      const session = await getSession();
+      setAccountRole(session?.role ?? null);
+    };
+    syncSession();
   }, []);
 
   useEffect(() => {
@@ -68,6 +83,24 @@ export default function Notifications() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "更新通知失敗。");
       setStatus("");
+    }
+  };
+
+  const handleSendReply = async (notificationId: string, message: string) => {
+    const content = message.trim();
+    if (!content) return;
+    try {
+      setError("");
+      setStatus("正在送出回覆...");
+      setReplyingId(notificationId);
+      await replyNotification(notificationId, content);
+      setStatus("已送出回覆。");
+      setReplyDrafts((prev) => ({ ...prev, [notificationId]: "" }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "回覆失敗。");
+      setStatus("");
+    } finally {
+      setReplyingId(null);
     }
   };
 
@@ -153,6 +186,46 @@ export default function Notifications() {
                     </div>
                     <div className="text-xs text-muted-foreground">{item.createdAt}</div>
                   </div>
+                  {accountRole === "customer" && item.type === "requirement.interest" ? (
+                    <div className="rounded-xl border border-dashed p-3 space-y-2">
+                      <p className="text-xs font-semibold text-muted-foreground">快速回覆</p>
+                      <div className="flex flex-wrap gap-2">
+                        {quickReplyTemplates.map((template) => (
+                          <button
+                            key={template}
+                            type="button"
+                            onClick={() => handleSendReply(item.id, template)}
+                            disabled={replyingId === item.id}
+                            className="rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            [{template}]
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2 text-xs">
+                        <input
+                          type="text"
+                          value={replyDrafts[item.id] ?? ""}
+                          onChange={(event) =>
+                            setReplyDrafts((prev) => ({
+                              ...prev,
+                              [item.id]: event.target.value,
+                            }))
+                          }
+                          placeholder="輸入自訂回覆"
+                          className="flex-1 rounded-full border border-border bg-white px-3 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleSendReply(item.id, replyDrafts[item.id] ?? "")}
+                          disabled={!String(replyDrafts[item.id] ?? "").trim() || replyingId === item.id}
+                          className="rounded-full border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 transition disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          送出
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
                   <div className="flex flex-wrap items-center gap-2 text-xs">
                     {item.link ? (
                       <Link

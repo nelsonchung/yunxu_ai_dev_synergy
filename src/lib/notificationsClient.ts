@@ -119,3 +119,11 @@ export const markAllNotificationsRead = async () => {
   notifyNotificationsChange();
   return data.updated;
 };
+
+export const replyNotification = async (notificationId: string, message: string) => {
+  await apiRequest(`/api/notifications/${notificationId}/reply`, {
+    method: "POST",
+    body: JSON.stringify({ message }),
+  });
+  notifyNotificationsChange();
+};
