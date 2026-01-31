@@ -41,6 +41,10 @@ const routePermissions: Record<string, { allowedRoles: string[]; denyMessage: st
     allowedRoles: ["developer", "admin"],
     denyMessage: "此頁面僅供開發者權限瀏覽",
   },
+  "/admin/audit": {
+    allowedRoles: ["admin"],
+    denyMessage: "此頁面僅供管理員權限瀏覽",
+  },
 };
 
 // Context 傳遞用戶角色和對話框控制
@@ -574,7 +578,7 @@ function WorkflowTab() {
           title: "專案結案",
           description: "完成所有文件歸檔與交接。",
           link: null,
-          actor: "管理員",
+          actor: "客戶",
         },
       ],
     },
@@ -891,7 +895,7 @@ function FaqTab() {
         },
         {
           q: "付款方式是什麼？",
-          a: "目前採線下付款，報價核准後管理員會與您聯繫付款事宜。",
+          a: "提供第三方線上支付系統，包含綠界（ATM、信用卡、Apple Pay）與街口支付。",
         },
       ],
     },
