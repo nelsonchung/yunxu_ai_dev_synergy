@@ -9,7 +9,6 @@ const links = [
   { label: "AI 角色", href: "/#ai", type: "anchor" },
   { label: "合作模式", href: "/#collaboration", type: "anchor" },
   { label: "品牌介紹", href: "/#brand", type: "anchor" },
-  { label: "使用指南", href: "/guide", type: "route" },
 ];
 
 export default function Footer() {
@@ -99,6 +98,11 @@ export default function Footer() {
               <li>
                 <Link href="/request" className="text-muted-foreground hover:text-primary transition">
                   提交需求
+                </Link>
+              </li>
+              <li>
+                <Link href="/guide" className="text-muted-foreground hover:text-primary transition">
+                  使用指南
                 </Link>
               </li>
             </ul>
