@@ -3,11 +3,11 @@
     "id": "069c5c7f-2770-4a2c-b074-6094b874751f",
     "requirementId": "6a2c2fb1-6b5a-4487-863d-c5c4be5b29e0",
     "name": "軟體媒合系統設計",
-    "status": "software_design_signed",
+    "status": "closed",
     "previousStatus": null,
-    "startDate": null,
-    "endDate": null,
+    "startDate": "2026-01-25T13:21:43.027Z",
+    "endDate": "2026-01-31T06:57:37.248Z",
     "createdAt": "2026-01-25T13:21:43.027Z",
-    "updatedAt": "2026-01-27T14:09:46.385Z"
+    "updatedAt": "2026-01-31T06:57:37.248Z"
   }
 ]

@@ -138,5 +138,47 @@
     "approvedBy": "e38600d9-8f72-42d4-94b1-51928890e9b1",
     "createdAt": "2026-01-29T15:28:48.060Z",
     "updatedAt": "2026-01-29T15:29:10.477Z"
+  },
+  {
+    "id": "0954c390-8c82-41c3-ab71-a6ea487d64a1",
+    "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+    "type": "delivery",
+    "title": "使用說明文件",
+    "version": 1,
+    "contentUrl": "projects/069c5c7f-2770-4a2c-b074-6094b874751f/delivery/v1.md",
+    "status": "archived",
+    "versionNote": null,
+    "reviewComment": "需要新增說明",
+    "approvedBy": null,
+    "createdAt": "2026-01-31T05:56:53.252Z",
+    "updatedAt": "2026-01-31T06:02:45.487Z"
+  },
+  {
+    "id": "b1ff8198-cb50-4f1e-93c3-c979d2f9582f",
+    "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+    "type": "delivery",
+    "title": "使用說明文件",
+    "version": 2,
+    "contentUrl": "projects/069c5c7f-2770-4a2c-b074-6094b874751f/delivery/v2.md",
+    "status": "archived",
+    "versionNote": null,
+    "reviewComment": "請在調整更細節的說明",
+    "approvedBy": null,
+    "createdAt": "2026-01-31T06:02:45.487Z",
+    "updatedAt": "2026-01-31T06:03:26.144Z"
+  },
+  {
+    "id": "9474823a-e9ac-4bd4-a952-ffcbd1023afd",
+    "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
+    "type": "delivery",
+    "title": "使用說明文件",
+    "version": 3,
+    "contentUrl": "projects/069c5c7f-2770-4a2c-b074-6094b874751f/delivery/v3.md",
+    "status": "approved",
+    "versionNote": null,
+    "reviewComment": null,
+    "approvedBy": "e38600d9-8f72-42d4-94b1-51928890e9b1",
+    "createdAt": "2026-01-31T06:03:26.144Z",
+    "updatedAt": "2026-01-31T06:03:36.490Z"
   }
 ]

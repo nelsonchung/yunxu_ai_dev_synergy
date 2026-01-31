@@ -12,8 +12,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "4. 系統分層與模組責任",
         "h3": "4.1 Web Frontend",
-        "done": false,
-        "updatedAt": "2026-01-28T15:19:23.306Z"
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:03.200Z"
       },
       {
         "id": "30254d01-627c-4b39-ae74-0026c7993108",
@@ -152,8 +152,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "6. API 設計（詳細）",
         "h3": "6.7 通知與即時更新 API",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:06.097Z"
       },
       {
         "id": "234cc01a-72fe-47fc-b5e7-04ebc628f455",
@@ -162,8 +162,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "7. 核心資料模型（詳細）",
         "h3": "7.1 需求與文件",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:06.523Z"
       },
       {
         "id": "5e88098a-f5d3-40e1-80bb-b9970f9f0097",
@@ -172,8 +172,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "7. 核心資料模型（詳細）",
         "h3": "7.2 專案與任務",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:07.639Z"
       },
       {
         "id": "faa06969-4d75-4fa7-bd74-f650fb27f087",
@@ -182,8 +182,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "7. 核心資料模型（詳細）",
         "h3": "7.3 媒合與評估",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:08.223Z"
       },
       {
         "id": "d114bd4b-581a-4f55-839e-faa8d11ede33",
@@ -192,8 +192,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "7. 核心資料模型（詳細）",
         "h3": "7.4 品質與測試",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:09.125Z"
       },
       {
         "id": "a01c638b-211f-44a7-a4bd-2cef1b89a298",
@@ -202,8 +202,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "7. 核心資料模型（詳細）",
         "h3": "7.5 AI 任務",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:09.788Z"
       },
       {
         "id": "1bd03fb3-49ba-40c2-b93e-b7b85c258289",
@@ -212,8 +212,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "7. 核心資料模型（詳細）",
         "h3": "7.6 權限與稽核",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:10.795Z"
       },
       {
         "id": "bf525524-1457-4c27-888c-38ae10c5570c",
@@ -222,8 +222,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "8. 狀態機與流程設計",
         "h3": "8.1 Requirement 狀態",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:12.047Z"
       },
       {
         "id": "e631bfcb-3e7d-48a5-b810-0a67d4979345",
@@ -232,8 +232,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "8. 狀態機與流程設計",
         "h3": "8.2 Document 狀態",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:13.503Z"
       },
       {
         "id": "c6825452-998d-4098-8c5d-cec15f02db9f",
@@ -242,8 +242,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "8. 狀態機與流程設計",
         "h3": "8.3 Project 狀態",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:13.939Z"
       },
       {
         "id": "26ba45bb-7825-477a-a207-5d097b78fc11",
@@ -252,8 +252,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "8. 狀態機與流程設計",
         "h3": "8.4 AIJob 狀態",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:15.969Z"
       },
       {
         "id": "e6c833c8-9502-4a72-8ba1-6ab668cf9303",
@@ -262,8 +262,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "9. 文件與版本控管",
         "h3": "9.1 文件類型與責任歸屬",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:16.683Z"
       },
       {
         "id": "1cf3b817-747a-4dfa-ace3-e6dbaa9f04ed",
@@ -272,8 +272,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "9. 文件與版本控管",
         "h3": "9.2 版本規則與命名策略",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:17.435Z"
       },
       {
         "id": "09a852ef-c2d9-4ec8-a35e-6852769f5266",
@@ -282,8 +282,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "9. 文件與版本控管",
         "h3": "9.3 簽核流程與稽核記錄",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:18.431Z"
       },
       {
         "id": "a2487218-3a4d-4bf4-ad68-03f06ff84397",
@@ -292,8 +292,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "9. 文件與版本控管",
         "h3": "9.4 版本比對與回溯策略",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:19.157Z"
       },
       {
         "id": "cf051925-4ec8-408d-861a-a38c41410f2c",
@@ -302,8 +302,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "10. AI 協作設計",
         "h3": "10.1 任務分類與觸發條件",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:20.523Z"
       },
       {
         "id": "b9cf1b99-a8a9-4709-8bcd-5d8fe0fc326e",
@@ -312,8 +312,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "10. AI 協作設計",
         "h3": "10.2 同步/非同步執行策略",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:21.081Z"
       },
       {
         "id": "c90e4aec-d874-4e22-8878-d3eb2a929601",
@@ -322,8 +322,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "10. AI 協作設計",
         "h3": "10.3 審核與人機協作流程",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:21.775Z"
       },
       {
         "id": "c121fe35-0715-4e83-b591-72cd95342e6d",
@@ -332,8 +332,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "10. AI 協作設計",
         "h3": "10.4 結果追蹤與版本關聯",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:24.210Z"
       },
       {
         "id": "0baa1f8d-be81-4cf6-b293-0542307d66ab",
@@ -342,8 +342,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "11. 安全性與權限設計",
         "h3": "11.1 驗證與 Token 機制",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:24.929Z"
       },
       {
         "id": "d6610f8e-5b7a-4c42-b228-e5fd6a36fff6",
@@ -352,8 +352,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "11. 安全性與權限設計",
         "h3": "11.2 RBAC 權限模型",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:25.983Z"
       },
       {
         "id": "2e214b56-9466-49ab-b7af-8ad77926892c",
@@ -362,8 +362,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "11. 安全性與權限設計",
         "h3": "11.3 專案資料隔離策略",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:26.589Z"
       },
       {
         "id": "d56a5cb9-18e2-4bc2-81bd-152b290af53a",
@@ -372,8 +372,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "11. 安全性與權限設計",
         "h3": "11.4 稽核與存取記錄",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:27.254Z"
       },
       {
         "id": "1418915c-d54c-49ec-b37e-ef117dccaa95",
@@ -382,8 +382,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "12. 錯誤處理與例外",
         "h3": "12.1 API 錯誤規範",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:27.974Z"
       },
       {
         "id": "b40c5f73-978f-492b-a6a7-10cccbd543d2",
@@ -392,8 +392,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "12. 錯誤處理與例外",
         "h3": "12.2 代表性錯誤碼對照",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:29.762Z"
       },
       {
         "id": "bf0067b4-a9df-4d06-9d17-5ae6cf42c593",
@@ -402,8 +402,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "12. 錯誤處理與例外",
         "h3": "12.3 版本衝突與回復策略",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:30.323Z"
       },
       {
         "id": "fdeb2aa8-df47-4b81-b95e-61c566db1376",
@@ -412,8 +412,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "12. 錯誤處理與例外",
         "h3": "12.4 AI 任務失敗處理",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:31.032Z"
       },
       {
         "id": "706bbc0a-ee64-4665-b2ee-96c817779f32",
@@ -422,8 +422,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "13. 非功能性需求",
         "h3": "13.1 可追溯性",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:31.688Z"
       },
       {
         "id": "0bfa7564-062f-401f-8521-4746afb5e7f9",
@@ -432,8 +432,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "13. 非功能性需求",
         "h3": "13.2 可視化",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:32.324Z"
       },
       {
         "id": "d8126ed8-9949-4bdf-adb8-c681df0a470f",
@@ -442,8 +442,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "13. 非功能性需求",
         "h3": "13.3 品質控管",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:33.076Z"
       },
       {
         "id": "9edd8c57-c485-4390-9032-8db97ba06a9e",
@@ -452,8 +452,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "13. 非功能性需求",
         "h3": "13.4 可擴充性",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:33.966Z"
       },
       {
         "id": "401fe532-d8aa-41b8-9e9d-dc261f029b21",
@@ -462,8 +462,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "14. 觀測與維運",
         "h3": "14.1 Log 分類與保存策略",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:34.537Z"
       },
       {
         "id": "7dcb7d47-40c0-4617-aae6-a722d07ec29a",
@@ -472,8 +472,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "14. 觀測與維運",
         "h3": "14.2 Monitor 指標與健康檢查",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:35.285Z"
       },
       {
         "id": "1cd53ecf-a238-4d20-b1b7-02067f5c2e4c",
@@ -482,8 +482,8 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "14. 觀測與維運",
         "h3": "14.3 Alert 規則與處置流程",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:36.376Z"
       },
       {
         "id": "94020058-37ae-4253-ae58-3ee22cdab049",
@@ -492,12 +492,12 @@
         "h1": "軟體設計文件（Software Design）",
         "h2": "14. 觀測與維運",
         "h3": "14.4 佈署與容量規劃",
-        "done": false,
-        "updatedAt": null
+        "done": true,
+        "updatedAt": "2026-01-31T05:48:37.116Z"
       }
     ],
     "createdAt": "2026-01-28T14:48:57.009Z",
-    "updatedAt": "2026-01-28T15:19:35.259Z",
+    "updatedAt": "2026-01-31T05:48:37.116Z",
     "createdBy": "e38600d9-8f72-42d4-94b1-51928890e9b1",
     "updatedBy": "eb107b1e-1b0a-482d-b1b8-303fdd692528"
   }
