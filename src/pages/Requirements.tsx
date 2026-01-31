@@ -3,7 +3,7 @@ import { ClipboardCheck, RefreshCcw, ScrollText } from "lucide-react";
 import { Link } from "wouter";
 import { getSession } from "@/lib/authClient";
 import { getMyPermissions } from "@/lib/permissionsClient";
-import { listRequirements, type RequirementSummary } from "@/lib/platformClient";
+import { listProjects, listRequirements, type RequirementSummary } from "@/lib/platformClient";
 
 const statusLabels: Record<string, string> = {
   submitted: "已送出",
@@ -13,6 +13,7 @@ const statusLabels: Record<string, string> = {
   matched: "媒合中",
   converted: "已轉專案",
   draft: "草稿",
+  closed: "已結案",
 };
 
 const statusTone: Record<string, string> = {
@@ -23,10 +24,12 @@ const statusTone: Record<string, string> = {
   matched: "border-indigo-200 bg-indigo-50 text-indigo-700",
   converted: "border-emerald-200 bg-emerald-50 text-emerald-700",
   draft: "border-slate-200 bg-slate-50 text-slate-700",
+  closed: "border-slate-200 bg-slate-50 text-slate-600",
 };
 
 export default function Requirements() {
   const [requirements, setRequirements] = useState<RequirementSummary[]>([]);
+  const [projectStatusMap, setProjectStatusMap] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [accountRole, setAccountRole] = useState<string | null>(null);
@@ -40,8 +43,26 @@ export default function Requirements() {
     try {
       setIsLoading(true);
       setError("");
-      const data = await listRequirements();
+      const [data, projects] = await Promise.all([listRequirements(), listProjects()]);
+      const latestByRequirement: Record<string, { status: string; updatedAt: string }> = {};
+      projects.forEach((project) => {
+        const current = latestByRequirement[project.requirementId];
+        if (!current || project.updatedAt > current.updatedAt) {
+          latestByRequirement[project.requirementId] = {
+            status: project.status,
+            updatedAt: project.updatedAt,
+          };
+        }
+      });
       setRequirements(data);
+      setProjectStatusMap(
+        Object.fromEntries(
+          Object.entries(latestByRequirement).map(([requirementId, value]) => [
+            requirementId,
+            value.status,
+          ])
+        )
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "無法載入需求清單。");
     } finally {
@@ -157,7 +178,10 @@ export default function Requirements() {
             </div>
           ) : (
             <div className="grid gap-4 lg:grid-cols-2">
-              {requirements.map((item) => (
+              {requirements.map((item) => {
+                const projectStatus = projectStatusMap[item.id];
+                const displayStatus = projectStatus === "closed" ? "closed" : item.status;
+                return (
                 <div key={item.id} className="rounded-2xl border bg-white/90 p-4 space-y-3">
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -167,10 +191,10 @@ export default function Requirements() {
                     </div>
                     <span
                       className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-                        statusTone[item.status] ?? "border-primary/20 bg-primary/10 text-primary"
+                        statusTone[displayStatus] ?? "border-primary/20 bg-primary/10 text-primary"
                       }`}
                     >
-                      {statusLabels[item.status] ?? item.status}
+                      {statusLabels[displayStatus] ?? displayStatus}
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
@@ -203,7 +227,8 @@ export default function Requirements() {
                     )}
                   </div>
                 </div>
-              ))}
+              );
+              })}
             </div>
           )}
         </div>

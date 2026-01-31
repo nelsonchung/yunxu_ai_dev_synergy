@@ -4,6 +4,7 @@ import { Link } from "wouter";
 import { getSession } from "@/lib/authClient";
 import {
   approveRequirement,
+  closeProject,
   getProjectDocumentQuotation,
   getProjectChecklist,
   getProjectVerificationChecklist,
@@ -24,6 +25,7 @@ const statusLabels: Record<string, string> = {
   matched: "媒合中",
   converted: "已轉專案",
   draft: "草稿",
+  closed: "已結案",
 };
 
 const statusTone: Record<string, string> = {
@@ -34,6 +36,7 @@ const statusTone: Record<string, string> = {
   matched: "border-indigo-200 bg-indigo-50 text-indigo-700",
   converted: "border-emerald-200 bg-emerald-50 text-emerald-700",
   draft: "border-slate-200 bg-slate-50 text-slate-700",
+  closed: "border-slate-200 bg-slate-50 text-slate-600",
 };
 
 const docStatusLabels: Record<string, string> = {
@@ -48,6 +51,20 @@ const docStatusTone: Record<string, string> = {
   pending_approval: "border-amber-200 bg-amber-50 text-amber-700",
   approved: "border-emerald-200 bg-emerald-50 text-emerald-700",
   archived: "border-slate-200 bg-slate-100 text-slate-600",
+};
+
+const quotationStatusLabels: Record<string, string> = {
+  draft: "評估中",
+  submitted: "待簽核",
+  approved: "已核准",
+  changes_requested: "需調整",
+};
+
+const quotationStatusTone: Record<string, string> = {
+  draft: "border-slate-200 bg-slate-50 text-slate-600",
+  submitted: "border-amber-200 bg-amber-50 text-amber-700",
+  approved: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  changes_requested: "border-rose-200 bg-rose-50 text-rose-700",
 };
 
 const formatPrice = (value: number) => new Intl.NumberFormat("zh-TW").format(value);
@@ -98,6 +115,8 @@ type RequirementProgress = {
   softwareDocStatus: string | null;
   testDocId: string | null;
   testDocStatus: string | null;
+  deliveryDocId: string | null;
+  deliveryDocStatus: string | null;
   quotationDocId: string | null;
   quotationTotal: number | null;
   quotationCurrency: string | null;
@@ -188,6 +207,8 @@ export default function MyRequirements() {
                   softwareDocStatus: null,
                   testDocId: null,
                   testDocStatus: null,
+                  deliveryDocId: null,
+                  deliveryDocStatus: null,
                   quotationDocId: null,
                   quotationTotal: null,
                   quotationCurrency: null,
@@ -206,6 +227,9 @@ export default function MyRequirements() {
               .sort((a, b) => b.version - a.version)[0];
             const latestTest = projectDocs
               .filter((doc) => doc.type === "test")
+              .sort((a, b) => b.version - a.version)[0];
+            const latestDelivery = projectDocs
+              .filter((doc) => doc.type === "delivery")
               .sort((a, b) => b.version - a.version)[0];
 
             const [quotation, checklist, verificationChecklist] = await Promise.all([
@@ -239,6 +263,8 @@ export default function MyRequirements() {
                 softwareDocStatus: latestSoftware?.status ?? null,
                 testDocId: latestTest?.id ?? null,
                 testDocStatus: latestTest?.status ?? null,
+                deliveryDocId: latestDelivery?.id ?? null,
+                deliveryDocStatus: latestDelivery?.status ?? null,
                 quotationDocId: latestSoftware?.id ?? null,
                 quotationTotal: quotation && quotation.status !== "draft" ? quotation.total : null,
                 quotationCurrency: quotation && quotation.status !== "draft" ? quotation.currency : null,
@@ -265,6 +291,8 @@ export default function MyRequirements() {
                 softwareDocStatus: null,
                 testDocId: null,
                 testDocStatus: null,
+                deliveryDocId: null,
+                deliveryDocStatus: null,
                 quotationDocId: null,
                 quotationTotal: null,
                 quotationCurrency: null,
@@ -293,6 +321,18 @@ export default function MyRequirements() {
     const label = status ? docStatusLabels[status] ?? status : "尚未建立";
     const tone = status
       ? docStatusTone[status] ?? "border-slate-200 bg-slate-50 text-slate-700"
+      : "border-slate-200 bg-slate-50 text-slate-400";
+    return (
+      <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${tone}`}>
+        {label}
+      </span>
+    );
+  };
+
+  const renderQuotationStatus = (status: RequirementProgress["quotationStatus"]) => {
+    const label = status ? quotationStatusLabels[status] ?? status : "評估中";
+    const tone = status
+      ? quotationStatusTone[status] ?? "border-slate-200 bg-slate-50 text-slate-700"
       : "border-slate-200 bg-slate-50 text-slate-400";
     return (
       <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${tone}`}>
@@ -339,13 +379,40 @@ export default function MyRequirements() {
     }
   };
 
-  const handleQuickApproveQuotation = async (projectId: string, docId: string) => {
+  const handleQuickApproveQuotation = async (
+    requirementId: string,
+    projectId: string,
+    docId: string
+  ) => {
     try {
       setIsQuickAction(true);
       await reviewProjectDocumentQuotation(projectId, docId, { approved: true });
+      setProgressMap((prev) => {
+        const current = prev[requirementId];
+        if (!current) return prev;
+        return {
+          ...prev,
+          [requirementId]: {
+            ...current,
+            quotationStatus: "approved",
+          },
+        };
+      });
       await loadRequirements();
     } catch (err) {
       setError(err instanceof Error ? err.message : "報價簽核失敗。");
+    } finally {
+      setIsQuickAction(false);
+    }
+  };
+
+  const handleAgreeClose = async (projectId: string) => {
+    try {
+      setIsQuickAction(true);
+      await closeProject(projectId);
+      await loadRequirements();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "結案失敗。");
     } finally {
       setIsQuickAction(false);
     }
@@ -431,10 +498,18 @@ export default function MyRequirements() {
                   progress?.projectId &&
                   progress.testDocId &&
                   progress.testDocStatus === "pending_approval";
+                const canApproveDelivery =
+                  progress?.projectId &&
+                  progress.deliveryDocId &&
+                  progress.deliveryDocStatus === "pending_approval";
                 const canApproveQuotation =
                   progress?.projectId &&
                   progress.quotationDocId &&
                   progress.quotationStatus === "submitted";
+                const canAgreeClose =
+                  progress?.projectId &&
+                  progress.deliveryDocStatus === "approved" &&
+                  progress.projectStatus !== "closed";
 
                 const hasVerificationChecklist = Boolean(progress?.verificationChecklistTotal);
                 const hasChecklist = Boolean(progress?.checklistTotal);
@@ -453,6 +528,8 @@ export default function MyRequirements() {
                 );
                 const projectStageLabel = projectStatusLabels[progress?.projectStatus ?? ""] ?? progress?.projectStatus ?? "--";
 
+                const displayStatus = progress?.projectStatus === "closed" ? "closed" : item.status;
+
                 return (
                 <div key={item.id} className="rounded-2xl border bg-white/90 p-4 space-y-3">
                   <div className="flex items-start justify-between gap-3">
@@ -463,10 +540,10 @@ export default function MyRequirements() {
                     </div>
                     <span
                       className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-                        statusTone[item.status] ?? "border-primary/20 bg-primary/10 text-primary"
+                        statusTone[displayStatus] ?? "border-primary/20 bg-primary/10 text-primary"
                       }`}
                     >
-                      {statusLabels[item.status] ?? item.status}
+                      {statusLabels[displayStatus] ?? displayStatus}
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
@@ -563,12 +640,19 @@ export default function MyRequirements() {
                             {renderDocStatus(progress?.testDocStatus ?? null)}
                           </div>
                           <div className="flex items-center justify-between rounded-lg border bg-white px-2 py-1 text-xs">
+                            <span className="text-muted-foreground">使用說明簽核</span>
+                            {renderDocStatus(progress?.deliveryDocStatus ?? null)}
+                          </div>
+                          <div className="flex items-center justify-between rounded-lg border bg-white px-2 py-1 text-xs">
                             <span className="text-muted-foreground">報價</span>
-                            <span className="font-semibold text-foreground">
-                              {progress?.quotationStatus && progress?.quotationStatus !== "draft"
-                                ? `NT$ ${formatPrice(progress?.quotationTotal ?? 0)}`
-                                : "評估中"}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              {renderQuotationStatus(progress?.quotationStatus ?? null)}
+                              <span className="font-semibold text-foreground">
+                                {progress?.quotationStatus && progress?.quotationStatus !== "draft"
+                                  ? `NT$ ${formatPrice(progress?.quotationTotal ?? 0)}`
+                                  : "—"}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </>
@@ -625,12 +709,41 @@ export default function MyRequirements() {
                       <button
                         type="button"
                         onClick={() =>
+                          progress?.projectId && progress.deliveryDocId
+                            ? handleQuickApproveProjectDoc(progress.projectId, progress.deliveryDocId)
+                            : undefined
+                        }
+                        disabled={!canApproveDelivery || isQuickAction}
+                        className="rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        簽核使用說明
+                      </button>
+                      {progress?.projectId &&
+                      (progress.deliveryDocStatus === "approved" || progress.projectStatus === "closed") ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            progress.projectId ? handleAgreeClose(progress.projectId) : undefined
+                          }
+                          disabled={!canAgreeClose || isQuickAction}
+                          className="rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          同意結案
+                        </button>
+                      ) : null}
+                      <button
+                        type="button"
+                        onClick={() =>
                           progress?.projectId && progress.quotationDocId
-                            ? handleQuickApproveQuotation(progress.projectId, progress.quotationDocId)
+                            ? handleQuickApproveQuotation(
+                                item.id,
+                                progress.projectId,
+                                progress.quotationDocId
+                              )
                             : undefined
                         }
                         disabled={!canApproveQuotation || isQuickAction}
-                        className="rounded-full border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 transition disabled:cursor-not-allowed disabled:opacity-60"
+                        className="rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         簽核報價
                       </button>

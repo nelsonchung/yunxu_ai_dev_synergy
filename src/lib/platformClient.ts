@@ -535,6 +535,13 @@ export const updateProjectVerificationChecklistItem = async (
   return data.checklist;
 };
 
+export const closeProject = async (projectId: string) => {
+  const data = await apiRequest<{ project: ProjectSummary }>(`/api/projects/${projectId}/close`, {
+    method: "POST",
+  });
+  return data.project;
+};
+
 export const listSupportThreads = async () => {
   const data = await apiRequest<{ threads: SupportThread[] }>("/api/support/threads", {
     method: "GET",

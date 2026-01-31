@@ -619,6 +619,34 @@ export const updateProjectStatus = async (projectId: string, status: ProjectStat
   return { before: current, after: updated };
 };
 
+export const forceCloseProject = async (projectId: string) => {
+  const projects = await normalizeProjects();
+  const index = projects.findIndex((project) => project.id === projectId);
+  if (index === -1) return { error: "NOT_FOUND" as const };
+
+  const current = projects[index];
+  if (current.status === "closed") {
+    return { before: current, after: current };
+  }
+
+  const now = new Date().toISOString();
+  const nextPreviousStatus =
+    current.status === "on_hold" ? null : current.previousStatus ?? null;
+  const nextStartDate = current.startDate ?? current.createdAt ?? now;
+
+  const updated: Project = {
+    ...current,
+    status: "closed",
+    previousStatus: nextPreviousStatus,
+    startDate: nextStartDate,
+    endDate: now,
+    updatedAt: now,
+  };
+  projects[index] = updated;
+  await platformStores.projects.write(projects);
+  return { before: current, after: updated };
+};
+
 export const createProject = async (payload: { requirementId: string; name: string }) => {
   const projects = await platformStores.projects.read();
   const requirements = await platformStores.requirements.read();

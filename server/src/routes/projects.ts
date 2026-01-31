@@ -12,6 +12,7 @@ import {
   getRequirementById,
   listProjectDocuments,
   listProjects,
+  forceCloseProject,
   reviewProjectDocument,
   reviewQuotationReview,
   submitQuotationReview,
@@ -407,6 +408,7 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         return reply.code(404).send({ message: "找不到報價。" });
       }
 
+      let autoTransitionTo: ProjectStatus | null = null;
       if (body.approved) {
         await upsertDevelopmentChecklist({
           projectId: id,
@@ -415,6 +417,28 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
           content: docResult.content,
           actorId: request.user?.sub ?? null,
         });
+
+        const currentProject = await getProjectById(id);
+        const matchesFrom =
+          currentProject &&
+          (currentProject.status === "software_design_signed" ||
+            (currentProject.status === "on_hold" &&
+              currentProject.previousStatus === "software_design_signed"));
+        if (matchesFrom) {
+          const result = await updateProjectStatus(id, "implementation");
+          if (!("error" in result)) {
+            autoTransitionTo = result.after.status;
+            if (request.user?.sub && result.before.status !== result.after.status) {
+              await addAuditLog({
+                actorId: request.user.sub,
+                targetUserId: null,
+                action: "PROJECT_STATUS_UPDATED",
+                before: { projectId: id, status: result.before.status },
+                after: { projectId: id, status: result.after.status },
+              });
+            }
+          }
+        }
       }
 
       if (request.user?.sub) {
@@ -438,12 +462,15 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
           const customerLabel =
             requirement?.companyName?.trim() || requirement?.contact?.name?.trim() || "客戶";
           const actionLabel = updated.status === "approved" ? "已核准" : "需調整";
+          const autoNote = autoTransitionTo
+            ? `，專案狀態已自動更新為「${projectStatusLabels[autoTransitionTo] ?? autoTransitionTo}」`
+            : "";
           await notifyUsers({
             recipientIds: recipients,
             actorId: request.user?.sub ?? null,
             type: "quotation.reviewed",
             title: `客戶「${customerLabel}」報價${actionLabel}`,
-            message: `客戶「${customerLabel}」已${actionLabel}專案「${project?.name ?? id}」報價，請查看處理。`,
+            message: `客戶「${customerLabel}」已${actionLabel}專案「${project?.name ?? id}」報價${autoNote}，請查看處理。`,
             link: `/workspace?project=${id}`,
           });
         }
@@ -720,7 +747,6 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
           system: { from: "architecture_review", to: "system_architecture_signed" },
           software: { from: "software_design_review", to: "software_design_signed" },
           test: { from: "system_verification", to: "system_verification_signed" },
-          delivery: { from: "delivery_review", to: "closed" },
         };
         const target = autoTransitionByDocType[updated.type];
         if (target) {
@@ -838,6 +864,87 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
     });
     return { ok: true };
   });
+
+  app.post(
+    "/projects/:id/close",
+    { preHandler: app.requirePermission("projects.documents.review") },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const project = await getProjectById(id);
+      if (!project) {
+        return reply.code(404).send({ message: "找不到專案。" });
+      }
+      if (project.status === "closed") {
+        return { project };
+      }
+      const requirement = await getRequirementById(project.requirementId);
+      if (!requirement) {
+        return reply.code(404).send({ message: "找不到需求。" });
+      }
+      if (request.user.role !== "admin" && requirement.ownerId !== request.user.sub) {
+        return reply.code(403).send({ message: "僅需求提出者可結案。" });
+      }
+
+      let latestProject = project;
+
+      if (project.status !== "delivery_review") {
+        const transition = await updateProjectStatus(id, "delivery_review");
+        if (!("error" in transition)) {
+          latestProject = transition.after;
+          if (request.user?.sub && transition.before.status !== transition.after.status) {
+            await addAuditLog({
+              actorId: request.user.sub,
+              targetUserId: null,
+              action: "PROJECT_STATUS_UPDATED",
+              before: { projectId: id, status: transition.before.status },
+              after: { projectId: id, status: transition.after.status },
+            });
+          }
+        }
+      }
+
+      let result = await updateProjectStatus(id, "closed");
+      if ("error" in result) {
+        const forced = await forceCloseProject(id);
+        if ("error" in forced) {
+          return reply.code(400).send({ message: "無法結案。" });
+        }
+        result = forced;
+      }
+      latestProject = result.after;
+
+      if (request.user?.sub && result.before.status !== result.after.status) {
+        await addAuditLog({
+          actorId: request.user.sub,
+          targetUserId: null,
+          action: "PROJECT_STATUS_UPDATED",
+          before: { projectId: id, status: result.before.status },
+          after: { projectId: id, status: result.after.status },
+        });
+      }
+
+      try {
+        const customerLabel =
+          requirement?.companyName?.trim() || requirement?.contact?.name?.trim() || "客戶";
+        const roleRecipients = await listActiveUserIdsByRole(["developer", "admin"]);
+        const recipients = roleRecipients.filter(Boolean);
+        if (recipients.length) {
+          await notifyUsers({
+            recipientIds: recipients,
+            actorId: request.user?.sub ?? null,
+            type: "project.closed",
+            title: `客戶「${customerLabel}」同意結案`,
+            message: `客戶「${customerLabel}」已同意專案「${project.name}」結案。`,
+            link: `/workspace?project=${id}`,
+          });
+        }
+      } catch (error) {
+        app.log.error(error);
+      }
+
+      return { project: latestProject };
+    }
+  );
 };
 
 export default projectsRoutes;
