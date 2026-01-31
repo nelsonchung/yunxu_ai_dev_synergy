@@ -6,12 +6,19 @@ export type AuthUser = {
   status: "pending" | "active" | "suspended";
 };
 
-const resolveApiHost = () => {
-  if (typeof window === "undefined") return "localhost";
-  return window.location.hostname;
+const resolveApiBase = () => {
+  if (typeof window === "undefined") return "http://localhost:8787";
+  const protocol = window.location.protocol;
+  const hostname = window.location.hostname;
+  // 如果是本地開發環境，使用 8787 端口
+  if (hostname === "localhost" || hostname === "127.0.0.1") {
+    return `${protocol}//${hostname}:8787`;
+  }
+  // 如果是公開網址，將前端端口 5173 替換為後端端口 8787
+  return `${protocol}//${hostname.replace("5173", "8787")}`;
 };
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? `http://${resolveApiHost()}:8787`;
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? resolveApiBase();
 const REQUEST_TIMEOUT_MS = Number(import.meta.env.VITE_API_TIMEOUT_MS ?? "8000");
 const EVENT_NAME = "yunxu-auth-session";
 
