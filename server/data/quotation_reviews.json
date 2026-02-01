@@ -881,5 +881,151 @@
         "createdAt": "2026-01-28T14:51:58.347Z"
       }
     ]
+  },
+  {
+    "id": "c9364d77-8bae-4383-82cc-fe013b7591c7",
+    "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+    "documentId": "7f61ee18-eb83-4ea1-aa90-40c1acbedbff",
+    "documentVersion": 4,
+    "currency": "TWD",
+    "status": "approved",
+    "reviewComment": null,
+    "reviewedAt": "2026-01-31T13:51:54.748Z",
+    "reviewedBy": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "history": [
+      {
+        "id": "3f927d89-36d2-47a8-b887-4ed5e6664c7e",
+        "action": "submitted",
+        "comment": null,
+        "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+        "createdAt": "2026-01-31T13:38:57.478Z"
+      },
+      {
+        "id": "b8e8a91c-1b3d-4893-b045-b280d4e2106c",
+        "action": "approved",
+        "comment": null,
+        "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+        "createdAt": "2026-01-31T13:39:10.298Z"
+      },
+      {
+        "id": "0ba3722b-dfa6-4a23-8120-7ac2b5fb965f",
+        "action": "submitted",
+        "comment": null,
+        "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+        "createdAt": "2026-01-31T13:51:44.824Z"
+      },
+      {
+        "id": "b42ce9c0-4de4-4e41-8e55-55b023868850",
+        "action": "approved",
+        "comment": null,
+        "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+        "createdAt": "2026-01-31T13:51:54.748Z"
+      }
+    ],
+    "items": [
+      {
+        "key": "軟體設計（Software Design） / 2. 前端設計 / 2.1 路由",
+        "path": "軟體設計（Software Design） / 2. 前端設計 / 2.1 路由",
+        "h1": "軟體設計（Software Design）",
+        "h2": "2. 前端設計",
+        "h3": "2.1 路由",
+        "price": 2000
+      },
+      {
+        "key": "軟體設計（Software Design） / 2. 前端設計 / 2.2 tRPC Client",
+        "path": "軟體設計（Software Design） / 2. 前端設計 / 2.2 tRPC Client",
+        "h1": "軟體設計（Software Design）",
+        "h2": "2. 前端設計",
+        "h3": "2.2 tRPC Client",
+        "price": 1500
+      },
+      {
+        "key": "軟體設計（Software Design） / 2. 前端設計 / 2.3 客服 Widget",
+        "path": "軟體設計（Software Design） / 2. 前端設計 / 2.3 客服 Widget",
+        "h1": "軟體設計（Software Design）",
+        "h2": "2. 前端設計",
+        "h3": "2.3 客服 Widget",
+        "price": 5000
+      },
+      {
+        "key": "軟體設計（Software Design） / 2. 前端設計 / 2.4 客服後台",
+        "path": "軟體設計（Software Design） / 2. 前端設計 / 2.4 客服後台",
+        "h1": "軟體設計（Software Design）",
+        "h2": "2. 前端設計",
+        "h3": "2.4 客服後台",
+        "price": 2000
+      },
+      {
+        "key": "軟體設計（Software Design） / 3. 後端設計 / 3.1 tRPC Router 結構",
+        "path": "軟體設計（Software Design） / 3. 後端設計 / 3.1 tRPC Router 結構",
+        "h1": "軟體設計（Software Design）",
+        "h2": "3. 後端設計",
+        "h3": "3.1 tRPC Router 結構",
+        "price": 2000
+      },
+      {
+        "key": "軟體設計（Software Design） / 3. 後端設計 / 3.2 Context 與授權",
+        "path": "軟體設計（Software Design） / 3. 後端設計 / 3.2 Context 與授權",
+        "h1": "軟體設計（Software Design）",
+        "h2": "3. 後端設計",
+        "h3": "3.2 Context 與授權",
+        "price": 2000
+      },
+      {
+        "key": "軟體設計（Software Design） / 3. 後端設計 / 3.3 OAuth 流程",
+        "path": "軟體設計（Software Design） / 3. 後端設計 / 3.3 OAuth 流程",
+        "h1": "軟體設計（Software Design）",
+        "h2": "3. 後端設計",
+        "h3": "3.3 OAuth 流程",
+        "price": 2000
+      },
+      {
+        "key": "軟體設計（Software Design） / 4. 資料模型 / 4.1 users",
+        "path": "軟體設計（Software Design） / 4. 資料模型 / 4.1 users",
+        "h1": "軟體設計（Software Design）",
+        "h2": "4. 資料模型",
+        "h3": "4.1 users",
+        "price": 1500
+      },
+      {
+        "key": "軟體設計（Software Design） / 4. 資料模型 / 4.2 conversations",
+        "path": "軟體設計（Software Design） / 4. 資料模型 / 4.2 conversations",
+        "h1": "軟體設計（Software Design）",
+        "h2": "4. 資料模型",
+        "h3": "4.2 conversations",
+        "price": 2000
+      },
+      {
+        "key": "軟體設計（Software Design） / 4. 資料模型 / 4.3 messages",
+        "path": "軟體設計（Software Design） / 4. 資料模型 / 4.3 messages",
+        "h1": "軟體設計（Software Design）",
+        "h2": "4. 資料模型",
+        "h3": "4.3 messages",
+        "price": 5000
+      },
+      {
+        "key": "軟體設計（Software Design） / 5. 訊息流程 / 5.1 訪客 -> 客服",
+        "path": "軟體設計（Software Design） / 5. 訊息流程 / 5.1 訪客 -> 客服",
+        "h1": "軟體設計（Software Design）",
+        "h2": "5. 訊息流程",
+        "h3": "5.1 訪客 -> 客服",
+        "price": 2000
+      },
+      {
+        "key": "軟體設計（Software Design） / 5. 訊息流程 / 5.2 客服 -> 訪客",
+        "path": "軟體設計（Software Design） / 5. 訊息流程 / 5.2 客服 -> 訪客",
+        "h1": "軟體設計（Software Design）",
+        "h2": "5. 訊息流程",
+        "h3": "5.2 客服 -> 訪客",
+        "price": 10000
+      }
+    ],
+    "total": 37000,
+    "submittedAt": "2026-01-31T13:51:44.824Z",
+    "submittedBy": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "createdAt": "2026-01-31T13:06:46.617Z",
+    "updatedAt": "2026-01-31T13:51:54.748Z",
+    "createdBy": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "updatedBy": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9"
   }
 ]

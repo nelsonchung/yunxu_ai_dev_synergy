@@ -15,10 +15,32 @@
     "requirementId": "7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
     "version": 1,
     "contentUrl": "requirements/7984c373-dd65-4dfa-8ed2-60c0cfe5e83e/v1.md",
-    "status": "pending_approval",
+    "status": "archived",
+    "approvedBy": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "reviewComment": "需要再調整",
+    "createdAt": "2026-01-30T12:49:31.342Z",
+    "updatedAt": "2026-01-31T08:55:11.488Z"
+  },
+  {
+    "id": "cc4709b9-43eb-43a9-b0b6-5cb403e2d28d",
+    "requirementId": "7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
+    "version": 2,
+    "contentUrl": "requirements/7984c373-dd65-4dfa-8ed2-60c0cfe5e83e/v2.md",
+    "status": "archived",
     "approvedBy": null,
     "reviewComment": null,
-    "createdAt": "2026-01-30T12:49:31.342Z",
-    "updatedAt": "2026-01-30T12:49:31.342Z"
+    "createdAt": "2026-01-31T08:55:11.488Z",
+    "updatedAt": "2026-01-31T09:06:28.888Z"
+  },
+  {
+    "id": "de0485f3-dee7-4cc5-8770-2929122d13ac",
+    "requirementId": "7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
+    "version": 3,
+    "contentUrl": "requirements/7984c373-dd65-4dfa-8ed2-60c0cfe5e83e/v3.md",
+    "status": "approved",
+    "approvedBy": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "reviewComment": "",
+    "createdAt": "2026-01-31T09:06:28.888Z",
+    "updatedAt": "2026-01-31T11:31:47.943Z"
   }
 ]

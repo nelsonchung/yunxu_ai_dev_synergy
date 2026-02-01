@@ -500,5 +500,137 @@
     "updatedAt": "2026-01-31T05:48:37.116Z",
     "createdBy": "e38600d9-8f72-42d4-94b1-51928890e9b1",
     "updatedBy": "eb107b1e-1b0a-482d-b1b8-303fdd692528"
+  },
+  {
+    "id": "af7ebd65-af8c-4365-828f-5a74c93b36d4",
+    "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+    "documentId": "7f61ee18-eb83-4ea1-aa90-40c1acbedbff",
+    "documentVersion": 4,
+    "items": [
+      {
+        "id": "ddf22f4e-f28b-44b7-a950-fdca66d432a7",
+        "key": "軟體設計（Software Design） / 2. 前端設計 / 2.1 路由",
+        "path": "軟體設計（Software Design） / 2. 前端設計 / 2.1 路由",
+        "h1": "軟體設計（Software Design）",
+        "h2": "2. 前端設計",
+        "h3": "2.1 路由",
+        "done": true,
+        "updatedAt": "2026-01-31T13:00:38.761Z"
+      },
+      {
+        "id": "b9ebad11-0de8-47bc-992c-69eb758b567c",
+        "key": "軟體設計（Software Design） / 2. 前端設計 / 2.2 tRPC Client",
+        "path": "軟體設計（Software Design） / 2. 前端設計 / 2.2 tRPC Client",
+        "h1": "軟體設計（Software Design）",
+        "h2": "2. 前端設計",
+        "h3": "2.2 tRPC Client",
+        "done": true,
+        "updatedAt": "2026-01-31T13:00:39.555Z"
+      },
+      {
+        "id": "0689dcc3-e307-402d-b2a6-3dc184cc56af",
+        "key": "軟體設計（Software Design） / 2. 前端設計 / 2.3 客服 Widget",
+        "path": "軟體設計（Software Design） / 2. 前端設計 / 2.3 客服 Widget",
+        "h1": "軟體設計（Software Design）",
+        "h2": "2. 前端設計",
+        "h3": "2.3 客服 Widget",
+        "done": true,
+        "updatedAt": "2026-01-31T13:00:40.414Z"
+      },
+      {
+        "id": "80141cb6-119f-4e7b-b983-88c30391b717",
+        "key": "軟體設計（Software Design） / 2. 前端設計 / 2.4 客服後台",
+        "path": "軟體設計（Software Design） / 2. 前端設計 / 2.4 客服後台",
+        "h1": "軟體設計（Software Design）",
+        "h2": "2. 前端設計",
+        "h3": "2.4 客服後台",
+        "done": true,
+        "updatedAt": "2026-01-31T13:00:41.014Z"
+      },
+      {
+        "id": "c16cc5ae-2ab4-4bb5-9fbd-12513b577cab",
+        "key": "軟體設計（Software Design） / 3. 後端設計 / 3.1 tRPC Router 結構",
+        "path": "軟體設計（Software Design） / 3. 後端設計 / 3.1 tRPC Router 結構",
+        "h1": "軟體設計（Software Design）",
+        "h2": "3. 後端設計",
+        "h3": "3.1 tRPC Router 結構",
+        "done": true,
+        "updatedAt": "2026-01-31T13:00:42.211Z"
+      },
+      {
+        "id": "e87e705c-d4bc-424c-86c2-9a1b04476f58",
+        "key": "軟體設計（Software Design） / 3. 後端設計 / 3.2 Context 與授權",
+        "path": "軟體設計（Software Design） / 3. 後端設計 / 3.2 Context 與授權",
+        "h1": "軟體設計（Software Design）",
+        "h2": "3. 後端設計",
+        "h3": "3.2 Context 與授權",
+        "done": true,
+        "updatedAt": "2026-01-31T13:40:49.129Z"
+      },
+      {
+        "id": "922fadca-121a-4cdb-ba2e-e7f977b5d437",
+        "key": "軟體設計（Software Design） / 3. 後端設計 / 3.3 OAuth 流程",
+        "path": "軟體設計（Software Design） / 3. 後端設計 / 3.3 OAuth 流程",
+        "h1": "軟體設計（Software Design）",
+        "h2": "3. 後端設計",
+        "h3": "3.3 OAuth 流程",
+        "done": true,
+        "updatedAt": "2026-01-31T13:40:49.913Z"
+      },
+      {
+        "id": "15e9f095-64a9-434c-813e-3cfbe7d17d65",
+        "key": "軟體設計（Software Design） / 4. 資料模型 / 4.1 users",
+        "path": "軟體設計（Software Design） / 4. 資料模型 / 4.1 users",
+        "h1": "軟體設計（Software Design）",
+        "h2": "4. 資料模型",
+        "h3": "4.1 users",
+        "done": true,
+        "updatedAt": "2026-01-31T13:40:50.570Z"
+      },
+      {
+        "id": "9ac1d347-d4ff-43a7-9297-e4aa74675726",
+        "key": "軟體設計（Software Design） / 4. 資料模型 / 4.2 conversations",
+        "path": "軟體設計（Software Design） / 4. 資料模型 / 4.2 conversations",
+        "h1": "軟體設計（Software Design）",
+        "h2": "4. 資料模型",
+        "h3": "4.2 conversations",
+        "done": true,
+        "updatedAt": "2026-01-31T13:40:51.142Z"
+      },
+      {
+        "id": "eff79315-9272-44b2-8514-93cb63d68701",
+        "key": "軟體設計（Software Design） / 4. 資料模型 / 4.3 messages",
+        "path": "軟體設計（Software Design） / 4. 資料模型 / 4.3 messages",
+        "h1": "軟體設計（Software Design）",
+        "h2": "4. 資料模型",
+        "h3": "4.3 messages",
+        "done": true,
+        "updatedAt": "2026-01-31T13:40:52.301Z"
+      },
+      {
+        "id": "be5d2d8f-e59f-4c5c-8cc4-65c35f0ebac5",
+        "key": "軟體設計（Software Design） / 5. 訊息流程 / 5.1 訪客 -> 客服",
+        "path": "軟體設計（Software Design） / 5. 訊息流程 / 5.1 訪客 -> 客服",
+        "h1": "軟體設計（Software Design）",
+        "h2": "5. 訊息流程",
+        "h3": "5.1 訪客 -> 客服",
+        "done": true,
+        "updatedAt": "2026-01-31T13:40:52.956Z"
+      },
+      {
+        "id": "cdc57f72-1b32-4091-94da-5c23f7a67bf5",
+        "key": "軟體設計（Software Design） / 5. 訊息流程 / 5.2 客服 -> 訪客",
+        "path": "軟體設計（Software Design） / 5. 訊息流程 / 5.2 客服 -> 訪客",
+        "h1": "軟體設計（Software Design）",
+        "h2": "5. 訊息流程",
+        "h3": "5.2 客服 -> 訪客",
+        "done": true,
+        "updatedAt": "2026-01-31T13:41:00.908Z"
+      }
+    ],
+    "createdAt": "2026-01-31T12:59:00.096Z",
+    "updatedAt": "2026-01-31T13:41:00.908Z",
+    "createdBy": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "updatedBy": "fd534109-dbd4-4008-9dab-f890cf93641b"
   }
 ]

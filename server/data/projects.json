@@ -9,5 +9,28 @@
     "endDate": "2026-01-31T06:57:37.248Z",
     "createdAt": "2026-01-25T13:21:43.027Z",
     "updatedAt": "2026-01-31T06:57:37.248Z"
+  },
+  {
+    "id": "c3df62df-9e0d-459d-a62c-d65eae8497ee",
+    "requirementId": "7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
+    "name": "東門讚義麵房-建立品牌網站",
+    "status": "requirements_signed",
+    "previousStatus": null,
+    "startDate": null,
+    "endDate": null,
+    "createdAt": "2026-01-31T08:34:38.773Z",
+    "updatedAt": "2026-01-31T08:53:37.291Z"
+  },
+  {
+    "id": "777d774a-8a27-486f-a3a3-1053dccd0143",
+    "requirementId": "7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
+    "name": "東門讚義麵房-需要建立品牌網站",
+    "creatorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "status": "closed",
+    "previousStatus": null,
+    "startDate": "2026-01-31T08:43:05.555Z",
+    "endDate": "2026-01-31T13:52:32.037Z",
+    "createdAt": "2026-01-31T08:43:05.555Z",
+    "updatedAt": "2026-01-31T13:52:32.037Z"
   }
 ]

@@ -2811,5 +2811,956 @@
       "projectId": "069c5c7f-2770-4a2c-b074-6094b874751f",
       "status": "closed"
     }
+  },
+  {
+    "id": "82ea5445-293d-4a8a-a99b-7c3df9151241",
+    "createdAt": "2026-01-31T08:32:22.668Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "137f82d0-ee8b-4a9b-8629-9d0e1fcd891d",
+    "action": "USER_DELETED",
+    "before": {
+      "id": "137f82d0-ee8b-4a9b-8629-9d0e1fcd891d",
+      "username": "pastehouse",
+      "email": "pastehouse@gmail.com",
+      "role": "customer",
+      "status": "active"
+    },
+    "after": null
+  },
+  {
+    "id": "80a8ddb5-ece3-4c55-abe2-7c8d46a912d5",
+    "createdAt": "2026-01-31T08:33:34.539Z",
+    "actorId": "2256bf39-8907-4bf2-a5c5-f133ae83566b",
+    "targetUserId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "action": "ROLE_CHANGED",
+    "before": {
+      "role": "customer"
+    },
+    "after": {
+      "role": "developer"
+    }
+  },
+  {
+    "id": "1a99a9cd-8894-4b54-aa5f-0f893dfd0264",
+    "createdAt": "2026-01-31T08:34:38.785Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_CREATED",
+    "before": null,
+    "after": {
+      "projectId": "c3df62df-9e0d-459d-a62c-d65eae8497ee",
+      "requirementId": "7984c373-dd65-4dfa-8ed2-60c0cfe5e83e"
+    }
+  },
+  {
+    "id": "75010045-79c3-4ddd-a478-6e22d34f1351",
+    "createdAt": "2026-01-31T08:43:05.607Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_CREATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "requirementId": "7984c373-dd65-4dfa-8ed2-60c0cfe5e83e"
+    }
+  },
+  {
+    "id": "8468d8b8-400a-464d-bd13-3ae96e11962a",
+    "createdAt": "2026-01-31T08:53:37.260Z",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "targetUserId": null,
+    "action": "REQUIREMENT_APPROVED",
+    "before": null,
+    "after": {
+      "requirementId": "7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
+      "comment": ""
+    }
+  },
+  {
+    "id": "116d0da7-c9ba-4c9a-9e6c-7859f9b1a9ed",
+    "createdAt": "2026-01-31T08:53:37.284Z",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "targetUserId": null,
+    "action": "PROJECT_STATUS_UPDATED",
+    "before": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "status": "intake"
+    },
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "status": "requirements_signed"
+    }
+  },
+  {
+    "id": "9cb90dc6-357b-4973-bf74-9abc3714e221",
+    "createdAt": "2026-01-31T08:53:37.297Z",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "targetUserId": null,
+    "action": "PROJECT_STATUS_UPDATED",
+    "before": {
+      "projectId": "c3df62df-9e0d-459d-a62c-d65eae8497ee",
+      "status": "intake"
+    },
+    "after": {
+      "projectId": "c3df62df-9e0d-459d-a62c-d65eae8497ee",
+      "status": "requirements_signed"
+    }
+  },
+  {
+    "id": "6730611e-7814-4042-810b-422580251caa",
+    "createdAt": "2026-01-31T08:53:50.575Z",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "targetUserId": null,
+    "action": "REQUIREMENT_DOCUMENT_COMMENTED",
+    "before": null,
+    "after": {
+      "requirementId": "7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
+      "documentId": "27d6cccd-5382-4ae9-8a37-cee6e66ccef8"
+    }
+  },
+  {
+    "id": "879c7b8f-7dbf-49bb-a0c7-f367fbdfc1df",
+    "createdAt": "2026-01-31T08:55:11.517Z",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "targetUserId": null,
+    "action": "REQUIREMENT_DOCUMENT_CREATED",
+    "before": null,
+    "after": {
+      "requirementId": "7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
+      "documentId": "cc4709b9-43eb-43a9-b0b6-5cb403e2d28d",
+      "version": 2
+    }
+  },
+  {
+    "id": "4f23b9c4-c733-470a-98f0-668bb039b963",
+    "createdAt": "2026-01-31T09:06:28.901Z",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "targetUserId": null,
+    "action": "REQUIREMENT_DOCUMENT_CREATED",
+    "before": null,
+    "after": {
+      "requirementId": "7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
+      "documentId": "de0485f3-dee7-4cc5-8770-2929122d13ac",
+      "version": 3
+    }
+  },
+  {
+    "id": "d69f9259-1140-401e-a0fc-e3e4e1f41fde",
+    "createdAt": "2026-01-31T09:16:53.624Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "action": "REQUIREMENT_INTEREST_SENT",
+    "before": null,
+    "after": {
+      "requirementId": "7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
+      "customerLabel": "東門讚義麵房",
+      "message": "開發商「eason」對你的需求有興趣，方便告知預計何時完成需求文件嗎？"
+    }
+  },
+  {
+    "id": "f45e0f05-6976-40fc-977e-c806c05db5cf",
+    "createdAt": "2026-01-31T09:17:00.407Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "action": "REQUIREMENT_INTEREST_SENT",
+    "before": null,
+    "after": {
+      "requirementId": "7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
+      "customerLabel": "東門讚義麵房",
+      "message": "開發商「eason」對你的需求有興趣，方便告知預計何時完成需求文件嗎？"
+    }
+  },
+  {
+    "id": "4134f2a7-036a-4b57-b7c2-8f2c7281cc3f",
+    "createdAt": "2026-01-31T09:17:28.643Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "action": "REQUIREMENT_INTEREST_SENT",
+    "before": null,
+    "after": {
+      "requirementId": "7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
+      "customerLabel": "東門讚義麵房",
+      "message": "開發商「eason」對你的需求有興趣，方便告知預計何時完成需求文件嗎？"
+    }
+  },
+  {
+    "id": "d9b766a1-9ecf-4960-b914-f58ced6b32d4",
+    "createdAt": "2026-01-31T09:54:05.587Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "action": "REQUIREMENT_INTEREST_SENT",
+    "before": null,
+    "after": {
+      "requirementId": "7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
+      "customerLabel": "東門讚義麵房",
+      "message": "開發商「eason」對你的需求有興趣，方便告知預計何時完成需求文件嗎？"
+    }
+  },
+  {
+    "id": "92cd3fa2-1aeb-4176-8bcb-95b9cb169190",
+    "createdAt": "2026-01-31T09:54:13.558Z",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "targetUserId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "action": "REQUIREMENT_INTEREST_REPLIED",
+    "before": null,
+    "after": {
+      "notificationId": "73e2b150-d201-4672-bded-7e716ba8d17b",
+      "requirementId": "7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
+      "message": "預計 1 天內完成"
+    }
+  },
+  {
+    "id": "c7911cdc-d3a4-48b1-b9e0-29fa083eed5b",
+    "createdAt": "2026-01-31T09:54:30.845Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "action": "REQUIREMENT_INTEREST_SENT",
+    "before": null,
+    "after": {
+      "requirementId": "7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
+      "customerLabel": "東門讚義麵房",
+      "message": "開發商「eason」對你的需求有興趣，方便告知預計何時完成需求文件嗎？"
+    }
+  },
+  {
+    "id": "ca1c52e0-10ec-49ea-abda-34c968cde3f6",
+    "createdAt": "2026-01-31T09:55:05.419Z",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "targetUserId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "action": "REQUIREMENT_INTEREST_REPLIED",
+    "before": null,
+    "after": {
+      "notificationId": "6d4fdf1a-068d-455a-ac92-bd0820a63ce6",
+      "requirementId": "7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
+      "message": "正在與合夥人討論中"
+    }
+  },
+  {
+    "id": "e4028733-70e4-4872-bbe1-c0b61da160d5",
+    "createdAt": "2026-01-31T10:01:16.815Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_CREATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "9344e8b6-c236-4048-beb6-2419eafe24bb",
+      "version": 1
+    }
+  },
+  {
+    "id": "a7029ac4-225b-441e-b123-64c5b7a42098",
+    "createdAt": "2026-01-31T10:01:24.773Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_CREATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "1d5a86b7-4a09-4d9c-8ef0-61bdbeab3b7b",
+      "version": 2
+    }
+  },
+  {
+    "id": "a1cd7103-0063-45eb-a093-d0d69bcc72c8",
+    "createdAt": "2026-01-31T11:29:38.625Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_CREATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "e8867be0-0592-4e89-aaff-6ebfb720feee",
+      "version": 3
+    }
+  },
+  {
+    "id": "62310950-0b51-456b-813d-e723fcb589d3",
+    "createdAt": "2026-01-31T11:30:38.866Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_DRAFT_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "e8867be0-0592-4e89-aaff-6ebfb720feee"
+    }
+  },
+  {
+    "id": "1a135bdf-7a9f-4e41-8dff-25140db418c6",
+    "createdAt": "2026-01-31T11:31:04.271Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_DRAFT_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "e8867be0-0592-4e89-aaff-6ebfb720feee"
+    }
+  },
+  {
+    "id": "c8fbd5d6-92fc-4b18-a393-4b84b87e7685",
+    "createdAt": "2026-01-31T11:31:47.973Z",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "targetUserId": null,
+    "action": "REQUIREMENT_APPROVED",
+    "before": null,
+    "after": {
+      "requirementId": "7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
+      "comment": ""
+    }
+  },
+  {
+    "id": "9cf58acf-63bd-4192-84f0-bca1a0580a98",
+    "createdAt": "2026-01-31T11:32:03.075Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_CREATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "80167e5d-f54c-45f6-91da-f6f393c04403",
+      "version": 4
+    }
+  },
+  {
+    "id": "b80f1de4-1608-4b30-ac6d-873e23dab343",
+    "createdAt": "2026-01-31T11:32:22.633Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_CREATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "97b9f46e-9ab6-4cf6-a1fb-574cc3ca070d",
+      "version": 5
+    }
+  },
+  {
+    "id": "17c29f97-1e67-460a-8f4f-70b0a3c18e0b",
+    "createdAt": "2026-01-31T11:40:41.135Z",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_REVIEWED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "97b9f46e-9ab6-4cf6-a1fb-574cc3ca070d",
+      "status": "pending_approval"
+    }
+  },
+  {
+    "id": "85527045-7287-4964-b769-e91d9cbbf6ca",
+    "createdAt": "2026-01-31T11:40:51.851Z",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_REVIEWED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "97b9f46e-9ab6-4cf6-a1fb-574cc3ca070d",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "be541abc-3163-4a24-afeb-0c890312cd98",
+    "createdAt": "2026-01-31T11:43:21.198Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_STATUS_UPDATED",
+    "before": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "status": "requirements_signed"
+    },
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "status": "architecture_review"
+    }
+  },
+  {
+    "id": "d519fdf6-40bd-42af-83f3-7860c4b6043e",
+    "createdAt": "2026-01-31T12:05:54.844Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_CREATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "a864c8ef-31c7-4505-843e-3ad155ffa569",
+      "version": 1
+    }
+  },
+  {
+    "id": "2956dce3-d382-45d1-87fe-ce3d4b74dbff",
+    "createdAt": "2026-01-31T12:06:27.554Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_DRAFT_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "a864c8ef-31c7-4505-843e-3ad155ffa569"
+    }
+  },
+  {
+    "id": "f75187f1-4f50-4f3e-9152-bf9cfff0545f",
+    "createdAt": "2026-01-31T12:06:31.563Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_CREATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "a3481bf0-77bc-4f80-bcc4-d23e7f98beac",
+      "version": 2
+    }
+  },
+  {
+    "id": "f038ecaa-902f-4d59-8add-cf829798916b",
+    "createdAt": "2026-01-31T12:07:03.799Z",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_REVIEWED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "a3481bf0-77bc-4f80-bcc4-d23e7f98beac",
+      "status": "pending_approval"
+    }
+  },
+  {
+    "id": "de64170a-431d-4985-9e7e-c6535aee5d71",
+    "createdAt": "2026-01-31T12:47:34.822Z",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_REVIEWED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "a3481bf0-77bc-4f80-bcc4-d23e7f98beac",
+      "status": "pending_approval"
+    }
+  },
+  {
+    "id": "e7489336-cb34-48d6-8898-0f748e19442c",
+    "createdAt": "2026-01-31T12:48:05.276Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_CREATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "4a98d0de-26ea-4f0a-b1d5-19906ce1b25e",
+      "version": 3
+    }
+  },
+  {
+    "id": "85779b23-665f-4aaa-bc96-a2659a1ba570",
+    "createdAt": "2026-01-31T12:48:16.586Z",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_REVIEWED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "4a98d0de-26ea-4f0a-b1d5-19906ce1b25e",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "cbeb0ec6-a96b-49b2-9ef1-3b8aed0c3474",
+    "createdAt": "2026-01-31T12:58:39.989Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_CREATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "7f61ee18-eb83-4ea1-aa90-40c1acbedbff",
+      "version": 4
+    }
+  },
+  {
+    "id": "88bd2d6c-bc3b-496d-a142-5c690c6edef3",
+    "createdAt": "2026-01-31T12:59:00.023Z",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_REVIEWED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "7f61ee18-eb83-4ea1-aa90-40c1acbedbff",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "adb74cb9-8743-4ab5-9171-ea0b5d2e1e39",
+    "createdAt": "2026-01-31T13:00:38.778Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "itemId": "ddf22f4e-f28b-44b7-a950-fdca66d432a7",
+      "done": true
+    }
+  },
+  {
+    "id": "2fb96f65-3e99-492f-a81b-4de39a4631c2",
+    "createdAt": "2026-01-31T13:00:39.568Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "itemId": "b9ebad11-0de8-47bc-992c-69eb758b567c",
+      "done": true
+    }
+  },
+  {
+    "id": "ba885835-698a-456d-9714-0acdb5b95c75",
+    "createdAt": "2026-01-31T13:00:40.424Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "itemId": "0689dcc3-e307-402d-b2a6-3dc184cc56af",
+      "done": true
+    }
+  },
+  {
+    "id": "460ffc65-9d74-4a97-810b-9372f0eab177",
+    "createdAt": "2026-01-31T13:00:41.028Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "itemId": "80141cb6-119f-4e7b-b983-88c30391b717",
+      "done": true
+    }
+  },
+  {
+    "id": "c1079736-8181-4594-bb57-173edce126db",
+    "createdAt": "2026-01-31T13:00:42.218Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "itemId": "c16cc5ae-2ab4-4bb5-9fbd-12513b577cab",
+      "done": true
+    }
+  },
+  {
+    "id": "ec49a274-7835-4893-98fb-cfa78adc67df",
+    "createdAt": "2026-01-31T13:01:11.432Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "action": "REQUIREMENT_INTEREST_SENT",
+    "before": null,
+    "after": {
+      "requirementId": "7984c373-dd65-4dfa-8ed2-60c0cfe5e83e",
+      "customerLabel": "東門讚義麵房",
+      "message": "開發商「eason」對你的需求有興趣，方便告知預計何時完成需求文件嗎？"
+    }
+  },
+  {
+    "id": "e862c8fc-5b78-426c-9e7d-62afa740d47b",
+    "createdAt": "2026-01-31T13:06:46.638Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "7f61ee18-eb83-4ea1-aa90-40c1acbedbff",
+      "total": 11500
+    }
+  },
+  {
+    "id": "c815cdc0-b2b9-428f-9bd5-cea963cd1ada",
+    "createdAt": "2026-01-31T13:38:57.454Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "7f61ee18-eb83-4ea1-aa90-40c1acbedbff",
+      "total": 11500
+    }
+  },
+  {
+    "id": "b58cf428-67d0-4ed7-a0cf-741add597c71",
+    "createdAt": "2026-01-31T13:38:57.514Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_SUBMITTED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "7f61ee18-eb83-4ea1-aa90-40c1acbedbff",
+      "total": 11500
+    }
+  },
+  {
+    "id": "744a8e15-989a-48e5-8b87-4c4347aa6777",
+    "createdAt": "2026-01-31T13:39:10.330Z",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_REVIEWED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "7f61ee18-eb83-4ea1-aa90-40c1acbedbff",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "6e40962a-579e-45ac-a2d2-54ceb67debdb",
+    "createdAt": "2026-01-31T13:40:49.137Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "itemId": "e87e705c-d4bc-424c-86c2-9a1b04476f58",
+      "done": true
+    }
+  },
+  {
+    "id": "941151bd-cd8f-4fbd-94bf-540712239b6c",
+    "createdAt": "2026-01-31T13:40:49.925Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "itemId": "922fadca-121a-4cdb-ba2e-e7f977b5d437",
+      "done": true
+    }
+  },
+  {
+    "id": "f4fadadb-aecd-42e7-9c4e-7b443e89c14b",
+    "createdAt": "2026-01-31T13:40:50.587Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "itemId": "15e9f095-64a9-434c-813e-3cfbe7d17d65",
+      "done": true
+    }
+  },
+  {
+    "id": "78fb6650-579a-44f0-a537-00dd7e1fa5ba",
+    "createdAt": "2026-01-31T13:40:51.148Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "itemId": "9ac1d347-d4ff-43a7-9297-e4aa74675726",
+      "done": true
+    }
+  },
+  {
+    "id": "9b823442-e2d2-4a47-9d26-97f6c6b9990c",
+    "createdAt": "2026-01-31T13:40:52.308Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "itemId": "eff79315-9272-44b2-8514-93cb63d68701",
+      "done": true
+    }
+  },
+  {
+    "id": "a37b3d10-6454-4867-9d35-e8c2983a683b",
+    "createdAt": "2026-01-31T13:40:52.978Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "itemId": "be5d2d8f-e59f-4c5c-8cc4-65c35f0ebac5",
+      "done": true
+    }
+  },
+  {
+    "id": "87429e51-b8c8-48f4-b658-70fbc0cbc001",
+    "createdAt": "2026-01-31T13:40:53.574Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "itemId": "cdc57f72-1b32-4091-94da-5c23f7a67bf5",
+      "done": true
+    }
+  },
+  {
+    "id": "9db60456-29ff-40d3-96e4-0a8ca23bf057",
+    "createdAt": "2026-01-31T13:40:54.000Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "itemId": "cdc57f72-1b32-4091-94da-5c23f7a67bf5",
+      "done": false
+    }
+  },
+  {
+    "id": "5d328dba-b716-4c92-b4de-696785adf7a7",
+    "createdAt": "2026-01-31T13:41:00.921Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "itemId": "cdc57f72-1b32-4091-94da-5c23f7a67bf5",
+      "done": true
+    }
+  },
+  {
+    "id": "2aefc5bc-ab37-40d7-ae84-46da466241f8",
+    "createdAt": "2026-01-31T13:44:29.285Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_CREATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "4c6ff20b-96d4-4abf-b25f-773490f33302",
+      "version": 1
+    }
+  },
+  {
+    "id": "6e9b3db3-95b2-4519-82c1-d8e144676415",
+    "createdAt": "2026-01-31T13:44:47.105Z",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_REVIEWED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "4c6ff20b-96d4-4abf-b25f-773490f33302",
+      "status": "pending_approval"
+    }
+  },
+  {
+    "id": "7473b9a0-ff28-4fdb-b4fc-b961fa998ae5",
+    "createdAt": "2026-01-31T13:45:25.467Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_CREATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "08969dff-587b-4d06-9f28-be27a6f989bb",
+      "version": 2
+    }
+  },
+  {
+    "id": "55166c84-f8be-40e0-a824-89b4f54c7e1d",
+    "createdAt": "2026-01-31T13:45:44.090Z",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_REVIEWED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "08969dff-587b-4d06-9f28-be27a6f989bb",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "0ddb8192-94f5-4bbf-a59a-0b930c865a42",
+    "createdAt": "2026-01-31T13:49:30.988Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_VERIFICATION_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "itemId": "e95173e1-31c4-4aa0-b56a-e3ffec8fef16",
+      "done": true
+    }
+  },
+  {
+    "id": "9fb4c17f-e5d8-4010-8bdd-04f1dffa69bd",
+    "createdAt": "2026-01-31T13:49:32.546Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_VERIFICATION_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "itemId": "3918c3fe-9abd-42d9-8932-e0c240cb57f0",
+      "done": true
+    }
+  },
+  {
+    "id": "a781c5af-269d-4eef-83b7-0ac9126235db",
+    "createdAt": "2026-01-31T13:49:33.479Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_VERIFICATION_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "itemId": "8c2caecf-44a2-498a-8673-aeace6ee1fe4",
+      "done": true
+    }
+  },
+  {
+    "id": "4fac5ea9-42dc-44a0-859e-4e4d6421f0a6",
+    "createdAt": "2026-01-31T13:49:34.554Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_VERIFICATION_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "itemId": "9e8ab8ba-cc13-45f8-9e38-059c99d5734b",
+      "done": true
+    }
+  },
+  {
+    "id": "743d0287-a676-4fbb-aeee-bfe7510619fd",
+    "createdAt": "2026-01-31T13:49:35.565Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_VERIFICATION_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "itemId": "e835209b-6396-45e1-b686-1243b8f9746b",
+      "done": true
+    }
+  },
+  {
+    "id": "096605a5-904c-48f6-b820-0e73e712aa25",
+    "createdAt": "2026-01-31T13:49:36.286Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_VERIFICATION_CHECKLIST_ITEM_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "itemId": "a651ad1a-bc8b-40c4-bbd0-037603b14a82",
+      "done": true
+    }
+  },
+  {
+    "id": "43ce753a-908a-4dc1-b521-0fd4167b9612",
+    "createdAt": "2026-01-31T13:50:49.785Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_CREATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "a21a35aa-7df0-4621-a852-172dbd60f932",
+      "version": 1
+    }
+  },
+  {
+    "id": "8edb021b-f2cb-4fdd-8ad5-a4a7c25e17d1",
+    "createdAt": "2026-01-31T13:51:43.676Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "7f61ee18-eb83-4ea1-aa90-40c1acbedbff",
+      "total": 37000
+    }
+  },
+  {
+    "id": "d293e6fc-39f1-4155-9cea-bf2a7d52539b",
+    "createdAt": "2026-01-31T13:51:44.807Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_UPDATED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "7f61ee18-eb83-4ea1-aa90-40c1acbedbff",
+      "total": 37000
+    }
+  },
+  {
+    "id": "704b00cf-41fb-44bd-8515-772169524d8e",
+    "createdAt": "2026-01-31T13:51:44.832Z",
+    "actorId": "fd534109-dbd4-4008-9dab-f890cf93641b",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_SUBMITTED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "7f61ee18-eb83-4ea1-aa90-40c1acbedbff",
+      "total": 37000
+    }
+  },
+  {
+    "id": "d4d5bf00-00fb-4659-9945-6c6987c68e51",
+    "createdAt": "2026-01-31T13:51:54.764Z",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_QUOTATION_REVIEWED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "7f61ee18-eb83-4ea1-aa90-40c1acbedbff",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "b3bf77e7-264f-455f-b80e-19a72c37601e",
+    "createdAt": "2026-01-31T13:52:04.609Z",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "targetUserId": null,
+    "action": "PROJECT_DOCUMENT_REVIEWED",
+    "before": null,
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "documentId": "a21a35aa-7df0-4621-a852-172dbd60f932",
+      "status": "approved"
+    }
+  },
+  {
+    "id": "8922faf1-a0e5-4d61-94cb-e0a064e9120d",
+    "createdAt": "2026-01-31T13:52:32.054Z",
+    "actorId": "8780dad8-827e-42c1-ab6e-bb6f32eb37a9",
+    "targetUserId": null,
+    "action": "PROJECT_STATUS_UPDATED",
+    "before": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "status": "delivery_review"
+    },
+    "after": {
+      "projectId": "777d774a-8a27-486f-a3a3-1053dccd0143",
+      "status": "closed"
+    }
   }
 ]
