@@ -19,7 +19,7 @@ const projectDocTypes = [
   { value: "requirement", label: "需求文件" },
   { value: "system", label: "系統架構文件" },
   { value: "software", label: "軟體設計文件" },
-  { value: "test", label: "測試文件" },
+  { value: "test", label: "系統驗證文件" },
   { value: "delivery", label: "使用說明文件" },
 ];
 

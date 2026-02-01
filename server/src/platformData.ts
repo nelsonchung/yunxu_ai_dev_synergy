@@ -383,6 +383,7 @@ const legacyProjectStatusMap: Record<string, ProjectStatus> = {
   planned: "intake",
   active: "implementation",
   architecture_signed: "system_architecture_signed",
+  software_design_signed: "software_design_signed",
   system_verification: "system_verification_review",
   on_hold: "on_hold",
   closed: "closed",
@@ -394,11 +395,14 @@ const baseProjectTransitions: Record<ProjectStatus, ProjectStatus[]> = {
   architecture_review: ["system_architecture_signed"],
   system_architecture_signed: ["software_design_review"],
   software_design_review: ["software_design_signed"],
-  software_design_signed: ["implementation"],
+  software_design_signed: ["quotation_review"],
+  quotation_review: ["quotation_signed"],
+  quotation_signed: ["implementation"],
   implementation: ["system_verification_review"],
   system_verification_review: ["system_verification_signed"],
   system_verification_signed: ["delivery_review"],
-  delivery_review: ["closed"],
+  delivery_review: ["delivery_signed"],
+  delivery_signed: ["closed"],
   on_hold: [],
   canceled: ["intake"],
   closed: [],
@@ -411,10 +415,13 @@ const projectStatusSequence: ProjectStatus[] = [
   "system_architecture_signed",
   "software_design_review",
   "software_design_signed",
+  "quotation_review",
+  "quotation_signed",
   "implementation",
   "system_verification_review",
   "system_verification_signed",
   "delivery_review",
+  "delivery_signed",
   "closed",
 ];
 
@@ -430,10 +437,13 @@ const stageStatuses = new Set<ProjectStatus>([
   "system_architecture_signed",
   "software_design_review",
   "software_design_signed",
+  "quotation_review",
+  "quotation_signed",
   "implementation",
   "system_verification_review",
   "system_verification_signed",
   "delivery_review",
+  "delivery_signed",
 ]);
 
 const normalizeProjectStatus = (status: string): ProjectStatus =>
@@ -463,6 +473,7 @@ const normalizeProjectRecord = (project: Project) => {
       normalizedStatus === "system_verification_review" ||
       normalizedStatus === "system_verification_signed" ||
       normalizedStatus === "delivery_review" ||
+      normalizedStatus === "delivery_signed" ||
       normalizedStatus === "closed")
   ) {
     startDate = project.createdAt;
@@ -529,6 +540,9 @@ const deriveProjectStatusFromDocuments = (
       )
     : null;
   const normalizedQuotation = quotationReview ? normalizeQuotationReview(quotationReview) : null;
+  if (softwareDoc?.status === "approved" && normalizedQuotation?.status === "submitted") {
+    derived = "quotation_review";
+  }
   if (softwareDoc?.status === "approved" && normalizedQuotation?.status === "approved") {
     derived = "implementation";
   }
@@ -544,6 +558,9 @@ const deriveProjectStatusFromDocuments = (
   const deliveryDoc = getLatestProjectDocumentByType(project.id, "delivery", projectDocs);
   if (deliveryDoc && derived === "system_verification_signed") {
     derived = "delivery_review";
+  }
+  if (deliveryDoc?.status === "approved" && derived === "delivery_review") {
+    derived = "delivery_signed";
   }
 
   return derived;
@@ -628,10 +645,12 @@ const transitionGuards: Partial<Record<`${ProjectStatus}->${ProjectStatus}`, str
   "requirements_signed->architecture_review": "需求文件需為核准狀態",
   "architecture_review->system_architecture_signed": "系統架構文件需為核准狀態",
   "software_design_review->software_design_signed": "軟體設計文件需為核准狀態",
-  "software_design_signed->implementation": "報價需完成簽核",
+  "software_design_signed->quotation_review": "報價需提交",
+  "quotation_review->quotation_signed": "報價需完成簽核",
   "system_verification_review->system_verification_signed": "測試文件需為核准狀態",
   "system_verification_signed->delivery_review": "使用說明文件需已建立",
-  "delivery_review->closed": "使用說明文件需為核准狀態",
+  "delivery_review->delivery_signed": "使用說明文件需為核准狀態",
+  "delivery_signed->closed": "使用說明文件需為核准狀態",
 };
 
 const getEffectiveStatus = (project: Project): ProjectStatus => {
@@ -692,7 +711,21 @@ const checkTransitionGuard = async (project: Project, nextStatus: ProjectStatus)
       : { ok: false as const, reason: transitionGuards[key] };
   }
 
-  if (key === "software_design_signed->implementation") {
+  if (key === "software_design_signed->quotation_review") {
+    const latest = getLatestProjectDocumentByType(project.id, "software", projectDocs);
+    if (!latest) {
+      return { ok: false as const, reason: transitionGuards[key] };
+    }
+    const reviews = await platformStores.quotationReviews.read();
+    const review =
+      reviews.find((item) => item.projectId === project.id && item.documentId === latest.id) ?? null;
+    const normalized = review ? normalizeQuotationReview(review) : null;
+    return normalized?.status === "submitted"
+      ? { ok: true as const }
+      : { ok: false as const, reason: transitionGuards[key] };
+  }
+
+  if (key === "quotation_review->quotation_signed") {
     const latest = getLatestProjectDocumentByType(project.id, "software", projectDocs);
     if (!latest) {
       return { ok: false as const, reason: transitionGuards[key] };
@@ -720,7 +753,14 @@ const checkTransitionGuard = async (project: Project, nextStatus: ProjectStatus)
       : { ok: false as const, reason: transitionGuards[key] };
   }
 
-  if (key === "delivery_review->closed") {
+  if (key === "delivery_review->delivery_signed") {
+    const latest = getLatestProjectDocumentByType(project.id, "delivery", projectDocs);
+    return latest?.status === "approved"
+      ? { ok: true as const }
+      : { ok: false as const, reason: transitionGuards[key] };
+  }
+
+  if (key === "delivery_signed->closed") {
     const latest = getLatestProjectDocumentByType(project.id, "delivery", projectDocs);
     return latest?.status === "approved"
       ? { ok: true as const }

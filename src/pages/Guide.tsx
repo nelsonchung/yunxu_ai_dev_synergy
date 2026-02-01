@@ -305,7 +305,7 @@ function QuickStartTab() {
             <div>
               <p className="font-medium">開發與驗證</p>
               <p className="text-sm text-muted-foreground">
-                報價核准後在 <NavLink href="/workspace">專業工作台</NavLink> 更新開發清單與系統驗證進度。
+                報價核准後在 <NavLink href="/workspace">專業工作台</NavLink> 進入實作開發並更新開發清單與系統驗證進度。
               </p>
             </div>
           </div>
@@ -504,7 +504,7 @@ function WorkflowTab() {
         },
         {
           title: "產生開發清單",
-          description: "報價核准後，系統自動產生開發 checklist。",
+          description: "軟體設計簽核後，系統自動產生開發 checklist。",
           link: null,
           actor: "系統",
         },

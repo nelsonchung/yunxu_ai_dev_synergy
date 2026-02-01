@@ -17,10 +17,13 @@ const projectStatusLabels: Record<string, string> = {
   system_architecture_signed: "架構簽核",
   software_design_review: "設計審查",
   software_design_signed: "設計簽核",
+  quotation_review: "報價受理",
+  quotation_signed: "報價核准",
   implementation: "實作開發",
   system_verification_review: "系統驗證審查",
   system_verification_signed: "系統驗證簽核",
   delivery_review: "交付審查",
+  delivery_signed: "交付簽核",
   on_hold: "暫停中",
   canceled: "已取消",
   closed: "已結案",
@@ -31,6 +34,7 @@ const reviewStatuses = new Set([
   "software_design_review",
   "delivery_review",
   "system_verification_review",
+  "quotation_review",
 ]);
 
 const getStatusTone = (status: string) => {
@@ -38,7 +42,12 @@ const getStatusTone = (status: string) => {
   if (status === "canceled") return "border-rose-200 bg-rose-50 text-rose-700";
   if (status === "on_hold") return "border-amber-200 bg-amber-50 text-amber-700";
   if (reviewStatuses.has(status)) return "border-amber-200 bg-amber-50 text-amber-700";
-  if (status === "implementation" || status === "system_verification_signed") {
+  if (
+    status === "implementation" ||
+    status === "system_verification_signed" ||
+    status === "quotation_signed" ||
+    status === "delivery_signed"
+  ) {
     return "border-sky-200 bg-sky-50 text-sky-700";
   }
   return "border-slate-200 bg-slate-50 text-slate-700";

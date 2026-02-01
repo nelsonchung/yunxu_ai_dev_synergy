@@ -65,10 +65,13 @@ export type ProjectStatus =
   | "system_architecture_signed"
   | "software_design_review"
   | "software_design_signed"
+  | "quotation_review"
+  | "quotation_signed"
   | "implementation"
   | "system_verification_review"
   | "system_verification_signed"
   | "delivery_review"
+  | "delivery_signed"
   | "on_hold"
   | "canceled"
   | "closed";

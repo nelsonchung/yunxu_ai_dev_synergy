@@ -66,10 +66,13 @@ const projectStatusLabels: Record<ProjectStatus, string> = {
   system_architecture_signed: "架構簽核",
   software_design_review: "設計審查",
   software_design_signed: "設計簽核",
+  quotation_review: "報價受理",
+  quotation_signed: "報價核准",
   implementation: "實作開發",
   system_verification_review: "系統驗證審查",
   system_verification_signed: "系統驗證簽核",
   delivery_review: "交付審查",
+  delivery_signed: "交付簽核",
   on_hold: "暫停中",
   canceled: "已取消",
   closed: "已結案",
@@ -89,11 +92,14 @@ const baseProjectStatusTransitions: Record<ProjectStatus, ProjectStatus[]> = {
   architecture_review: ["system_architecture_signed"],
   system_architecture_signed: ["software_design_review"],
   software_design_review: ["software_design_signed"],
-  software_design_signed: ["implementation"],
+  software_design_signed: ["quotation_review"],
+  quotation_review: ["quotation_signed"],
+  quotation_signed: ["implementation"],
   implementation: ["system_verification_review"],
   system_verification_review: ["system_verification_signed"],
   system_verification_signed: ["delivery_review"],
-  delivery_review: ["closed"],
+  delivery_review: ["delivery_signed"],
+  delivery_signed: ["closed"],
   on_hold: [],
   canceled: ["intake"],
   closed: [],
@@ -106,10 +112,13 @@ const projectFlowOrder: ProjectStatus[] = [
   "system_architecture_signed",
   "software_design_review",
   "software_design_signed",
+  "quotation_review",
+  "quotation_signed",
   "implementation",
   "system_verification_review",
   "system_verification_signed",
   "delivery_review",
+  "delivery_signed",
   "closed",
 ];
 
@@ -652,7 +661,7 @@ export default function ProjectWorkspace() {
                     <span className="rounded-full border border-primary/20 bg-primary/10 px-4 py-1 text-xs font-semibold text-primary">
                       {formatProjectStatus(selectedProject)}
                     </span>
-                    {accountRole === "developer" ? (
+                    {accountRole === "developer" && getEffectiveStatus(selectedProject) === "intake" ? (
                       <button
                         type="button"
                         onClick={() => handleSendInterest(selectedProject.requirementId)}
@@ -739,12 +748,22 @@ export default function ProjectWorkspace() {
                         <div className="mt-4 overflow-x-auto pb-2">
                           <div className="flex min-w-[960px] flex-wrap items-center gap-3">
                             {projectFlowOrder
-                              .flatMap((status) =>
-                                status === "software_design_signed" ? [status, "flow-break"] : [status]
-                              )
+                              .reduce<Array<ProjectStatus | "flow-break">>((acc, status) => {
+                                acc.push(status);
+                                if (status === "software_design_signed") {
+                                  acc.push("flow-break");
+                                }
+                                return acc;
+                              }, [])
                               .map((item, displayIndex) => {
                                 if (item === "flow-break") {
-                                  return <span key={`flow-break-${displayIndex}`} className="basis-full h-0" aria-hidden="true" />;
+                                  return (
+                                    <span
+                                      key={`flow-break-${displayIndex}`}
+                                      className="basis-full h-0"
+                                      aria-hidden="true"
+                                    />
+                                  );
                                 }
                                 const status = item as ProjectStatus;
                                 const index = projectFlowOrder.indexOf(status);
@@ -923,7 +942,7 @@ export default function ProjectWorkspace() {
                         ) : null}
                         {!checklist || checklist.items.length === 0 ? (
                           <div className="rounded-xl border border-dashed p-3 text-xs text-muted-foreground">
-                            尚未產生清單，需先完成報價簽核。
+                            尚未產生清單，需先完成軟體設計文件簽核。
                           </div>
                         ) : (
                           <div className="space-y-2">

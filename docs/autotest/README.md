@@ -212,7 +212,7 @@
 用途：
 - 以 customer 建立需求、以 developer 建立專案與文件。
 - 驗證 guard 條件未達成時會被拒絕（如：未簽核文件即推進狀態）。
-- 驗證 CMMI 狀態流程（intake -> requirements_signed -> architecture_review -> system_architecture_signed -> software_design_review -> software_design_signed -> implementation -> system_verification_review -> system_verification_signed -> delivery_review -> closed）。
+- 驗證 CMMI 狀態流程（intake -> requirements_signed -> architecture_review -> system_architecture_signed -> software_design_review -> software_design_signed -> quotation_review -> quotation_signed -> implementation -> system_verification_review -> system_verification_signed -> delivery_review -> delivery_signed -> closed）。
 - （選擇性）以 admin 清理建立的專案與需求。
 
 設計重點：

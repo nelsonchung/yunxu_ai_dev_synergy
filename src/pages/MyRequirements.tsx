@@ -76,10 +76,13 @@ const projectStatusOrder = [
   "system_architecture_signed",
   "software_design_review",
   "software_design_signed",
+  "quotation_review",
+  "quotation_signed",
   "implementation",
   "system_verification_review",
   "system_verification_signed",
   "delivery_review",
+  "delivery_signed",
   "closed",
 ] as const;
 
@@ -90,10 +93,13 @@ const projectStatusLabels: Record<string, string> = {
   system_architecture_signed: "架構簽核",
   software_design_review: "設計審查",
   software_design_signed: "設計簽核",
+  quotation_review: "報價受理",
+  quotation_signed: "報價核准",
   implementation: "實作開發",
   system_verification_review: "系統驗證審查",
   system_verification_signed: "系統驗證簽核",
   delivery_review: "交付審查",
+  delivery_signed: "交付簽核",
   on_hold: "暫停中",
   canceled: "已取消",
   closed: "已結案",
@@ -619,6 +625,62 @@ export default function MyRequirements() {
                                 className="h-2 rounded-full bg-primary transition-all"
                                 style={{ width: `${projectStatusPercent}%` }}
                               />
+                            </div>
+                          </div>
+                        ) : null}
+                        {progress?.projectStatus ? (
+                          <div className="rounded-xl border bg-white px-3 py-3">
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                              <span>專案流程</span>
+                              <span>目前階段：{projectStageLabel}</span>
+                            </div>
+                            <div className="mt-3 flex flex-wrap items-center gap-2">
+                              {projectStatusOrder
+                                .reduce<Array<(typeof projectStatusOrder)[number] | "flow-break">>(
+                                  (acc, status) => {
+                                    acc.push(status);
+                                    if (status === "software_design_signed") {
+                                      acc.push("flow-break");
+                                    }
+                                    return acc;
+                                  },
+                                  []
+                                )
+                                .map((item, index) => {
+                                  if (item === "flow-break") {
+                                    return (
+                                      <span
+                                        key={`flow-break-${item.id}-${index}`}
+                                        className="basis-full h-0"
+                                        aria-hidden="true"
+                                      />
+                                    );
+                                  }
+                                  const status = item as (typeof projectStatusOrder)[number];
+                                  const effective =
+                                    progress.projectStatus === "on_hold"
+                                      ? progress.projectPreviousStatus ?? progress.projectStatus
+                                      : progress.projectStatus;
+                                  const currentIndex = projectStatusOrder.indexOf(
+                                    effective as (typeof projectStatusOrder)[number]
+                                  );
+                                  const statusIndex = projectStatusOrder.indexOf(status);
+                                  const isCompleted = currentIndex > -1 && statusIndex < currentIndex;
+                                  const isCurrent = statusIndex === currentIndex;
+                                  const tone = isCurrent
+                                    ? "border-primary bg-primary/10 text-primary"
+                                    : isCompleted
+                                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                                      : "border-slate-200 bg-slate-50 text-slate-400";
+                                  return (
+                                    <span
+                                      key={`${item.id}-${status}`}
+                                      className={`rounded-full border px-3 py-1 text-[11px] font-semibold ${tone}`}
+                                    >
+                                      {projectStatusLabels[status] ?? status}
+                                    </span>
+                                  );
+                                })}
                             </div>
                           </div>
                         ) : null}

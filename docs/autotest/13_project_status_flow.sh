@@ -230,11 +230,27 @@ assert_status "200" "$RESPONSE_STATUS" "approve software doc"
 refresh_project_status
 assert_project_status_from_list "software_design_signed"
 
-log_step "developer transitions -> implementation"
-response="$(request_json "PATCH" "/api/projects/$project_id/status" '{"status":"implementation"}' "$developer_cookie" "")"
+log_step "developer creates quotation"
+quotation_payload='{"currency":"TWD","items":[{"key":"Q1","path":"功能 / 基礎 / 登入","h1":"功能","h2":"基礎","h3":"登入","price":500}]}'
+response="$(request_json "POST" "/api/projects/$project_id/documents/$software_doc_id/quotation" "$quotation_payload" "$developer_cookie" "")"
 parse_response "$response"
-assert_status "200" "$RESPONSE_STATUS" "software_design_signed to implementation"
-assert_project_status "implementation"
+assert_status "200" "$RESPONSE_STATUS" "create quotation"
+
+log_step "developer submits quotation (auto -> quotation_review)"
+response="$(request_json "POST" "/api/projects/$project_id/documents/$software_doc_id/quotation/submit" '{}' "$developer_cookie" "")"
+parse_response "$response"
+assert_status "200" "$RESPONSE_STATUS" "submit quotation"
+
+refresh_project_status
+assert_project_status_from_list "quotation_review"
+
+log_step "customer approves quotation (auto -> implementation)"
+response="$(request_json "POST" "/api/projects/$project_id/documents/$software_doc_id/quotation/review" '{"approved":true,"comment":"autotest quotation approval"}' "$customer_cookie" "")"
+parse_response "$response"
+assert_status "200" "$RESPONSE_STATUS" "approve quotation"
+
+refresh_project_status
+assert_project_status_from_list "implementation"
 
 log_step "developer transitions -> system_verification_review"
 response="$(request_json "PATCH" "/api/projects/$project_id/status" '{"status":"system_verification_review"}' "$developer_cookie" "")"
@@ -270,15 +286,23 @@ parse_response "$response"
 assert_status "200" "$RESPONSE_STATUS" "system_verification_signed to delivery_review"
 assert_project_status "delivery_review"
 
-log_step "guard check delivery_review -> closed (should fail before delivery approval)"
-response="$(request_json "PATCH" "/api/projects/$project_id/status" '{"status":"closed"}' "$developer_cookie" "")"
+log_step "guard check delivery_review -> delivery_signed (should fail before delivery approval)"
+response="$(request_json "PATCH" "/api/projects/$project_id/status" '{"status":"delivery_signed"}' "$developer_cookie" "")"
 parse_response "$response"
 assert_status "409" "$RESPONSE_STATUS" "delivery guard check"
 
-log_step "customer approves delivery document (auto -> closed)"
+log_step "customer approves delivery document (auto -> delivery_signed)"
 response="$(request_json "POST" "/api/projects/$project_id/documents/$delivery_doc_id/review" '{"approved":true,"comment":"autotest delivery approval"}' "$customer_cookie" "")"
 parse_response "$response"
 assert_status "200" "$RESPONSE_STATUS" "approve delivery doc"
+
+refresh_project_status
+assert_project_status_from_list "delivery_signed"
+
+log_step "customer closes project"
+response="$(request_json "POST" "/api/projects/$project_id/close" "" "$customer_cookie" "")"
+parse_response "$response"
+assert_status "200" "$RESPONSE_STATUS" "close project"
 
 refresh_project_status
 assert_project_status_from_list "closed"

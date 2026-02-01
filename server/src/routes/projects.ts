@@ -44,10 +44,13 @@ const projectStatusLabels: Record<ProjectStatus, string> = {
   system_architecture_signed: "架構簽核",
   software_design_review: "設計審查",
   software_design_signed: "設計簽核",
+  quotation_review: "報價受理",
+  quotation_signed: "報價核准",
   implementation: "實作開發",
   system_verification_review: "系統驗證審查",
   system_verification_signed: "系統驗證簽核",
   delivery_review: "交付審查",
+  delivery_signed: "交付簽核",
   on_hold: "暫停中",
   canceled: "已取消",
   closed: "已結案",
@@ -55,6 +58,10 @@ const projectStatusLabels: Record<ProjectStatus, string> = {
 const allowedProjectStatuses = new Set<ProjectStatus>(
   Object.keys(projectStatusLabels) as ProjectStatus[]
 );
+const isProjectInStatus = (
+  project: { status: ProjectStatus; previousStatus: ProjectStatus | null },
+  status: ProjectStatus
+) => project.status === status || (project.status === "on_hold" && project.previousStatus === status);
 
 const projectsRoutes: FastifyPluginAsync = async (app) => {
   app.get("/projects", async () => {
@@ -345,6 +352,24 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         return reply.code(400).send({ message: "請先儲存報價內容。" });
       }
 
+      let autoTransitionTo: ProjectStatus | null = null;
+      const currentProject = await getProjectById(id);
+      if (currentProject && isProjectInStatus(currentProject, "software_design_signed")) {
+        const result = await updateProjectStatus(id, "quotation_review");
+        if (!("error" in result)) {
+          autoTransitionTo = result.after.status;
+          if (request.user?.sub && result.before.status !== result.after.status) {
+            await addAuditLog({
+              actorId: request.user.sub,
+              targetUserId: null,
+              action: "PROJECT_STATUS_UPDATED",
+              before: { projectId: id, status: result.before.status },
+              after: { projectId: id, status: result.after.status },
+            });
+          }
+        }
+      }
+
       if (request.user?.sub) {
         await addAuditLog({
           actorId: request.user.sub,
@@ -362,12 +387,15 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         if (recipients.length) {
           const customerLabel =
             requirement?.companyName?.trim() || requirement?.contact?.name?.trim() || "客戶";
+          const autoNote = autoTransitionTo
+            ? `，專案狀態已自動更新為「${projectStatusLabels[autoTransitionTo] ?? autoTransitionTo}」`
+            : "";
           await notifyUsers({
             recipientIds: recipients,
             actorId: request.user?.sub ?? null,
             type: "quotation.submitted",
             title: `客戶「${customerLabel}」報價已提交`,
-            message: `客戶「${customerLabel}」的專案「${project?.name ?? id}」已提交報價，請前往簽核。`,
+            message: `客戶「${customerLabel}」的專案「${project?.name ?? id}」已提交報價${autoNote}，請前往簽核。`,
             link: `/my/requirements/${project?.requirementId ?? ""}?tab=documents`,
           });
         }
@@ -441,13 +469,42 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
           actorId: request.user?.sub ?? null,
         });
 
-        const currentProject = await getProjectById(id);
-        const matchesFrom =
-          currentProject &&
-          (currentProject.status === "software_design_signed" ||
-            (currentProject.status === "on_hold" &&
-              currentProject.previousStatus === "software_design_signed"));
-        if (matchesFrom) {
+        let currentProject = await getProjectById(id);
+        if (currentProject && isProjectInStatus(currentProject, "software_design_signed")) {
+          const reviewResult = await updateProjectStatus(id, "quotation_review");
+          if (!("error" in reviewResult)) {
+            autoTransitionTo = reviewResult.after.status;
+            if (request.user?.sub && reviewResult.before.status !== reviewResult.after.status) {
+              await addAuditLog({
+                actorId: request.user.sub,
+                targetUserId: null,
+                action: "PROJECT_STATUS_UPDATED",
+                before: { projectId: id, status: reviewResult.before.status },
+                after: { projectId: id, status: reviewResult.after.status },
+              });
+            }
+            currentProject = reviewResult.after;
+          }
+        }
+
+        if (currentProject && isProjectInStatus(currentProject, "quotation_review")) {
+          const signedResult = await updateProjectStatus(id, "quotation_signed");
+          if (!("error" in signedResult)) {
+            autoTransitionTo = signedResult.after.status;
+            if (request.user?.sub && signedResult.before.status !== signedResult.after.status) {
+              await addAuditLog({
+                actorId: request.user.sub,
+                targetUserId: null,
+                action: "PROJECT_STATUS_UPDATED",
+                before: { projectId: id, status: signedResult.before.status },
+                after: { projectId: id, status: signedResult.after.status },
+              });
+            }
+            currentProject = signedResult.after;
+          }
+        }
+
+        if (currentProject && isProjectInStatus(currentProject, "quotation_signed")) {
           const result = await updateProjectStatus(id, "implementation");
           if (!("error" in result)) {
             autoTransitionTo = result.after.status;
@@ -867,6 +924,7 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
           system: { from: "architecture_review", to: "system_architecture_signed" },
           software: { from: "software_design_review", to: "software_design_signed" },
           test: { from: "system_verification_review", to: "system_verification_signed" },
+          delivery: { from: "delivery_review", to: "delivery_signed" },
         };
         const target = autoTransitionByDocType[updated.type];
         if (target) {
@@ -891,16 +949,74 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
         }
       }
 
-      if (body.approved === true && updated.type === "test") {
+      if (body.approved === true) {
         const docResult = await getProjectDocument(id, docId);
         if (docResult) {
-          await upsertVerificationChecklist({
-            projectId: id,
-            documentId: docId,
-            documentVersion: docResult.document.version,
-            content: docResult.content,
-            actorId: request.user?.sub ?? null,
-          });
+          if (updated.type === "software") {
+            await upsertDevelopmentChecklist({
+              projectId: id,
+              documentId: docId,
+              documentVersion: docResult.document.version,
+              content: docResult.content,
+              actorId: request.user?.sub ?? null,
+            });
+
+            const quotation = await getQuotationReview(id, docId);
+            if (quotation?.status === "approved") {
+              let currentProject = await getProjectById(id);
+              if (currentProject && isProjectInStatus(currentProject, "software_design_signed")) {
+                const reviewResult = await updateProjectStatus(id, "quotation_review");
+                if (!("error" in reviewResult)) {
+                  autoTransitionTo = reviewResult.after.status;
+                  await addAuditLog({
+                    actorId: request.user.sub,
+                    targetUserId: null,
+                    action: "PROJECT_STATUS_UPDATED",
+                    before: { projectId: id, status: reviewResult.before.status },
+                    after: { projectId: id, status: reviewResult.after.status },
+                  });
+                  currentProject = reviewResult.after;
+                }
+              }
+              if (currentProject && isProjectInStatus(currentProject, "quotation_review")) {
+                const signedResult = await updateProjectStatus(id, "quotation_signed");
+                if (!("error" in signedResult)) {
+                  autoTransitionTo = signedResult.after.status;
+                  await addAuditLog({
+                    actorId: request.user.sub,
+                    targetUserId: null,
+                    action: "PROJECT_STATUS_UPDATED",
+                    before: { projectId: id, status: signedResult.before.status },
+                    after: { projectId: id, status: signedResult.after.status },
+                  });
+                  currentProject = signedResult.after;
+                }
+              }
+              if (currentProject && isProjectInStatus(currentProject, "quotation_signed")) {
+                const result = await updateProjectStatus(id, "implementation");
+                if (!("error" in result)) {
+                  autoTransitionTo = result.after.status;
+                  await addAuditLog({
+                    actorId: request.user.sub,
+                    targetUserId: null,
+                    action: "PROJECT_STATUS_UPDATED",
+                    before: { projectId: id, status: result.before.status },
+                    after: { projectId: id, status: result.after.status },
+                  });
+                }
+              }
+            }
+          }
+
+          if (updated.type === "test") {
+            await upsertVerificationChecklist({
+              projectId: id,
+              documentId: docId,
+              documentVersion: docResult.document.version,
+              content: docResult.content,
+              actorId: request.user?.sub ?? null,
+            });
+          }
         }
       }
 
@@ -1007,18 +1123,36 @@ const projectsRoutes: FastifyPluginAsync = async (app) => {
 
       let latestProject = project;
 
-      if (project.status !== "delivery_review") {
-        const transition = await updateProjectStatus(id, "delivery_review");
-        if (!("error" in transition)) {
-          latestProject = transition.after;
-          if (request.user?.sub && transition.before.status !== transition.after.status) {
-            await addAuditLog({
-              actorId: request.user.sub,
-              targetUserId: null,
-              action: "PROJECT_STATUS_UPDATED",
-              before: { projectId: id, status: transition.before.status },
-              after: { projectId: id, status: transition.after.status },
-            });
+      if (project.status !== "delivery_signed") {
+        if (project.status !== "delivery_review") {
+          const reviewTransition = await updateProjectStatus(id, "delivery_review");
+          if (!("error" in reviewTransition)) {
+            latestProject = reviewTransition.after;
+            if (request.user?.sub && reviewTransition.before.status !== reviewTransition.after.status) {
+              await addAuditLog({
+                actorId: request.user.sub,
+                targetUserId: null,
+                action: "PROJECT_STATUS_UPDATED",
+                before: { projectId: id, status: reviewTransition.before.status },
+                after: { projectId: id, status: reviewTransition.after.status },
+              });
+            }
+          }
+        }
+
+        if (latestProject.status === "delivery_review") {
+          const signTransition = await updateProjectStatus(id, "delivery_signed");
+          if (!("error" in signTransition)) {
+            latestProject = signTransition.after;
+            if (request.user?.sub && signTransition.before.status !== signTransition.after.status) {
+              await addAuditLog({
+                actorId: request.user.sub,
+                targetUserId: null,
+                action: "PROJECT_STATUS_UPDATED",
+                before: { projectId: id, status: signTransition.before.status },
+                after: { projectId: id, status: signTransition.after.status },
+              });
+            }
           }
         }
       }
